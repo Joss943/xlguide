@@ -1,18 +1,49 @@
 name: Release
 
-# Publier une version :  git tag v1.0.1 && git push origin v1.0.1
+# Publication automatique : dès que la version de package.json change sur main
+# (ex. « npm version patch --no-git-tag-version » puis push), les installateurs
+# Windows et Linux sont compilés et la release GitHub vX.Y.Z est créée.
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 env:
   CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
 jobs:
+  check:
+    name: Nouvelle version ?
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      publish: ${{ steps.v.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "La release v$VERSION existe déjà : rien à publier."
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Nouvelle version v$VERSION : compilation et publication."
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
   tests:
+    needs: check
+    if: needs.check.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -65,10 +96,9 @@ jobs:
 
   publish:
     name: Publication de la release
-    needs: [linux, windows]
+    needs: [check, linux, windows]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           path: out
@@ -78,9 +108,10 @@ jobs:
       - name: Créer la release GitHub
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.check.outputs.version }}
         run: |
           cat > notes.md <<NOTES
-          ## Installer XLGuide ${GITHUB_REF_NAME}
+          ## Installer XLGuide v${VERSION}
 
           | Système | Fichier | Installation |
           |---|---|---|
@@ -94,4 +125,5 @@ jobs:
 
           Version web (sans installation) : https://joss943.github.io/xlguide/app/
           NOTES
-          gh release create "$GITHUB_REF_NAME" out/* --repo "$GITHUB_REPOSITORY" --title "XLGuide $GITHUB_REF_NAME" --notes-file notes.md --verify-tag
+          gh release create "v${VERSION}" out/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "XLGuide v${VERSION}" --notes-file notes.md --latest

@@ -141,11 +141,12 @@ F('SOMME.SI', 'SUMIF', 'math', '',                       // nom FR, nom EN, cat�
 ### Publier une version
 
 ```bash
-npm version patch          # met à jour package.json (pense à APP_VERSION dans app/js/app.js et au cache de app/sw.js)
-git push && git push --tags
+npm version patch --no-git-tag-version   # 1.0.0 → 1.0.1 dans package.json
+# reporter la version dans APP_VERSION (app/js/app.js) et le cache de app/sw.js — npm test le vérifie
+git commit -am "Version 1.0.1" && git push
 ```
 
-Le tag `v*` déclenche la compilation Windows + Linux et crée la release GitHub ; les boutons du site pointent toujours vers la dernière version.
+Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.0.1` ; les boutons du site pointent toujours vers la dernière version.
 
 ## Licence
 
