@@ -11,44 +11,48 @@
 
   var maps = null;
   function buildMaps() {
-    var fr2en = {}, en2fr = {};
-    (XL.functions || []).forEach(function (f) { fr2en[f.fr] = f.en; en2fr[f.en] = f.fr; });
+    var fr2en = {}, en2fr = {}, fiche = {};
+    (XL.functions || []).forEach(function (f) { fr2en[f.fr] = f.en; en2fr[f.en] = f.fr; fiche[f.fr] = true; });
     Object.keys(XL.extraNames || {}).forEach(function (fr) {
       var en = XL.extraNames[fr];
       if (!fr2en[fr]) fr2en[fr] = en;
       if (!en2fr[en]) en2fr[en] = fr;
     });
-    maps = { fr2en: fr2en, en2fr: en2fr, bool: { fr2en: { VRAI: 'TRUE', FAUX: 'FALSE' }, en2fr: { TRUE: 'VRAI', FALSE: 'FAUX' } } };
+    // fiche : noms qui ont une fiche (les autres, comme les anciennes fonctions, sont traduits mais pas liés)
+    maps = { fr2en: fr2en, en2fr: en2fr, fiche: fiche, bool: { fr2en: { VRAI: 'TRUE', FAUX: 'FALSE' }, en2fr: { TRUE: 'VRAI', FALSE: 'FAUX' } } };
     return maps;
   }
   XL.resetFormulaMaps = function () { maps = null; };
   function getMaps() { return maps || buildMaps(); }
 
-  /* Découpe en segments : str "…", sheet '…', brack […], brace {…}, code */
+  /* Découpe en segments : str "…", sheet '…', brack […], brace {…}, code.
+     Chaque segment porte sa position de départ (s) dans la formule. */
   function tokenize(f) {
-    var out = [], i = 0, n = f.length, buf = '';
-    function flush() { if (buf) { out.push({ t: 'code', v: buf }); buf = ''; } }
+    var out = [], i = 0, n = f.length, buf = '', bufStart = 0;
+    function flush() { if (buf) { out.push({ t: 'code', v: buf, s: bufStart }); buf = ''; } }
+    function push(t, end) { flush(); out.push({ t: t, v: f.slice(i, end), s: i }); i = end; }
     while (i < n) {
       var c = f[i];
       if (c === '"') {
-        flush(); var j = i + 1;
+        var j = i + 1;
         while (j < n) { if (f[j] === '"') { if (f[j + 1] === '"') { j += 2; continue; } break; } j++; }
-        out.push({ t: 'str', v: f.slice(i, Math.min(j + 1, n)) }); i = j + 1; continue;
+        push('str', Math.min(j + 1, n)); continue;
       }
       if (c === "'") {
-        flush(); var k = i + 1;
+        var k = i + 1;
         while (k < n) { if (f[k] === "'") { if (f[k + 1] === "'") { k += 2; continue; } break; } k++; }
-        out.push({ t: 'sheet', v: f.slice(i, Math.min(k + 1, n)) }); i = k + 1; continue;
+        push('sheet', Math.min(k + 1, n)); continue;
       }
       if (c === '[') {
-        flush(); var depth = 0, m = i;
+        var depth = 0, m = i;
         for (; m < n; m++) { if (f[m] === '[') depth++; else if (f[m] === ']') { depth--; if (depth === 0) break; } }
-        out.push({ t: 'brack', v: f.slice(i, Math.min(m + 1, n)) }); i = m + 1; continue;
+        push('brack', Math.min(m + 1, n)); continue;
       }
       if (c === '{') {
-        flush(); var e = f.indexOf('}', i); if (e < 0) e = n - 1;
-        out.push({ t: 'brace', v: f.slice(i, e + 1) }); i = e + 1; continue;
+        var e = f.indexOf('}', i); if (e < 0) e = n - 1;
+        push('brace', e + 1); continue;
       }
+      if (!buf) bufStart = i;
       buf += c; i++;
     }
     flush();
@@ -190,9 +194,11 @@
       scanCode(s.v, lang === 'en' ? 'en' : 'fr', {
         ident: function (id, isFn) {
           var u = id.toUpperCase();
-          if (isFn && known[u]) {
-            var frName = lang === 'en' ? known[u] : u;
+          var frName = isFn && known[u] ? (lang === 'en' ? known[u] : u) : '';
+          if (frName && m.fiche[frName]) {
             html += '<a class="tk-fn" href="#/f/' + encodeURIComponent(frName) + '" data-fn="' + esc(frName) + '">' + esc(id) + '</a>';
+          } else if (frName) {
+            html += '<span class="tk-fn">' + esc(id) + '</span>';
           } else if (isFn) {
             html += '<span class="tk-fn tk-fn-x">' + esc(id) + '</span>';
           } else if (m.bool.fr2en[u] || m.bool.en2fr[u]) {
@@ -213,5 +219,107 @@
     return html;
   }
 
-  XL.formula = { tokenize: tokenize, translate: translate, detect: detect, highlight: highlight, functionsUsed: functionsUsed, esc: esc };
+  /* ------------------------------------------------------------------------
+   * Références de cellules (A1, $B$2, A2:C10) dans les segments de code.
+   * Les références qualifiées par une feuille (Feuil1!A1), les colonnes
+   * entières (A:A) et les références structurées (T[Col]) sont ignorées.
+   * ---------------------------------------------------------------------- */
+  var REF_RE = /(?<![A-Za-z0-9_.$!])(\$?)([A-Z]{1,3})(\$?)([1-9][0-9]*)(?::(\$?)([A-Z]{1,3})(\$?)([1-9][0-9]*))?(?![A-Za-z0-9_(.])/g;
+
+  function colNum(letters) {
+    var n = 0;
+    for (var i = 0; i < letters.length; i++) n = n * 26 + (letters.charCodeAt(i) - 64);
+    return n;
+  }
+  function colLetters(n) {
+    var s = '';
+    while (n > 0) { var r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); }
+    return s;
+  }
+
+  /** Liste des références : [{ text, start, end, c1, r1, c2, r2 }] (positions dans la formule). */
+  function refs(formula) {
+    var out = [];
+    tokenize(formula).forEach(function (seg) {
+      if (seg.t !== 'code') return;
+      REF_RE.lastIndex = 0;
+      var m;
+      while ((m = REF_RE.exec(seg.v))) {
+        var c1 = colNum(m[2]), r1 = +m[4];
+        var c2 = m[6] ? colNum(m[6]) : c1, r2 = m[8] ? +m[8] : r1;
+        out.push({
+          text: m[0], start: seg.s + m.index, end: seg.s + m.index + m[0].length,
+          c1: Math.min(c1, c2), r1: Math.min(r1, r2), c2: Math.max(c1, c2), r2: Math.max(r1, r2)
+        });
+      }
+    });
+    return out;
+  }
+
+  /** Recopie vers le bas : décale de « delta » lignes les numéros de ligne non bloqués par $. */
+  function shiftRows(formula, delta) {
+    var out = '';
+    tokenize(formula).forEach(function (seg) {
+      if (seg.t !== 'code') { out += seg.v; return; }
+      out += seg.v.replace(REF_RE, function (all, a1, c1, a2, r1, b1, c2, b2, r2) {
+        var first = a1 + c1 + a2 + (a2 ? r1 : +r1 + delta);
+        if (!c2) return first;
+        return first + ':' + b1 + c2 + b2 + (b2 ? r2 : +r2 + delta);
+      });
+    });
+    return out;
+  }
+
+  /**
+   * Si la formule est exactement « =NOM(arg1; arg2; …) », renvoie
+   * { name, args: [{ text, start, end }] } (positions dans la formule), sinon null.
+   */
+  function splitCall(formula) {
+    var m = /^=\s*([A-Za-z_][A-Za-z0-9_.]*)\(/.exec(formula);
+    if (!m) return null;
+    var body = m[0].length, depth = 1, args = [], start = body, i;
+    var segs = tokenize(formula);
+    for (var s = 0; s < segs.length && depth > 0; s++) {
+      var seg = segs[s];
+      if (seg.t !== 'code') continue;
+      for (i = 0; i < seg.v.length; i++) {
+        var pos = seg.s + i;
+        if (pos < body) continue;
+        var c = seg.v[i];
+        if (c === '(') depth++;
+        else if (c === ')') {
+          depth--;
+          if (depth === 0) {
+            if (formula.slice(pos + 1).trim()) return null; // quelque chose après la parenthèse finale
+            if (pos > start || args.length) args.push({ text: formula.slice(start, pos), start: start, end: pos });
+            return { name: m[1].toUpperCase(), args: args };
+          }
+        } else if (c === ';' && depth === 1) {
+          args.push({ text: formula.slice(start, pos), start: start, end: pos });
+          start = pos + 1;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Coloration syntaxique avec zones surlignées : spans = [{ start, end, cls }]
+   * triés et sans chevauchement. Les zones ne coupent jamais une chaîne de texte.
+   */
+  function highlightSpans(formula, lang, spans) {
+    var html = '', pos = 0;
+    (spans || []).forEach(function (sp) {
+      if (sp.start > pos) html += highlight(formula.slice(pos, sp.start), lang);
+      html += '<span class="' + sp.cls + '">' + highlight(formula.slice(sp.start, sp.end), lang) + '</span>';
+      pos = sp.end;
+    });
+    if (pos < formula.length) html += highlight(formula.slice(pos), lang);
+    return html;
+  }
+
+  XL.formula = {
+    tokenize: tokenize, translate: translate, detect: detect, highlight: highlight, functionsUsed: functionsUsed, esc: esc,
+    refs: refs, shiftRows: shiftRows, splitCall: splitCall, highlightSpans: highlightSpans, colLetters: colLetters, colNum: colNum
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
