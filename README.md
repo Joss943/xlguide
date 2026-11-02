@@ -4,9 +4,9 @@
 
 # XLGuide
 
-**Les formules Excel en français, au moment où tu en as besoin.**
+**Apprendre Excel en français, des bases aux formules avancées.**
 
-Application gratuite pour **Windows** et **Linux** (et version web) : décris ce que tu veux faire, XLGuide trouve la bonne fonction, explique chaque argument et te donne la formule prête à coller. Pensée pour la **comptabilité** et l’**administration système et réseau**.
+Application gratuite pour **Windows** et **Linux** (et version web) : quatre activités en trois niveaux, des notions courtes illustrées par un mini-tableau, et une recherche en langage naturel quand tu cherches une formule précise.
 
 [![CI](https://github.com/Joss943/xlguide/actions/workflows/ci.yml/badge.svg)](https://github.com/Joss943/xlguide/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Joss943/xlguide?label=version&color=1a7f4b)](https://github.com/Joss943/xlguide/releases/latest)
@@ -14,7 +14,7 @@ Application gratuite pour **Windows** et **Linux** (et version web) : décris ce
 
 [**⬇ Télécharger**](https://joss943.github.io/xlguide/#telecharger) · [**🌐 Version web**](https://joss943.github.io/xlguide/app/) · [Site](https://joss943.github.io/xlguide/)
 
-<img src="site/screenshot.png" alt="Capture d’écran de XLGuide" width="900">
+<img src="site/screenshot.png" alt="Capture d’écran de XLGuide : activité Calculer, niveau Approfondir, fiche SOMME.SI" width="900">
 
 </div>
 
@@ -22,19 +22,23 @@ Application gratuite pour **Windows** et **Linux** (et version web) : décris ce
 
 ## Ce que fait XLGuide
 
-| | |
-|---|---|
-| **Recherche en langage naturel** | « additionner avec plusieurs conditions », « comptes inactifs », « masque de sous-réseau »… Tolère accents oubliés, pluriels et fautes de frappe. Accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`). |
-| **222 fonctions détaillées** | Description, syntaxe, chaque argument expliqué, exemples commentés, pièges à éviter, fonctions liées, version d’Excel requise. |
-| **73 recettes de comptabilité** | TVA HT/TTC, marges, mensualités et tableau d’amortissement d’emprunt, amortissements (linéaire, prorata temporis, dégressif fiscal), échéances « 30 jours fin de mois », balance âgée, rapprochement bancaire, lettrage, FEC, charges constatées d’avance, jours fériés, heures sup… |
-| **55 recettes informatique & réseau** | **Comparaison de bases utilisateurs et matériel** (comptes orphelins, salariés sans compte, comptes à désactiver, CMDB ↔ inventaire physique, matériel à récupérer, différences champ par champ, ajouts/suppressions/modifications entre deux exports, rapprochement approximatif), **réseau** (IP ⇄ nombre, masque ⇄ CIDR, adresse réseau/broadcast, appartenance à un sous-réseau, IP privées, fonctions LAMBDA `IPNUM` / `IPDANSRESEAU`), **MAC & hôtes**, **Active Directory** (lastLogonTimestamp, pwdLastSet, userAccountControl via `BITET`, DistinguishedName, logins sans accents), **parc & licences**, **supervision** (SLA, MTTR/MTBF, logs, syslog), **stockage** (Gio/Go, RAID, débit, saturation). |
-| **100 % Excel français** | Noms français (`SOMME.SI.ENS`, `RECHERCHEX`, `SIERREUR`), séparateur `;`, virgule décimale. Bouton **EN** pour voir chaque formule en version anglaise. |
-| **Traducteur de formules** | Colle une formule d’un tuto anglais, récupère la version française (et inversement), avec avertissements (codes de format, constantes matricielles, fonctions inconnues). |
-| **Compatibilité de version** | Choisis ta version (2010 → 365) : les fonctions absentes sont signalées. |
-| **Erreurs & raccourcis** | Causes et solutions de `#N/A`, `#VALEUR!`, `#PROPAGATION!`… et les raccourcis clavier Excel (AZERTY). |
-| **Hors-ligne, privé** | Aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation 100 % clavier. |
+**Un parcours en 4 activités**, chacune en 3 niveaux (**Les bases → Approfondir → Expert**) :
 
-**Fiabilité :** chaque exemple chiffré (219 aujourd’hui, dont les calculs IP, dates AD/Unix et RAID) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
+| Activité | Les bases | Pour aller plus loin |
+|---|---|---|
+| **1 · Calculer** | écrire et recopier une formule, bloquer une cellule avec `$`, pourcentages, `SOMME`, `SI` | `SOMME.SI.ENS`, `SI.CONDITIONS`, arrondis, `SOMMEPROD`, `LET` / `LAMBDA` |
+| **2 · Rechercher & croiser** | `RECHERCHEV`, `RECHERCHEX`, gérer `#N/A` | `INDEX` + `EQUIV`, comparer deux listes, doublons, barèmes, `DECALER` |
+| **3 · Texte & dates** | le type d’une cellule, assembler / découper / nettoyer, calculer avec les dates | texte importé, `TEXTE`, échéances et jours ouvrés, heures, `FRACTIONNER.TEXTE` |
+| **4 · Analyser & présenter** | tableaux, tri et filtre, mise en forme conditionnelle, classements | TCD, synthèses par formule, `FILTRE` / `TRIER` / `UNIQUE`, statistiques, tendances |
+
+- **40 notions** à lire dans l’ordre, chacune avec un **mini-tableau** : l’argument de la formule et les cellules qu’il vise ont la même couleur, la colonne calculée montre la formule recopiée ligne par ligne.
+- **Fiches claires** : l’essentiel d’abord (exemple + piège à éviter), puis la syntaxe argument par argument ; le reste est replié dans « Aller plus loin ».
+- **Recherche en langage naturel** : « additionner avec une condition », « bloquer une cellule », « comparer deux listes »… Tolère accents oubliés, pluriels et fautes de frappe ; accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`).
+- **Outils** : traducteur de formules FR ⇄ EN, erreurs (`#N/A`, `#VALEUR!`…), raccourcis clavier, index des 222 fonctions, compatibilité de version (2010 → 365).
+- **Cas pratiques métier**, hors du parcours : 73 en **comptabilité** (TVA, emprunts, amortissements, rapprochement bancaire, FEC…) et 55 en **informatique** (IPv4, Active Directory, parc, supervision, comparaison de bases utilisateurs et matériel).
+- **Hors-ligne, privé** : aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation au clavier.
+
+**Fiabilité :** chaque résultat affiché (exemples et mini-tableaux, plus de 400 aujourd’hui) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
 
 ## Installation
 
@@ -83,8 +87,9 @@ Désinstaller : `curl -fsSL https://joss943.github.io/xlguide/install.sh | bash 
 | <kbd>Entrée</kbd> | Ouvrir le premier résultat |
 | <kbd>Échap</kbd> | Effacer la recherche / fermer la fiche |
 
+- Débutant : **Calculer › Les bases**, notions 1, 2, 3… dans l’ordre.
 - Clique sur le nom d’une fonction **dans une formule** pour ouvrir sa fiche.
-- Colle une formule commençant par `=` dans l’onglet **Traducteur**.
+- Colle une formule commençant par `=` dans **Outils › Traducteur**.
 - ★ ajoute une fiche à tes favoris (stockés localement).
 
 ## Développement
@@ -95,7 +100,7 @@ Prérequis : Node.js 20+.
 git clone https://github.com/Joss943/xlguide && cd xlguide
 npm ci
 npm start                 # lance l'application de bureau
-npm test                  # valide la base, le traducteur et la recherche
+npm test                  # contenu, traducteur, recherche, rendu de toutes les pages et fiches
 npm run dist:linux        # paquets deb, rpm, pacman, AppImage dans dist/
 npm run dist:win          # installateur Windows (sous Windows)
 npm run site:build        # génère le site GitHub Pages dans _site/
@@ -104,18 +109,24 @@ npm run site:build        # génère le site GitHub Pages dans _site/
 Vérifier les résultats des exemples avec LibreOffice (`soffice` + `python3-openpyxl`) :
 
 ```bash
-node tests/export-examples.js > /tmp/ex.json && python3 tests/verify_libreoffice.py /tmp/ex.json
+npm run verify:formulas
 ```
 
 ### Structure
 
 ```
 app/                 Application (HTML/CSS/JS sans dépendance) — partagée par le bureau et le web
-  data/              Base de connaissances : fonctions, recettes compta et informatique, erreurs, raccourcis
-  js/icons.js        Icônes Tabler (généré par scripts/build-icons.js)
-  js/formula.js      Analyse, coloration et traduction FR ⇄ EN des formules
+  data/              Contenu : fonctions, recettes, erreurs, raccourcis
+    parcours.js      Les 4 activités, les 3 niveaux et le placement des fonctions et méthodes
+    notions/         Les notions du parcours, un fichier par activité
+    samples.js       Mini-tableaux des fiches fonctions et méthodes
+  js/config.js       Version et liens publics (lus aussi par Electron)
+  js/formula.js      Analyse, coloration, références de cellules et traduction FR ⇄ EN des formules
   js/search.js       Moteur de recherche en langage naturel
-  js/app.js          Interface
+  js/core/           Modèle (index du contenu, parcours) et stockage local
+  js/views/          Vues : fonctions pures données → HTML (accueil, listes, fiches, outils)
+  js/app.js          Contrôleur : routage, rendu, événements
+  css/               app.css (socle) et parcours.css (niveaux, fiches, mini-tableaux)
 electron/            Enveloppe bureau (fenêtre sécurisée : sandbox, isolation de contexte)
 site/                Site GitHub Pages + scripts d'installation install.sh / install.ps1
 scripts/             Génération des icônes, des recettes informatique et du site
@@ -123,7 +134,7 @@ tests/               Tests Node + vérification des résultats via LibreOffice
 .github/workflows/   CI, compilation Windows/Linux et release, déploiement du site
 ```
 
-### Ajouter une fonction ou une recette
+### Ajouter du contenu
 
 Tout est dans `app/data/`. Une fonction tient en un appel :
 
@@ -139,19 +150,36 @@ F('SOMME.SI', 'SUMIF', 'math', '',                       // nom FR, nom EN, cat�
   'SOMME.SI.ENS SOMMEPROD');                            // voir aussi
 ```
 
+Une notion du parcours (`app/data/notions/*.js`) :
+
+```js
+N({
+  activity: 'calculer', level: 'base',                 // calculer | rechercher | texte | analyser ; base | approfondir | expert
+  title: 'Calculer des pourcentages',
+  intro: 'Un pourcentage est un nombre comme un autre…',
+  points: ['…', '…'],                                   // « À retenir »
+  examples: [['=B2*(1+$E$1)', 'Hausse de 5 %.']],       // 3e valeur facultative = résultat attendu
+  tips: ['…'], kw: 'pourcentage taux part',
+  sample: { cols: ['Région', 'Ventes'], rows: [['Nord', 300], ['Sud', 500]],
+            fill: { header: 'Part', formula: '=B2/SOMME($B$2:$B$3)', results: [0.375, 0.625], fmt: '%' } }
+});
+```
+
+Pour placer une fonction ou une méthode dans un niveau : `XL.place(activité, niveau, ['f:NOM', 'r:Titre exact'])` dans `parcours.js` ; un mini-tableau pour une fiche existante : `XL.S('f:NOM', { … })` dans `samples.js`. Les résultats des mini-tableaux sont vérifiés par LibreOffice comme les exemples.
+
 Les recettes du volet informatique sont générées par `scripts/gen-recipes-it.py` (`npm run gen:it`) : les longues formules (IP, accents…) y sont construites automatiquement. Pour changer les icônes : modifier la liste de `scripts/build-icons.js` puis `npm run icons`.
 
-`npm test` signale les erreurs (fonction inconnue dans un exemple, parenthèses, séparateur anglais, aller-retour de traduction…).
+`npm test` signale les erreurs (fonction inconnue dans un exemple, parenthèses, séparateur anglais, aller-retour de traduction, mini-tableau incohérent, lien interne cassé, HTML mal formé…).
 
 ### Publier une version
 
 ```bash
-npm version patch --no-git-tag-version   # 1.0.0 → 1.0.1 dans package.json
-# reporter la version dans APP_VERSION (app/js/app.js) et le cache de app/sw.js — npm test le vérifie
-git commit -am "Version 1.0.1" && git push
+npm version patch --no-git-tag-version   # 1.2.0 → 1.2.1 dans package.json
+# reporter la version dans app/js/config.js et le cache de app/sw.js — npm test le vérifie
+git commit -am "Version 1.2.1" && git push
 ```
 
-Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.0.1` ; les boutons du site pointent toujours vers la dernière version.
+Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.2.1` ; les boutons du site pointent toujours vers la dernière version.
 
 ## Licence et crédits
 
