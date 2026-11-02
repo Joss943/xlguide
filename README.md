@@ -6,7 +6,7 @@
 
 **Les formules Excel en français, au moment où tu en as besoin.**
 
-Application gratuite pour **Windows** et **Linux** (et version web) : décris ce que tu veux faire, XLGuide trouve la bonne fonction, explique chaque argument et te donne la formule prête à coller. Pensée pour la comptabilité.
+Application gratuite pour **Windows** et **Linux** (et version web) : décris ce que tu veux faire, XLGuide trouve la bonne fonction, explique chaque argument et te donne la formule prête à coller. Pensée pour la **comptabilité** et l’**administration système et réseau**.
 
 [![CI](https://github.com/Joss943/xlguide/actions/workflows/ci.yml/badge.svg)](https://github.com/Joss943/xlguide/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Joss943/xlguide?label=version&color=1a7f4b)](https://github.com/Joss943/xlguide/releases/latest)
@@ -24,16 +24,17 @@ Application gratuite pour **Windows** et **Linux** (et version web) : décris ce
 
 | | |
 |---|---|
-| 🔎 **Recherche en langage naturel** | « additionner avec plusieurs conditions », « dernier jour du mois », « enlever les espaces »… Tolère accents oubliés, pluriels et fautes de frappe. Accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`). |
-| 📚 **220 fonctions détaillées** | Description, syntaxe, chaque argument expliqué, exemples commentés, pièges à éviter, fonctions liées, version d’Excel requise. |
-| 🧾 **73 recettes de comptabilité** | TVA HT/TTC, marges, mensualités et tableau d’amortissement d’emprunt, amortissements (linéaire, prorata temporis, dégressif fiscal), échéances « 30 jours fin de mois », balance âgée, rapprochement bancaire, lettrage, FEC, charges constatées d’avance, jours fériés, heures sup… |
-| 🇫🇷 **100 % Excel français** | Noms français (`SOMME.SI.ENS`, `RECHERCHEX`, `SIERREUR`), séparateur `;`, virgule décimale. Bouton **EN** pour voir chaque formule en version anglaise. |
-| ⇄ **Traducteur de formules** | Colle une formule d’un tuto anglais, récupère la version française (et inversement), avec avertissements (codes de format, constantes matricielles, fonctions inconnues). |
-| 🏷️ **Compatibilité de version** | Choisis ta version (2010 → 365) : les fonctions absentes sont signalées. |
-| ⚠️ **Erreurs & raccourcis** | Causes et solutions de `#N/A`, `#VALEUR!`, `#PROPAGATION!`… et les raccourcis clavier Excel (AZERTY). |
-| ✈️ **Hors-ligne, privé** | Aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation 100 % clavier. |
+| **Recherche en langage naturel** | « additionner avec plusieurs conditions », « comptes inactifs », « masque de sous-réseau »… Tolère accents oubliés, pluriels et fautes de frappe. Accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`). |
+| **222 fonctions détaillées** | Description, syntaxe, chaque argument expliqué, exemples commentés, pièges à éviter, fonctions liées, version d’Excel requise. |
+| **73 recettes de comptabilité** | TVA HT/TTC, marges, mensualités et tableau d’amortissement d’emprunt, amortissements (linéaire, prorata temporis, dégressif fiscal), échéances « 30 jours fin de mois », balance âgée, rapprochement bancaire, lettrage, FEC, charges constatées d’avance, jours fériés, heures sup… |
+| **55 recettes informatique & réseau** | **Comparaison de bases utilisateurs et matériel** (comptes orphelins, salariés sans compte, comptes à désactiver, CMDB ↔ inventaire physique, matériel à récupérer, différences champ par champ, ajouts/suppressions/modifications entre deux exports, rapprochement approximatif), **réseau** (IP ⇄ nombre, masque ⇄ CIDR, adresse réseau/broadcast, appartenance à un sous-réseau, IP privées, fonctions LAMBDA `IPNUM` / `IPDANSRESEAU`), **MAC & hôtes**, **Active Directory** (lastLogonTimestamp, pwdLastSet, userAccountControl via `BITET`, DistinguishedName, logins sans accents), **parc & licences**, **supervision** (SLA, MTTR/MTBF, logs, syslog), **stockage** (Gio/Go, RAID, débit, saturation). |
+| **100 % Excel français** | Noms français (`SOMME.SI.ENS`, `RECHERCHEX`, `SIERREUR`), séparateur `;`, virgule décimale. Bouton **EN** pour voir chaque formule en version anglaise. |
+| **Traducteur de formules** | Colle une formule d’un tuto anglais, récupère la version française (et inversement), avec avertissements (codes de format, constantes matricielles, fonctions inconnues). |
+| **Compatibilité de version** | Choisis ta version (2010 → 365) : les fonctions absentes sont signalées. |
+| **Erreurs & raccourcis** | Causes et solutions de `#N/A`, `#VALEUR!`, `#PROPAGATION!`… et les raccourcis clavier Excel (AZERTY). |
+| **Hors-ligne, privé** | Aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation 100 % clavier. |
 
-**Fiabilité :** chaque exemple chiffré (171 aujourd’hui) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
+**Fiabilité :** chaque exemple chiffré (219 aujourd’hui, dont les calculs IP, dates AD/Unix et RAID) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
 
 ## Installation
 
@@ -110,12 +111,14 @@ node tests/export-examples.js > /tmp/ex.json && python3 tests/verify_libreoffice
 
 ```
 app/                 Application (HTML/CSS/JS sans dépendance) — partagée par le bureau et le web
-  data/              Base de connaissances : fonctions, recettes, erreurs, raccourcis
+  data/              Base de connaissances : fonctions, recettes compta et informatique, erreurs, raccourcis
+  js/icons.js        Icônes Tabler (généré par scripts/build-icons.js)
   js/formula.js      Analyse, coloration et traduction FR ⇄ EN des formules
   js/search.js       Moteur de recherche en langage naturel
   js/app.js          Interface
 electron/            Enveloppe bureau (fenêtre sécurisée : sandbox, isolation de contexte)
 site/                Site GitHub Pages + scripts d'installation install.sh / install.ps1
+scripts/             Génération des icônes, des recettes informatique et du site
 tests/               Tests Node + vérification des résultats via LibreOffice
 .github/workflows/   CI, compilation Windows/Linux et release, déploiement du site
 ```
@@ -136,6 +139,8 @@ F('SOMME.SI', 'SUMIF', 'math', '',                       // nom FR, nom EN, cat�
   'SOMME.SI.ENS SOMMEPROD');                            // voir aussi
 ```
 
+Les recettes du volet informatique sont générées par `scripts/gen-recipes-it.py` (`npm run gen:it`) : les longues formules (IP, accents…) y sont construites automatiquement. Pour changer les icônes : modifier la liste de `scripts/build-icons.js` puis `npm run icons`.
+
 `npm test` signale les erreurs (fonction inconnue dans un exemple, parenthèses, séparateur anglais, aller-retour de traduction…).
 
 ### Publier une version
@@ -148,6 +153,6 @@ git commit -am "Version 1.0.1" && git push
 
 Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.0.1` ; les boutons du site pointent toujours vers la dernière version.
 
-## Licence
+## Licence et crédits
 
-[MIT](LICENSE). Excel est une marque de Microsoft Corporation ; XLGuide est un projet indépendant, non affilié à Microsoft.
+[MIT](LICENSE). Icônes : [Tabler Icons](https://tabler.io/icons) (MIT, © Paweł Kuna) — voir [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Excel est une marque de Microsoft Corporation ; XLGuide est un projet indépendant, non affilié à Microsoft.

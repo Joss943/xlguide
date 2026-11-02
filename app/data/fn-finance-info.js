@@ -382,6 +382,28 @@
     [['=BINDEC("1010")', 'Binaire vers décimal.', 10]],
     [], 'binaire vers decimal', 'DECBIN DECIMAL');
 
+  F('BITET', 'BITAND', 'conv', '2013',
+    'ET binaire entre deux nombres : garde les bits à 1 dans les deux. Indispensable pour lire des drapeaux (userAccountControl d’Active Directory, permissions) et calculer des adresses réseau.',
+    'BITET(nombre1; nombre2)',
+    [['nombre1', 'Entier positif ou nul (jusqu’à 2^48-1).'], ['nombre2', 'Entier positif ou nul (le « masque »).']],
+    [['=BITET(13;25)', '1101 ET 11001 = 1001.', 9],
+     ['=BITET(514;2)', 'userAccountControl 514 : le bit 2 (compte désactivé) est présent.', 2],
+     ['=SI(BITET(A2;2)=2;"Désactivé";"Activé")', 'État d’un compte AD à partir de userAccountControl.'],
+     ['=BITET(3232238105;2^32-2^(32-20))', 'Adresse réseau (en nombre) de 192.168.10.25/20.', 3232235520]],
+    ['Combine avec DECBIN pour visualiser les bits : =DECBIN(BITET(A2;255)).'],
+    'et binaire bit masque drapeau flag useraccountcontrol uac bitand adresse reseau sous reseau',
+    'BITOU DECBIN DECHEX');
+
+  F('BITOU', 'BITOR', 'conv', '2013',
+    'OU binaire entre deux nombres : un bit vaut 1 s’il est à 1 dans l’un OU l’autre. Sert à ajouter un drapeau ou à calculer une adresse de diffusion.',
+    'BITOU(nombre1; nombre2)',
+    [['nombre1', 'Entier positif ou nul (jusqu’à 2^48-1).'], ['nombre2', 'Entier positif ou nul.']],
+    [['=BITOU(23;10)', '10111 OU 01010 = 11111.', 31],
+     ['=BITOU(512;2)', 'Ajoute le drapeau « désactivé » (2) à un compte normal (512).', 514],
+     ['=BITOU(3232235520;2^(32-20)-1)', 'Adresse de diffusion (en nombre) du réseau 192.168.0.0/20.', 3232239615]],
+    [], 'ou binaire bit ajouter drapeau flag broadcast diffusion bitor',
+    'BITET DECBIN');
+
   F('BASE', 'BASE', 'conv', '2013',
     'Convertit un nombre dans n’importe quelle base (2 à 36).',
     'BASE(nombre; base; [longueur_min])', [['nombre', 'Entier positif.'], ['base', '2 à 36.'], ['longueur_min', 'Zéros devant.']],

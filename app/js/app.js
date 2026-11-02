@@ -2,10 +2,11 @@
 (function (XL) {
   'use strict';
 
-  var APP_VERSION = '1.0.0';
+  var APP_VERSION = '1.1.0';
   var REPO = 'https://github.com/Joss943/xlguide';
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = XL.formula.esc;
+  var ic = XL.icon;
   var hl = XL.formula.highlight;
 
   /* ------------------------------- stockage ------------------------------- */
@@ -23,7 +24,7 @@
   XL.recipeCategories.forEach(function (c) { rcatById[c.id] = c; });
   XL.functions.forEach(function (f) { fnByName[f.fr] = f; f.key = 'f:' + f.fr; });
   XL.recipes.forEach(function (r) {
-    r.id = slug(r.title); r.key = 'r:' + r.id; rxById[r.id] = r;
+    r.id = slug(r.title); r.key = 'r:' + r.id; rxById[r.id] = r; r.domain = rcatById[r.cat].domain;
     var used = [];
     r.steps.forEach(function (s) {
       XL.formula.functionsUsed(s[0]).forEach(function (n) { if (fnByName[n] && used.indexOf(n) < 0) used.push(n); });
@@ -43,6 +44,11 @@
     favs: store.get('favs', []),
     active: -1
   };
+
+  function rxOf(domain) { return XL.recipes.filter(function (r) { return r.domain === domain; }); }
+  function hydrateIcons(root) {
+    (root || document).querySelectorAll('i[data-ic]').forEach(function (el) { el.outerHTML = ic(el.getAttribute('data-ic')); });
+  }
 
   function available(f) { return VRANK[f.since || ''] <= VRANK[state.ver]; }
 
@@ -103,42 +109,43 @@
   }
 
   function itemHTML(r) {
-    var it = r.item, star = isFav(it.key) ? '<span class="star on" aria-label="favori">★</span>' : '';
+    var it = r.item, star = isFav(it.key) ? '<span class="star on" aria-label="favori">' + ic('star-filled') + '</span>' : '';
     if (r.type === 'fn') {
       return '<a class="item' + (available(it) ? '' : ' item-na') + '" href="' + hrefOf('fn', it) + '" data-key="' + esc(it.key) + '">' +
         '<div class="item-h"><span class="nm mono">' + esc(it.fr) + '</span><span class="en mono">' + esc(it.en) + '</span>' + badge(it) + star + '</div>' +
         '<div class="ds">' + esc(it.desc) + '</div>' +
-        '<div class="meta"><span class="tag">' + catById[it.cat].icon + ' ' + esc(catById[it.cat].label) + '</span></div></a>';
+        '<div class="meta"><span class="tag">' + ic(catById[it.cat].icon) + esc(catById[it.cat].label) + '</span></div></a>';
     }
     if (r.type === 'rx') {
       return '<a class="item item-rx" href="' + hrefOf('rx', it) + '" data-key="' + esc(it.key) + '">' +
         '<div class="item-h"><span class="nm">' + esc(it.title) + '</span>' + star + '</div>' +
         '<div class="ds">' + esc(it.desc) + '</div>' +
-        '<div class="meta"><span class="tag tag-rx">' + rcatById[it.cat].icon + ' Recette · ' + esc(rcatById[it.cat].label) + '</span>' +
+        '<div class="meta"><span class="tag ' + (it.domain === 'it' ? 'tag-it' : 'tag-rx') + '">' + ic(rcatById[it.cat].icon) + (it.domain === 'it' ? 'Informatique · ' : 'Compta · ') + esc(rcatById[it.cat].label) + '</span>' +
         it.fns.slice(0, 4).map(function (n) { return '<span class="chip-mini mono">' + esc(n) + '</span>'; }).join('') + '</div></a>';
     }
     return '<a class="item item-err" href="' + hrefOf('err', it) + '" data-key="' + esc(it.key) + '">' +
       '<div class="item-h"><span class="nm mono">' + esc(it.fr) + '</span><span class="en mono">' + esc(it.en) + '</span>' + star + '</div>' +
-      '<div class="ds">' + esc(it.cause) + '</div><div class="meta"><span class="tag tag-err">⚠ Erreur</span></div></a>';
+      '<div class="ds">' + esc(it.cause) + '</div><div class="meta"><span class="tag tag-err">' + ic('alert-circle') + 'Erreur</span></div></a>';
   }
 
   function sideHTML() {
     var html = '';
-    if (state.tab === 'fn' || state.tab === 'rx' || state.tab === 'home') {
-      var isRx = state.tab === 'rx';
-      var cats = isRx ? XL.recipeCategories : XL.categories;
-      var all = isRx ? XL.recipes : XL.functions;
-      html += '<div class="side-h">' + (isRx ? 'Thèmes' : 'Catégories') + '</div>';
+    if (state.tab === 'fn' || state.tab === 'rx' || state.tab === 'it' || state.tab === 'home') {
+      var isRx = state.tab === 'rx' || state.tab === 'it';
+      var dom = state.tab === 'it' ? 'it' : 'compta';
+      var cats = isRx ? XL.recipeCategories.filter(function (c) { return c.domain === dom; }) : XL.categories;
+      var all = isRx ? rxOf(dom) : XL.functions;
+      html += '<div class="side-h">' + (state.tab === 'it' ? 'Informatique & réseau' : isRx ? 'Thèmes compta' : 'Catégories') + '</div>';
       html += '<button class="cat' + (!state.cat ? ' on' : '') + '" data-cat="">Tout <small>' + all.length + '</small></button>';
       cats.forEach(function (c) {
         var n = all.filter(function (x) { return x.cat === c.id; }).length;
-        html += '<button class="cat' + (state.cat === c.id ? ' on' : '') + '" data-cat="' + c.id + '"><span>' + c.icon + '</span> ' + esc(c.label) + ' <small>' + n + '</small></button>';
+        html += '<button class="cat' + (state.cat === c.id ? ' on' : '') + '" data-cat="' + c.id + '">' + ic(c.icon) + '<span>' + esc(c.label) + '</span><small>' + n + '</small></button>';
       });
     }
     html += '<div class="side-foot">' +
-      '<div class="side-h">Astuce</div><p>Tape une phrase comme tu la dirais : « compter les factures impayées », « dernier jour du mois »…</p>' +
+      '<div class="side-h">' + ic('bulb') + 'Astuce</div><p>Tape une phrase comme tu la dirais : « compter les factures impayées », « comptes inactifs », « masque de sous-réseau »…</p>' +
       '<p class="muted">Raccourcis : <kbd>/</kbd> chercher · <kbd>↑</kbd><kbd>↓</kbd> naviguer · <kbd>Échap</kbd> effacer</p>' +
-      '<p class="muted small">XLGuide v' + APP_VERSION + ' · <a href="' + REPO + '" target="_blank" rel="noopener">GitHub</a> · <a href="' + REPO + '/releases/latest" target="_blank" rel="noopener">Mises à jour</a></p></div>';
+      '<p class="muted small">XLGuide v' + APP_VERSION + ' · <a href="' + REPO + '" target="_blank" rel="noopener">GitHub</a> · <a href="' + REPO + '/releases/latest" target="_blank" rel="noopener">Mises à jour</a><br>Icônes : <a href="https://tabler.io/icons" target="_blank" rel="noopener">Tabler Icons</a> (MIT)</p></div>';
     return html;
   }
 
@@ -152,17 +159,21 @@
       }
       return res;
     }
-    var types = tab === 'fn' ? ['fn'] : tab === 'rx' ? ['rx'] : tab === 'err' ? ['err'] : null;
+    var types = tab === 'fn' ? ['fn'] : (tab === 'rx' || tab === 'it') ? ['rx'] : tab === 'err' ? ['err'] : null;
     if (q) {
-      res = XL.search.search(q, { types: types, limit: 80 });
+      res = XL.search.search(q, { types: types, limit: 120 });
+      if (tab === 'rx' || tab === 'it') {
+        var dom = tab === 'it' ? 'it' : 'compta';
+        res = res.filter(function (r) { return r.item.domain === dom; });
+      }
     } else if (tab === 'fn') {
       res = XL.functions.slice().sort(function (a, b) { return a.fr.localeCompare(b.fr, 'fr'); }).map(function (f) { return { type: 'fn', item: f }; });
-    } else if (tab === 'rx') {
-      res = XL.recipes.map(function (r) { return { type: 'rx', item: r }; });
+    } else if (tab === 'rx' || tab === 'it') {
+      res = rxOf(tab === 'it' ? 'it' : 'compta').map(function (r) { return { type: 'rx', item: r }; });
     } else if (tab === 'err') {
       res = XL.errors.map(function (e) { return { type: 'err', item: e }; });
     } else res = [];
-    if (state.cat && (tab === 'fn' || tab === 'rx' || tab === 'home')) {
+    if (state.cat && (tab === 'fn' || tab === 'rx' || tab === 'it' || tab === 'home')) {
       res = res.filter(function (r) { return r.item.cat === state.cat; });
     }
     return res;
@@ -170,27 +181,34 @@
 
   var HOME_FNS = ['SOMME.SI.ENS', 'RECHERCHEX', 'SI', 'SIERREUR', 'ARRONDI', 'FIN.MOIS', 'NB.SI', 'SOMMEPROD', 'TEXTE', 'FILTRE', 'VPM', 'NB.JOURS.OUVRES'];
   var QUICK = ['additionner si plusieurs conditions', 'chercher une valeur dans un tableau', 'calculer le TTC', 'mensualité d’emprunt',
-    'échéance 30 jours fin de mois', 'balance âgée', 'rapprochement bancaire', 'doublons', 'texte en nombre', 'jours ouvrés', 'amortissement', '#N/A'];
+    'échéance 30 jours fin de mois', 'rapprochement bancaire', 'comparer deux listes', 'comptes inactifs', 'masque de sous-réseau',
+    'adresse MAC', 'texte en nombre', '#N/A'];
+
+  function rxCards(domain) {
+    return '<div class="grid">' + XL.recipeCategories.filter(function (c) { return c.domain === domain; }).map(function (c) {
+      var rs = XL.recipes.filter(function (r) { return r.cat === c.id; });
+      return '<div class="card"><div class="card-h">' + ic(c.icon) + esc(c.label) + '</div><ul>' +
+        rs.slice(0, 4).map(function (r) { return '<li><a href="#/r/' + r.id + '">' + esc(r.title) + '</a></li>'; }).join('') +
+        (rs.length > 4 ? '<li><a class="more" href="#/' + (domain === 'it' ? 'it' : 'rx') + '" data-cat="' + c.id + '">+ ' + (rs.length - 4) + ' autres…</a></li>' : '') + '</ul></div>';
+    }).join('') + '</div>';
+  }
 
   function homeHTML() {
-    var h = '<div class="home">' +
+    var nEx = XL.functions.reduce(function (n, f) { return n + f.ex.length; }, 0) + XL.recipes.reduce(function (n, r) { return n + r.steps.length; }, 0);
+    return '<div class="home">' +
       '<h1>Que veux-tu faire dans Excel ?</h1>' +
       '<p class="lead">Décris ton besoin avec tes mots : XLGuide trouve la fonction, t’explique ses arguments et te donne des formules prêtes à copier, en français.</p>' +
       '<div class="quick">' + QUICK.map(function (q) { return '<button class="chip" data-q="' + esc(q) + '">' + esc(q) + '</button>'; }).join('') + '</div>' +
-      '<div class="stats"><div><b>' + XL.functions.length + '</b><span>fonctions détaillées</span></div><div><b>' + XL.recipes.length + '</b><span>recettes compta</span></div>' +
-      '<div><b>' + (XL.functions.reduce(function (n, f) { return n + f.ex.length; }, 0) + XL.recipes.reduce(function (n, r) { return n + r.steps.length; }, 0)) +
-      '</b><span>formules d’exemple</span></div><div><b>FR ⇄ EN</b><span>traducteur intégré</span></div></div>' +
-      '<h2>Recettes de comptabilité</h2><div class="grid">' +
-      XL.recipeCategories.map(function (c) {
-        var rs = XL.recipes.filter(function (r) { return r.cat === c.id; });
-        return '<div class="card"><div class="card-h">' + c.icon + ' ' + esc(c.label) + '</div><ul>' +
-          rs.slice(0, 4).map(function (r) { return '<li><a href="#/r/' + r.id + '">' + esc(r.title) + '</a></li>'; }).join('') +
-          (rs.length > 4 ? '<li><a class="more" href="#/rx" data-cat="' + c.id + '">+ ' + (rs.length - 4) + ' autres…</a></li>' : '') + '</ul></div>';
-      }).join('') + '</div>' +
-      '<h2>Les fonctions à connaître</h2><div class="fn-grid">' +
+      '<div class="stats">' +
+      '<a href="#/fn">' + ic('math-function') + '<b>' + XL.functions.length + '</b><span>fonctions détaillées</span></a>' +
+      '<a href="#/rx">' + ic('receipt-tax') + '<b>' + rxOf('compta').length + '</b><span>recettes compta</span></a>' +
+      '<a href="#/it">' + ic('network') + '<b>' + rxOf('it').length + '</b><span>recettes informatique & réseau</span></a>' +
+      '<a href="#/tr">' + ic('arrows-left-right') + '<b>' + nEx + '</b><span>formules d’exemple · traducteur FR ⇄ EN</span></a></div>' +
+      '<h2>' + ic('receipt-tax') + 'Recettes de comptabilité</h2>' + rxCards('compta') +
+      '<h2>' + ic('network') + 'Informatique, système & réseau</h2>' + rxCards('it') +
+      '<h2>' + ic('math-function') + 'Les fonctions à connaître</h2><div class="fn-grid">' +
       HOME_FNS.map(function (n) { var f = fnByName[n]; return '<a class="fn-tile" href="#/f/' + encodeURIComponent(n) + '"><span class="mono">' + esc(n) + '</span><small>' + esc(f.desc.split('.')[0]) + '</small></a>'; }).join('') +
       '</div></div>';
-    return h;
   }
 
   function syntaxHTML(f) {
@@ -208,21 +226,21 @@
     var en = isFormula ? XL.formula.translate(f, 'fr2en').result : '';
     return '<div class="ex">' +
       '<div class="ex-f"><code class="formula">' + (isFormula ? hl(f, 'fr') : esc(f)) + '</code>' +
-      (isFormula ? '<div class="ex-btns"><button class="btn-s" data-copy="' + esc(f) + '" title="Copier la formule (Excel en français)">Copier</button>' +
+      (isFormula ? '<div class="ex-btns"><button class="btn-s" data-copy="' + esc(f) + '" title="Copier la formule (Excel en français)">' + ic('copy') + 'Copier</button>' +
         '<button class="btn-s ghost" data-toggle-en="' + idx + '" title="Voir la version Excel en anglais">EN</button></div>' : '') + '</div>' +
-      (isFormula ? '<div class="ex-en" id="en-' + idx + '" hidden><code class="formula">' + hl(en, 'en') + '</code><button class="btn-s ghost" data-copy="' + esc(en) + '">Copier EN</button></div>' : '') +
+      (isFormula ? '<div class="ex-en" id="en-' + idx + '" hidden><code class="formula">' + hl(en, 'en') + '</code><button class="btn-s ghost" data-copy="' + esc(en) + '">' + ic('copy') + 'Copier EN</button></div>' : '') +
       '<div class="ex-d">' + esc(ex[1]) + (ex.length > 2 ? ' <span class="res">→ ' + esc(fmtExpected(ex[2])) + '</span>' : '') + '</div></div>';
   }
 
   function tipsHTML(tips) {
-    return tips && tips.length ? '<div class="tips">' + tips.map(function (t) { return '<div class="tip"><span>💡</span><p>' + esc(t) + '</p></div>'; }).join('') + '</div>' : '';
+    return tips && tips.length ? '<div class="tips">' + tips.map(function (t) { return '<div class="tip">' + ic('bulb') + '<p>' + esc(t) + '</p></div>'; }).join('') + '</div>' : '';
   }
 
   function detailFn(f) {
     var cat = catById[f.cat], av = available(f);
-    var h = '<div class="d-top"><button class="back" data-back title="Retour">←</button><span class="tag">' + cat.icon + ' ' + esc(cat.label) + '</span>' +
-      '<button class="fav-btn' + (isFav(f.key) ? ' on' : '') + '" data-fav="' + esc(f.key) + '" title="Favori">★</button></div>' +
-      '<h2 class="d-title mono">' + esc(f.fr) + '<button class="btn-s ghost" data-copy="' + esc(f.fr) + '">Copier</button></h2>' +
+    var h = '<div class="d-top"><button class="back" data-back title="Retour">' + ic('arrow-left') + '</button><span class="tag">' + ic(cat.icon) + esc(cat.label) + '</span>' +
+      '<button class="fav-btn' + (isFav(f.key) ? ' on' : '') + '" data-fav="' + esc(f.key) + '" title="Favori">' + ic('star') + '</button></div>' +
+      '<h2 class="d-title mono">' + esc(f.fr) + '<button class="btn-s ghost" data-copy="' + esc(f.fr) + '">' + ic('copy') + 'Copier</button></h2>' +
       '<div class="d-sub">Anglais : <span class="mono">' + esc(f.en) + '</span> · <span class="' + (av ? 'ok' : 'ko') + '">' +
       (f.since ? esc(VLABEL[f.since]) : 'Toutes versions') + (av ? '' : ' — absente de ta version (' + esc(state.ver) + ')') + '</span></div>' +
       '<p class="d-desc">' + esc(f.desc) + '</p>' +
@@ -244,8 +262,8 @@
 
   function detailRx(r) {
     var cat = rcatById[r.cat];
-    var h = '<div class="d-top"><button class="back" data-back title="Retour">←</button><span class="tag tag-rx">' + cat.icon + ' ' + esc(cat.label) + '</span>' +
-      '<button class="fav-btn' + (isFav(r.key) ? ' on' : '') + '" data-fav="' + esc(r.key) + '" title="Favori">★</button></div>' +
+    var h = '<div class="d-top"><button class="back" data-back title="Retour">' + ic('arrow-left') + '</button><span class="tag ' + (r.domain === 'it' ? 'tag-it' : 'tag-rx') + '">' + ic(cat.icon) + esc(cat.label) + '</span>' +
+      '<button class="fav-btn' + (isFav(r.key) ? ' on' : '') + '" data-fav="' + esc(r.key) + '" title="Favori">' + ic('star') + '</button></div>' +
       '<h2 class="d-title">' + esc(r.title) + '</h2><p class="d-desc">' + esc(r.desc) + '</p>' +
       '<h3>Formules</h3>' + r.steps.map(exampleHTML).join('');
     if (r.tips.length) h += '<h3>Bon à savoir</h3>' + tipsHTML(r.tips);
@@ -256,8 +274,8 @@
   }
 
   function detailErr(e) {
-    return '<div class="d-top"><button class="back" data-back title="Retour">←</button><span class="tag tag-err">⚠ Erreur Excel</span>' +
-      '<button class="fav-btn' + (isFav(e.key) ? ' on' : '') + '" data-fav="' + esc(e.key) + '" title="Favori">★</button></div>' +
+    return '<div class="d-top"><button class="back" data-back title="Retour">' + ic('arrow-left') + '</button><span class="tag tag-err">' + ic('alert-circle') + 'Erreur Excel</span>' +
+      '<button class="fav-btn' + (isFav(e.key) ? ' on' : '') + '" data-fav="' + esc(e.key) + '" title="Favori">' + ic('star') + '</button></div>' +
       '<h2 class="d-title mono">' + esc(e.fr) + '</h2><div class="d-sub">Excel en anglais : <span class="mono">' + esc(e.en) + '</span></div>' +
       '<h3>Cause</h3><p class="d-desc">' + esc(e.cause) + '</p><h3>Solutions</h3><ol class="fixes">' +
       e.fixes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>';
@@ -272,13 +290,13 @@
   ];
   function translatorHTML() {
     return '<div class="tr">' +
-      '<h1>Traducteur de formules FR ⇄ EN</h1>' +
+      '<h1>' + ic('arrows-left-right') + 'Traducteur de formules FR ⇄ EN</h1>' +
       '<p class="lead">Colle une formule trouvée dans un tuto anglais : elle est convertie pour Excel en français (noms de fonctions, « , » → « ; », décimales, VRAI/FAUX). Ça marche aussi dans l’autre sens.</p>' +
       '<div class="tr-grid">' +
-      '<div class="tr-pane"><div class="tr-h"><b>🇫🇷 Excel en français</b><button class="btn-s" id="trCopyFr">Copier</button></div>' +
+      '<div class="tr-pane"><div class="tr-h"><b>' + ic('language') + 'Excel en français</b><button class="btn-s" id="trCopyFr">' + ic('copy') + 'Copier</button></div>' +
       '<textarea id="trFr" class="mono" spellcheck="false" placeholder="=SOMME.SI(A2:A100;&quot;Payé&quot;;C2:C100)"></textarea></div>' +
-      '<div class="tr-mid"><span id="trDir">⇄</span></div>' +
-      '<div class="tr-pane"><div class="tr-h"><b>🇬🇧 Excel en anglais</b><button class="btn-s" id="trCopyEn">Copier</button></div>' +
+      '<div class="tr-mid"><span id="trDir">' + ic('arrows-left-right') + '</span></div>' +
+      '<div class="tr-pane"><div class="tr-h"><b>' + ic('world') + 'Excel en anglais</b><button class="btn-s" id="trCopyEn">' + ic('copy') + 'Copier</button></div>' +
       '<textarea id="trEn" class="mono" spellcheck="false" placeholder="=SUMIF(A2:A100,&quot;Paid&quot;,C2:C100)"></textarea></div>' +
       '</div><div id="trWarn" class="tr-warn"></div><div id="trFns" class="chips"></div>' +
       '<div class="tr-samples"><span class="muted">Essayer :</span>' + TR_SAMPLES.map(function (s) { return '<button class="chip mono" data-sample="' + esc(s) + '">' + esc(s.length > 48 ? s.slice(0, 46) + '…' : s) + '</button>'; }).join('') + '</div>' +
@@ -291,8 +309,8 @@
       var src = from === 'fr' ? fr.value : en.value;
       var r = XL.formula.translate(src, from === 'fr' ? 'fr2en' : 'en2fr');
       (from === 'fr' ? en : fr).value = r.result;
-      dir.textContent = from === 'fr' ? '→' : '←';
-      warn.innerHTML = r.warnings.map(function (w) { return '<div class="tip warn"><span>⚠</span><p>' + esc(w) + '</p></div>'; }).join('');
+      dir.innerHTML = ic(from === 'fr' ? 'chevron-right' : 'arrow-left');
+      warn.innerHTML = r.warnings.map(function (w) { return '<div class="tip warn">' + ic('alert-triangle') + '<p>' + esc(w) + '</p></div>'; }).join('');
       var used = XL.formula.functionsUsed(fr.value).filter(function (n) { return fnByName[n]; });
       fns.innerHTML = used.length ? '<span class="muted">Fonctions :</span>' + used.map(function (n) { return '<a class="chip mono" href="#/f/' + encodeURIComponent(n) + '">' + esc(n) + badge(fnByName[n]) + '</a>'; }).join('') : '';
       store.set('tr', fr.value);
@@ -321,7 +339,7 @@
       (groups[k.cat] = groups[k.cat] || []).push(k);
     });
     var names = Object.keys(groups);
-    return '<div class="kb"><h1>Raccourcis clavier</h1><p class="lead">Excel pour Windows, clavier français (AZERTY). Filtre avec la barre de recherche.</p>' +
+    return '<div class="kb"><h1>' + ic('keyboard') + 'Raccourcis clavier</h1><p class="lead">Excel pour Windows, clavier français (AZERTY). Filtre avec la barre de recherche.</p>' +
       (names.length ? names.map(function (g) {
         return '<h2>' + esc(g) + '</h2><table class="kb-t"><tbody>' + groups[g].map(function (k) {
           return '<tr><td class="keys">' + k.keys.split(' / ').map(function (combo) {
@@ -356,7 +374,7 @@
       if (state.q.trim()) head = '<div class="list-h">' + res.length + ' résultat' + (res.length > 1 ? 's' : '') + ' pour « ' + esc(state.q.trim()) + ' »</div>';
       else if (tab === 'fav') head = '<div class="list-h">' + res.length + ' favori' + (res.length > 1 ? 's' : '') + '</div>';
       var empty = tab === 'fav' && !state.favs.length
-        ? '<p class="empty">Aucun favori pour l’instant. Clique sur ★ dans une fiche pour la retrouver ici.</p>'
+        ? '<p class="empty">Aucun favori pour l’instant. Clique sur l’étoile ' + ic('star') + ' d’une fiche pour la retrouver ici.</p>'
         : '<p class="empty">Rien trouvé. Essaie d’autres mots (« total », « chercher », « date »…) ou le nom de la fonction en anglais.</p>';
       list.innerHTML = head + (res.length ? res.map(itemHTML).join('') : empty);
     }
@@ -365,7 +383,7 @@
 
   function renderDetail() {
     var r = state.sel ? resolve(state.sel) : null;
-    if (!r) { detail.innerHTML = state.tab === 'home' ? '' : '<div class="d-empty"><div>ƒx</div><p>Choisis une fonction ou une recette pour voir sa fiche.</p></div>'; markActive(); return; }
+    if (!r) { detail.innerHTML = state.tab === 'home' ? '' : '<div class="d-empty">' + ic('math-function') + '<p>Choisis une fonction ou une recette pour voir sa fiche.</p></div>'; markActive(); return; }
     detail.innerHTML = r.type === 'fn' ? detailFn(r.item) : r.type === 'rx' ? detailRx(r.item) : detailErr(r.item);
     detail.scrollTop = 0;
     markActive();
@@ -378,7 +396,8 @@
 
   function updateCounts() {
     $('#cFn').textContent = XL.functions.length;
-    $('#cRx').textContent = XL.recipes.length;
+    $('#cRx').textContent = rxOf('compta').length;
+    $('#cIt').textContent = rxOf('it').length;
     $('#cFav').textContent = state.favs.length || '';
   }
 
@@ -388,13 +407,17 @@
     var parts = h.split('/'), p0 = parts[0], rest = parts.slice(1).join('/');
     state.sel = null;
     if (p0 === 'f' && fnByName[rest]) { state.sel = 'f:' + rest; if (state.tab === 'tr' || state.tab === 'kb') state.tab = 'fn'; }
-    else if (p0 === 'r' && rxById[rest]) { state.sel = 'r:' + rest; if (state.tab === 'tr' || state.tab === 'kb') state.tab = 'rx'; }
+    else if (p0 === 'r' && rxById[rest]) {
+      state.sel = 'r:' + rest;
+      var want = rxById[rest].domain === 'it' ? 'it' : 'rx';
+      if (state.tab === 'tr' || state.tab === 'kb' || ((state.tab === 'rx' || state.tab === 'it') && state.tab !== want && !state.q.trim())) state.tab = want;
+    }
     else if (p0 === 'e' && XL.errors[+rest]) { state.sel = 'e:' + rest; if (state.tab === 'tr' || state.tab === 'kb') state.tab = 'err'; }
-    else if (['fn', 'rx', 'tr', 'err', 'kb', 'fav'].indexOf(p0) >= 0) { if (state.tab !== p0) state.cat = state.pendingCat || ''; state.tab = p0; }
+    else if (['fn', 'rx', 'it', 'tr', 'err', 'kb', 'fav'].indexOf(p0) >= 0) { if (state.tab !== p0) state.cat = state.pendingCat || ''; state.tab = p0; }
     else { state.tab = 'home'; state.cat = ''; }
     state.pendingCat = '';
     if (state.sel && state.tab === 'home' && !state.q.trim()) {
-      state.tab = state.sel.charAt(0) === 'f' ? 'fn' : state.sel.charAt(0) === 'r' ? 'rx' : 'err';
+      state.tab = state.sel.charAt(0) === 'f' ? 'fn' : state.sel.charAt(0) === 'r' ? (rxById[state.sel.slice(2)].domain === 'it' ? 'it' : 'rx') : 'err';
     }
     render();
   }
@@ -468,14 +491,21 @@
       var cur = document.documentElement.getAttribute('data-theme');
       var dark = cur === 'dark' || (cur === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
       var next = dark ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next); store.set('theme', next);
+      document.documentElement.setAttribute('data-theme', next); store.set('theme', next); themeIcon();
     });
+    themeIcon();
 
     window.addEventListener('hashchange', route);
   }
 
+  function themeIcon() {
+    var cur = document.documentElement.getAttribute('data-theme');
+    var dark = cur === 'dark' || (cur === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    $('#theme').innerHTML = ic(dark ? 'sun' : 'moon');
+  }
+
   function closeDetail() {
-    var base = { fn: '#/fn', rx: '#/rx', err: '#/err', fav: '#/fav' }[state.tab] || '#/';
+    var base = { fn: '#/fn', rx: '#/rx', it: '#/it', err: '#/err', fav: '#/fav' }[state.tab] || '#/';
     location.hash = base;
   }
 
@@ -496,7 +526,7 @@
   /* --------------------------------- init --------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
     layout = $('#layout'); side = $('#side'); list = $('#list'); detail = $('#detail');
-    updateCounts(); bind(); setupEnv(); route();
+    hydrateIcons(); updateCounts(); bind(); setupEnv(); route();
     if (!location.hash || location.hash === '#/' || location.hash === '#') $('#q').focus();
   });
 

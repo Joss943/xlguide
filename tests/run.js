@@ -10,9 +10,15 @@ function section(t) { console.log('\n▶ ' + t); }
 
 const fnByName = {};
 XL.functions.forEach((f) => { fnByName[f.fr] = f; });
-const known = (n) => !!(fnByName[n] || XL.extraNames[n]);
+const known = (n) => !!(fnByName[n] || XL.extraNames[n] || XL.userFunctions[n]);
 const CATS = XL.categories.map((c) => c.id);
 const RCATS = XL.recipeCategories.map((c) => c.id);
+XL.recipeCategories.forEach((c) => {
+  check(['compta', 'it'].includes(c.domain), 'thème ' + c.id + ' : domaine inconnu');
+  check(!!XL.icon(c.icon), 'thème ' + c.id + ' : icône Tabler absente du lot (' + c.icon + ')');
+});
+XL.categories.forEach((c) => check(!!XL.icon(c.icon), 'catégorie ' + c.id + ' : icône Tabler absente du lot (' + c.icon + ')'));
+check(XL.recipes.filter((r) => XL.recipeCategories.find((c) => c.id === r.cat).domain === 'it').length >= 40, 'volet informatique : au moins 40 recettes');
 const VERS = ['', '2010', '2013', '2016', '2019', '2021', '2024', '365'];
 
 /* Parenthèses et guillemets équilibrés (hors chaînes) */
@@ -98,7 +104,11 @@ Object.entries(expectTop).forEach(([q, want]) => {
   const top = XL.search.search(q, { limit: 3 }).map((r) => r.item.fr || r.item.title);
   check(top.includes(want), 'recherche « ' + q + ' » → attendu ' + want + ' dans le top 3, obtenu : ' + top.join(', '));
 });
-const expectRecipe = { 'calculer le ttc': 'Passer du HT au TTC', 'rapprochement bancaire': 'Rapprochement bancaire (pointage)', 'balance agee': 'Balance âgée (tranches de retard)', 'échéance 30 jours fin de mois': 'Date d’échéance d’une facture' };
+const expectRecipe = { 'calculer le ttc': 'Passer du HT au TTC', 'rapprochement bancaire': 'Rapprochement bancaire (pointage)', 'balance agee': 'Balance âgée (tranches de retard)', 'échéance 30 jours fin de mois': 'Date d’échéance d’une facture',
+  'comptes orphelins': 'Comptes orphelins : présents dans l’AD, absents de la liste RH', 'masque de sous-réseau': 'Masque de sous-réseau à partir du préfixe CIDR',
+  'adresse mac': 'Normaliser une adresse MAC', 'lastlogontimestamp': 'Convertir lastLogonTimestamp / pwdLastSet (Active Directory) en date',
+  'comparer deux listes': 'Rapprocher deux listes : dans les deux, seulement A, seulement B', 'inventaire materiel cmdb': 'Inventaire physique ↔ CMDB (GLPI, Intune, SCCM…)',
+  'timestamp unix': 'Convertir un timestamp Unix (epoch) en date', 'capacite raid': 'Capacité utile d’une grappe RAID' };
 Object.entries(expectRecipe).forEach(([q, want]) => {
   const top = XL.search.search(q, { limit: 3 }).map((r) => r.item.title || r.item.fr);
   check(top.includes(want), 'recherche « ' + q + ' » → recette attendue « ' + want + ' », obtenu : ' + top.join(' | '));
@@ -107,6 +117,9 @@ Object.entries(expectRecipe).forEach(([q, want]) => {
 section('Fichiers de l’application');
 const sw = fs.readFileSync(path.join(__dirname, '..', 'app', 'sw.js'), 'utf8');
 const html = fs.readFileSync(path.join(__dirname, '..', 'app', 'index.html'), 'utf8');
+[...html.matchAll(/data-ic="([^"]+)"/g)].forEach((m) => check(!!XL.icon(m[1]), 'icône inconnue dans index.html : ' + m[1]));
+const appJs = fs.readFileSync(path.join(__dirname, '..', 'app', 'js', 'app.js'), 'utf8');
+[...appJs.matchAll(/ic\('([a-z0-9-]+)'\)/g)].forEach((m) => check(!!XL.icon(m[1]), 'icône inconnue dans app.js : ' + m[1]));
 [...html.matchAll(/(?:src|href)="((?:data|js|css|icons)\/[^"]+)"/g)].forEach((m) => {
   check(fs.existsSync(path.join(__dirname, '..', 'app', m[1])), 'fichier manquant : ' + m[1]);
   check(sw.includes("'" + m[1] + "'"), 'fichier absent du cache hors-ligne (sw.js) : ' + m[1]);

@@ -1,6 +1,10 @@
 /* XLGuide — site : détection du système, onglets Linux, copie des commandes, dernière version */
 (function () {
   'use strict';
+  // Icônes Tabler : déjà intégrées par scripts/build-site.js ; ce code ne sert qu'en aperçu local.
+  if (window.XL && window.XL.icon) {
+    document.querySelectorAll('i[data-ic]').forEach(function (el) { el.outerHTML = window.XL.icon(el.getAttribute('data-ic')); });
+  }
   var ua = navigator.userAgent || '';
   var platform = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
   var isWin = /Win/i.test(platform) || /Windows/i.test(ua);

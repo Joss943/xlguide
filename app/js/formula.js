@@ -137,6 +137,7 @@
           if (isFn) {
             if (names[u]) { out += pre + names[u]; return; }
             if (bools[u]) { out += bools[u]; return; }
+            if (XL.userFunctions && XL.userFunctions[u]) { out += id; return; }
             var other = dir === 'fr2en' ? m.en2fr[u] : m.fr2en[u];
             if (!other && unknown.indexOf(u) < 0) unknown.push(u);
             out += id; return;

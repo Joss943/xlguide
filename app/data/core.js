@@ -21,32 +21,43 @@
   XL.errors = XL.errors || [];
   XL.shortcuts = XL.shortcuts || [];
   XL.extraNames = XL.extraNames || {};
+  // Fonctions personnalisées (LAMBDA) proposées dans les recettes : reconnues par le traducteur et les tests.
+  XL.userFunctions = XL.userFunctions || {};
 
+  // icon = nom d'icône Tabler Icons (voir scripts/build-icons.js)
   XL.categories = [
-    { id: 'logique', label: 'Logique', icon: '⚖️' },
-    { id: 'recherche', label: 'Recherche & références', icon: '🔎' },
-    { id: 'tableaux', label: 'Tableaux dynamiques', icon: '🧮' },
-    { id: 'math', label: 'Maths & arrondis', icon: '➗' },
-    { id: 'stats', label: 'Statistiques & comptage', icon: '📊' },
-    { id: 'texte', label: 'Texte', icon: '🔤' },
-    { id: 'date', label: 'Dates & heures', icon: '📅' },
-    { id: 'finance', label: 'Finance & amortissements', icon: '💶' },
-    { id: 'info', label: 'Information & erreurs', icon: 'ℹ️' },
-    { id: 'bdd', label: 'Base de données', icon: '🗃️' },
-    { id: 'conv', label: 'Conversion & ingénierie', icon: '🔧' }
+    { id: 'logique', label: 'Logique', icon: 'arrows-split-2' },
+    { id: 'recherche', label: 'Recherche & références', icon: 'search' },
+    { id: 'tableaux', label: 'Tableaux dynamiques', icon: 'table' },
+    { id: 'math', label: 'Maths & arrondis', icon: 'calculator' },
+    { id: 'stats', label: 'Statistiques & comptage', icon: 'chart-bar' },
+    { id: 'texte', label: 'Texte', icon: 'typography' },
+    { id: 'date', label: 'Dates & heures', icon: 'calendar' },
+    { id: 'finance', label: 'Finance & amortissements', icon: 'coin-euro' },
+    { id: 'info', label: 'Information & erreurs', icon: 'info-circle' },
+    { id: 'bdd', label: 'Base de données', icon: 'database' },
+    { id: 'conv', label: 'Conversion, bits & ingénierie', icon: 'binary' }
   ];
 
+  // domain : 'compta' (onglet Recettes compta) ou 'it' (onglet Informatique & réseau)
   XL.recipeCategories = [
-    { id: 'tva', label: 'TVA, prix & marges', icon: '🧾' },
-    { id: 'emprunt', label: 'Emprunts & placements', icon: '🏦' },
-    { id: 'immo', label: 'Immobilisations', icon: '🏭' },
-    { id: 'factures', label: 'Factures & échéances', icon: '📨' },
-    { id: 'treso', label: 'Trésorerie & banque', icon: '💳' },
-    { id: 'controle', label: 'Contrôles & audit', icon: '✅' },
-    { id: 'analyse', label: 'Analyse & reporting', icon: '📈' },
-    { id: 'import', label: 'Nettoyage d’imports', icon: '🧹' },
-    { id: 'periodes', label: 'Dates & périodes', icon: '🗓️' },
-    { id: 'rh', label: 'Paie & temps de travail', icon: '⏱️' }
+    { id: 'tva', label: 'TVA, prix & marges', icon: 'receipt-tax', domain: 'compta' },
+    { id: 'emprunt', label: 'Emprunts & placements', icon: 'building-bank', domain: 'compta' },
+    { id: 'immo', label: 'Immobilisations', icon: 'building-factory-2', domain: 'compta' },
+    { id: 'factures', label: 'Factures & échéances', icon: 'file-invoice', domain: 'compta' },
+    { id: 'treso', label: 'Trésorerie & banque', icon: 'credit-card', domain: 'compta' },
+    { id: 'controle', label: 'Contrôles & audit', icon: 'checklist', domain: 'compta' },
+    { id: 'analyse', label: 'Analyse & reporting', icon: 'chart-line', domain: 'compta' },
+    { id: 'import', label: 'Nettoyage d’imports', icon: 'file-import', domain: 'compta' },
+    { id: 'periodes', label: 'Dates & périodes', icon: 'calendar-event', domain: 'compta' },
+    { id: 'rh', label: 'Paie & temps de travail', icon: 'clock-hour-4', domain: 'compta' },
+    { id: 'comparaison', label: 'Comparer des bases (utilisateurs & matériel)', icon: 'git-compare', domain: 'it' },
+    { id: 'reseau', label: 'Adresses IP & sous-réseaux', icon: 'network', domain: 'it' },
+    { id: 'hote', label: 'MAC, hôtes & identifiants', icon: 'router', domain: 'it' },
+    { id: 'comptes', label: 'Comptes & Active Directory', icon: 'users', domain: 'it' },
+    { id: 'parc', label: 'Parc matériel & licences', icon: 'devices-pc', domain: 'it' },
+    { id: 'supervision', label: 'Supervision, logs & SLA', icon: 'activity-heartbeat', domain: 'it' },
+    { id: 'stockage', label: 'Stockage & débit', icon: 'server-2', domain: 'it' }
   ];
 
   XL.versions = [

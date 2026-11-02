@@ -1,7 +1,7 @@
 {
   "name": "xlguide",
   "productName": "XLGuide",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Formules Excel en français : explications, exemples, recettes de comptabilité et traducteur FR/EN.",
   "main": "electron/main.js",
   "homepage": "https://joss943.github.io/xlguide/",
@@ -21,9 +21,12 @@
     "verify:formulas": "python3 tests/verify_libreoffice.py",
     "dist:linux": "electron-builder --linux --x64 --publish never",
     "dist:win": "electron-builder --win --x64 --publish never",
-    "site:build": "node scripts/build-site.js"
+    "site:build": "node scripts/build-site.js",
+    "icons": "node scripts/build-icons.js",
+    "gen:it": "python3 scripts/gen-recipes-it.py"
   },
   "devDependencies": {
+    "@tabler/icons": "^3.50.0",
     "electron": "^45.2.1",
     "electron-builder": "^26.18.0"
   },
