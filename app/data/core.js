@@ -90,4 +90,39 @@
   XL.K = function (cat, keys, action) {
     XL.shortcuts.push({ cat: cat, keys: keys, action: action });
   };
+
+  /* ---------------------------- Parcours pédagogique ---------------------------- */
+  XL.notions = XL.notions || [];
+  XL.samples = XL.samples || {};
+  XL.placement = XL.placement || {};
+  XL.dataErrors = XL.dataErrors || []; // doublons de saisie : signalés par les tests, ignorés à l'exécution
+
+  /**
+   * Notion = leçon d'utilisation d'Excel (lue dans l'ordre de déclaration).
+   * { activity, level, title, intro, points: [], examples: [[formule, explication, attendu?]], tips: [], kw, sample? }
+   */
+  XL.N = function (n) {
+    XL.notions.push({
+      activity: n.activity, level: n.level, title: n.title, intro: n.intro,
+      points: n.points || [], examples: n.examples || [], tips: n.tips || [], kw: n.kw || '', sample: n.sample || null
+    });
+  };
+
+  /**
+   * Mini-tableau d'exemple attaché à une fonction ('f:NOM') ou une recette ('r:Titre exact').
+   * spec = { cols: [en-têtes], rows: [[valeurs]], fill?: { header, formula, results, fmt? }, calc?: [[libellé, formule, résultat, fmt?]], fmt?: [format par colonne] }
+   * Valeurs : nombre, texte, booléen, 'd:AAAA-MM-JJ' (date), 't:HH:MM' (heure), '' (vide).
+   */
+  XL.S = function (target, spec) {
+    if (XL.samples[target]) { XL.dataErrors.push('Mini-tableau en double : ' + target); return; }
+    XL.samples[target] = spec;
+  };
+
+  /** Place des fonctions ('f:NOM') ou recettes ('r:Titre exact') dans une activité et un niveau, dans l'ordre donné. */
+  XL.place = function (activity, level, keys) {
+    keys.forEach(function (k, i) {
+      if (XL.placement[k]) { XL.dataErrors.push('Placement en double : ' + k); return; }
+      XL.placement[k] = { activity: activity, level: level, order: i };
+    });
+  };
 })(typeof window !== 'undefined' ? window : globalThis);

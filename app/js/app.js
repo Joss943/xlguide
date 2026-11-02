@@ -1,534 +1,331 @@
-/* XLGuide — interface */
+/*
+ * XLGuide — contrôleur : état de l'interface, routage, rendu et événements.
+ * Les vues (js/views) sont des fonctions pures ; ce fichier est le seul à toucher au DOM.
+ *
+ * Routes (stables, utilisées par les favoris et les liens) :
+ *   #/                 accueil            #/a/<activité>[/<niveau>]  parcours
+ *   #/n/<id>  notion   #/f/<NOM> fonction  #/r/<id> méthode   #/e/<n> erreur
+ *   #/outils  #/fn (index)  #/rx #/it (cas pratiques)  #/err  #/tr  #/kb  #/fav
+ */
 (function (XL) {
   'use strict';
 
-  var APP_VERSION = '1.1.0';
-  var REPO = 'https://github.com/Joss943/xlguide';
-  var $ = function (s, r) { return (r || document).querySelector(s); };
-  var esc = XL.formula.esc;
+  var $ = function (sel) { return document.querySelector(sel); };
   var ic = XL.icon;
-  var hl = XL.formula.highlight;
-
-  /* ------------------------------- stockage ------------------------------- */
-  var store = {
-    get: function (k, d) { try { var v = localStorage.getItem('xlguide.' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set: function (k, v) { try { localStorage.setItem('xlguide.' + k, JSON.stringify(v)); } catch (e) { /* stockage indisponible */ } }
-  };
-
-  /* ------------------------------ préparation ----------------------------- */
-  function slug(s) {
-    return XL.search.norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
-  }
-  var catById = {}, rcatById = {}, fnByName = {}, rxById = {}, usedIn = {};
-  XL.categories.forEach(function (c) { catById[c.id] = c; });
-  XL.recipeCategories.forEach(function (c) { rcatById[c.id] = c; });
-  XL.functions.forEach(function (f) { fnByName[f.fr] = f; f.key = 'f:' + f.fr; });
-  XL.recipes.forEach(function (r) {
-    r.id = slug(r.title); r.key = 'r:' + r.id; rxById[r.id] = r; r.domain = rcatById[r.cat].domain;
-    var used = [];
-    r.steps.forEach(function (s) {
-      XL.formula.functionsUsed(s[0]).forEach(function (n) { if (fnByName[n] && used.indexOf(n) < 0) used.push(n); });
-    });
-    r.fns = used;
-    used.forEach(function (n) { (usedIn[n] = usedIn[n] || []).push(r); });
-  });
-  XL.errors.forEach(function (e, i) { e.id = String(i); e.key = 'e:' + i; });
-
-  var VRANK = { '': 0, '2010': 1, '2013': 2, '2016': 3, '2019': 4, '2021': 5, '2024': 6, '365': 7 };
-  var VLABEL = { '': 'Toutes versions', '2010': 'Excel 2010 et +', '2013': 'Excel 2013 et +', '2016': 'Excel 2016 et +',
-    '2019': 'Excel 2019 et +', '2021': 'Excel 2021 et +', '2024': 'Excel 2024 / 365', '365': 'Microsoft 365' };
+  var model = XL.buildModel();
+  var TOOL_VIEWS = ['tools', 'index', 'cases', 'errors', 'tr', 'kb'];
 
   var state = {
-    tab: 'home', q: '', cat: '', sel: null,
-    ver: store.get('ver', '365'),
-    favs: store.get('favs', []),
-    active: -1
+    view: 'home', act: '', level: 'base', domain: 'compta', cat: '', type: '',
+    q: '', sel: null, active: -1,
+    ver: XL.store.get('ver', '365'),
+    favs: XL.store.get('favs', [])
   };
+  var els = {}, lastPage = '', lastSig = '', shownSel = null, listItems = [], uid = 0;
 
-  function rxOf(domain) { return XL.recipes.filter(function (r) { return r.domain === domain; }); }
-  function hydrateIcons(root) {
-    (root || document).querySelectorAll('i[data-ic]').forEach(function (el) { el.outerHTML = ic(el.getAttribute('data-ic')); });
+  function ctx() {
+    return { m: model, s: state, cfg: XL.config, uid: function () { return ++uid; } };
   }
 
-  function available(f) { return VRANK[f.since || ''] <= VRANK[state.ver]; }
-
-  /* ------------------------------- utilitaires ----------------------------- */
+  /* ------------------------------ retours visuels ------------------------------ */
   var toastTimer;
   function toast(msg) {
-    var t = $('#toast'); t.textContent = msg; t.classList.add('show');
-    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1600);
+    els.toast.textContent = msg;
+    els.toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { els.toast.classList.remove('show'); }, 1600);
   }
-  function copy(text, label) {
-    function ok() { toast((label || 'Copié') + ' ✓'); }
-    if (navigator.clipboard && window.isSecureContext !== false) {
-      navigator.clipboard.writeText(text).then(ok, fallback);
-    } else fallback();
+  function copy(text) {
+    function done() { toast('Copié ✓'); }
     function fallback() {
-      var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
-      ta.className = 'offscreen'; document.body.appendChild(ta); ta.select();
-      try { document.execCommand('copy'); ok(); } catch (e) { toast('Copie impossible'); }
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.className = 'offscreen';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) { toast('Copie impossible'); }
       document.body.removeChild(ta);
     }
+    if (navigator.clipboard && window.isSecureContext !== false) navigator.clipboard.writeText(text).then(done, fallback);
+    else fallback();
   }
-  function fmtExpected(v) {
-    if (v === true) return 'VRAI';
-    if (v === false) return 'FAUX';
-    if (typeof v === 'number') {
-      var s = Math.abs(v) >= 1000 ? v.toLocaleString('fr-FR', { maximumFractionDigits: 6 }) : String(v).replace('.', ',');
-      return s;
+
+  /* ---------------------------------- rendu ---------------------------------- */
+  /** La recherche remplace la page, sauf sur les raccourcis (filtre) et le traducteur (formule collée). */
+  function searching() {
+    var q = state.q.trim();
+    return !!q && state.view !== 'kb' && !(state.view === 'tr' && q.charAt(0) === '=');
+  }
+  function currentPage() {
+    var c = ctx(), V = XL.views;
+    if (searching()) return V.search(c);
+    switch (state.view) {
+      case 'activity': return V.activity(c, state.act, state.level);
+      case 'index': return V.functionIndex(c);
+      case 'cases': return V.cases(c, state.domain);
+      case 'errors': return V.errors(c);
+      case 'fav': return V.favorites(c);
+      case 'tools': return { full: V.toolsHub(c) };
+      case 'tr': return { full: V.translator(c), translator: true };
+      case 'kb': return { full: V.shortcuts(c) };
+      default: return { full: V.home(c) };
     }
-    if (typeof v === 'string' && v.indexOf('d:') === 0) { var p = v.slice(2).split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
-    return '« ' + v + ' »';
   }
-  function isFav(key) { return state.favs.indexOf(key) >= 0; }
-  function toggleFav(key) {
-    var i = state.favs.indexOf(key);
-    if (i >= 0) state.favs.splice(i, 1); else state.favs.unshift(key);
-    store.set('favs', state.favs); updateCounts(); lastSig = '';
-    toast(i >= 0 ? 'Retiré des favoris' : 'Ajouté aux favoris');
-  }
-  function resolve(key) {
-    var t = key.slice(0, 2), id = key.slice(2);
-    if (t === 'f:') return fnByName[id] ? { type: 'fn', item: fnByName[id] } : null;
-    if (t === 'r:') return rxById[id] ? { type: 'rx', item: rxById[id] } : null;
-    if (t === 'e:') return XL.errors[+id] ? { type: 'err', item: XL.errors[+id] } : null;
-    return null;
-  }
-  function hrefOf(type, item) {
-    if (type === 'fn') return '#/f/' + encodeURIComponent(item.fr);
-    if (type === 'rx') return '#/r/' + item.id;
-    return '#/e/' + item.id;
+  function currentTab() {
+    if (searching()) return '';
+    if (state.view === 'activity') return state.act;
+    return TOOL_VIEWS.indexOf(state.view) >= 0 ? 'outils' : state.view;
   }
 
-  /* --------------------------------- rendu --------------------------------- */
-  function badge(f) {
-    if (!f.since) return '';
-    var cls = available(f) ? 'badge' : 'badge badge-no';
-    var txt = f.since === '365' ? '365' : f.since + '+';
-    return '<span class="' + cls + '" title="' + esc(VLABEL[f.since]) + (available(f) ? '' : ' — indisponible dans ta version') + '">' + txt + '</span>';
-  }
-
-  function itemHTML(r) {
-    var it = r.item, star = isFav(it.key) ? '<span class="star on" aria-label="favori">' + ic('star-filled') + '</span>' : '';
-    if (r.type === 'fn') {
-      return '<a class="item' + (available(it) ? '' : ' item-na') + '" href="' + hrefOf('fn', it) + '" data-key="' + esc(it.key) + '">' +
-        '<div class="item-h"><span class="nm mono">' + esc(it.fr) + '</span><span class="en mono">' + esc(it.en) + '</span>' + badge(it) + star + '</div>' +
-        '<div class="ds">' + esc(it.desc) + '</div>' +
-        '<div class="meta"><span class="tag">' + ic(catById[it.cat].icon) + esc(catById[it.cat].label) + '</span></div></a>';
-    }
-    if (r.type === 'rx') {
-      return '<a class="item item-rx" href="' + hrefOf('rx', it) + '" data-key="' + esc(it.key) + '">' +
-        '<div class="item-h"><span class="nm">' + esc(it.title) + '</span>' + star + '</div>' +
-        '<div class="ds">' + esc(it.desc) + '</div>' +
-        '<div class="meta"><span class="tag ' + (it.domain === 'it' ? 'tag-it' : 'tag-rx') + '">' + ic(rcatById[it.cat].icon) + (it.domain === 'it' ? 'Informatique · ' : 'Compta · ') + esc(rcatById[it.cat].label) + '</span>' +
-        it.fns.slice(0, 4).map(function (n) { return '<span class="chip-mini mono">' + esc(n) + '</span>'; }).join('') + '</div></a>';
-    }
-    return '<a class="item item-err" href="' + hrefOf('err', it) + '" data-key="' + esc(it.key) + '">' +
-      '<div class="item-h"><span class="nm mono">' + esc(it.fr) + '</span><span class="en mono">' + esc(it.en) + '</span>' + star + '</div>' +
-      '<div class="ds">' + esc(it.cause) + '</div><div class="meta"><span class="tag tag-err">' + ic('alert-circle') + 'Erreur</span></div></a>';
-  }
-
-  function sideHTML() {
-    var html = '';
-    if (state.tab === 'fn' || state.tab === 'rx' || state.tab === 'it' || state.tab === 'home') {
-      var isRx = state.tab === 'rx' || state.tab === 'it';
-      var dom = state.tab === 'it' ? 'it' : 'compta';
-      var cats = isRx ? XL.recipeCategories.filter(function (c) { return c.domain === dom; }) : XL.categories;
-      var all = isRx ? rxOf(dom) : XL.functions;
-      html += '<div class="side-h">' + (state.tab === 'it' ? 'Informatique & réseau' : isRx ? 'Thèmes compta' : 'Catégories') + '</div>';
-      html += '<button class="cat' + (!state.cat ? ' on' : '') + '" data-cat="">Tout <small>' + all.length + '</small></button>';
-      cats.forEach(function (c) {
-        var n = all.filter(function (x) { return x.cat === c.id; }).length;
-        html += '<button class="cat' + (state.cat === c.id ? ' on' : '') + '" data-cat="' + c.id + '">' + ic(c.icon) + '<span>' + esc(c.label) + '</span><small>' + n + '</small></button>';
-      });
-    }
-    html += '<div class="side-foot">' +
-      '<div class="side-h">' + ic('bulb') + 'Astuce</div><p>Tape une phrase comme tu la dirais : « compter les factures impayées », « comptes inactifs », « masque de sous-réseau »…</p>' +
-      '<p class="muted">Raccourcis : <kbd>/</kbd> chercher · <kbd>↑</kbd><kbd>↓</kbd> naviguer · <kbd>Échap</kbd> effacer</p>' +
-      '<p class="muted small">XLGuide v' + APP_VERSION + ' · <a href="' + REPO + '" target="_blank" rel="noopener">GitHub</a> · <a href="' + REPO + '/releases/latest" target="_blank" rel="noopener">Mises à jour</a><br>Icônes : <a href="https://tabler.io/icons" target="_blank" rel="noopener">Tabler Icons</a> (MIT)</p></div>';
-    return html;
-  }
-
-  function listResults() {
-    var q = state.q.trim(), tab = state.tab, res;
-    if (tab === 'fav') {
-      res = state.favs.map(resolve).filter(Boolean);
-      if (q) {
-        var keys = {}; XL.search.search(q, { limit: 400 }).forEach(function (r) { keys[r.item.key] = 1; });
-        res = res.filter(function (r) { return keys[r.item.key]; });
-      }
-      return res;
-    }
-    var types = tab === 'fn' ? ['fn'] : (tab === 'rx' || tab === 'it') ? ['rx'] : tab === 'err' ? ['err'] : null;
-    if (q) {
-      res = XL.search.search(q, { types: types, limit: 120 });
-      if (tab === 'rx' || tab === 'it') {
-        var dom = tab === 'it' ? 'it' : 'compta';
-        res = res.filter(function (r) { return r.item.domain === dom; });
-      }
-    } else if (tab === 'fn') {
-      res = XL.functions.slice().sort(function (a, b) { return a.fr.localeCompare(b.fr, 'fr'); }).map(function (f) { return { type: 'fn', item: f }; });
-    } else if (tab === 'rx' || tab === 'it') {
-      res = rxOf(tab === 'it' ? 'it' : 'compta').map(function (r) { return { type: 'rx', item: r }; });
-    } else if (tab === 'err') {
-      res = XL.errors.map(function (e) { return { type: 'err', item: e }; });
-    } else res = [];
-    if (state.cat && (tab === 'fn' || tab === 'rx' || tab === 'it' || tab === 'home')) {
-      res = res.filter(function (r) { return r.item.cat === state.cat; });
-    }
-    return res;
-  }
-
-  var HOME_FNS = ['SOMME.SI.ENS', 'RECHERCHEX', 'SI', 'SIERREUR', 'ARRONDI', 'FIN.MOIS', 'NB.SI', 'SOMMEPROD', 'TEXTE', 'FILTRE', 'VPM', 'NB.JOURS.OUVRES'];
-  var QUICK = ['additionner si plusieurs conditions', 'chercher une valeur dans un tableau', 'calculer le TTC', 'mensualité d’emprunt',
-    'échéance 30 jours fin de mois', 'rapprochement bancaire', 'comparer deux listes', 'comptes inactifs', 'masque de sous-réseau',
-    'adresse MAC', 'texte en nombre', '#N/A'];
-
-  function rxCards(domain) {
-    return '<div class="grid">' + XL.recipeCategories.filter(function (c) { return c.domain === domain; }).map(function (c) {
-      var rs = XL.recipes.filter(function (r) { return r.cat === c.id; });
-      return '<div class="card"><div class="card-h">' + ic(c.icon) + esc(c.label) + '</div><ul>' +
-        rs.slice(0, 4).map(function (r) { return '<li><a href="#/r/' + r.id + '">' + esc(r.title) + '</a></li>'; }).join('') +
-        (rs.length > 4 ? '<li><a class="more" href="#/' + (domain === 'it' ? 'it' : 'rx') + '" data-cat="' + c.id + '">+ ' + (rs.length - 4) + ' autres…</a></li>' : '') + '</ul></div>';
-    }).join('') + '</div>';
-  }
-
-  function homeHTML() {
-    var nEx = XL.functions.reduce(function (n, f) { return n + f.ex.length; }, 0) + XL.recipes.reduce(function (n, r) { return n + r.steps.length; }, 0);
-    return '<div class="home">' +
-      '<h1>Que veux-tu faire dans Excel ?</h1>' +
-      '<p class="lead">Décris ton besoin avec tes mots : XLGuide trouve la fonction, t’explique ses arguments et te donne des formules prêtes à copier, en français.</p>' +
-      '<div class="quick">' + QUICK.map(function (q) { return '<button class="chip" data-q="' + esc(q) + '">' + esc(q) + '</button>'; }).join('') + '</div>' +
-      '<div class="stats">' +
-      '<a href="#/fn">' + ic('math-function') + '<b>' + XL.functions.length + '</b><span>fonctions détaillées</span></a>' +
-      '<a href="#/rx">' + ic('receipt-tax') + '<b>' + rxOf('compta').length + '</b><span>recettes compta</span></a>' +
-      '<a href="#/it">' + ic('network') + '<b>' + rxOf('it').length + '</b><span>recettes informatique & réseau</span></a>' +
-      '<a href="#/tr">' + ic('arrows-left-right') + '<b>' + nEx + '</b><span>formules d’exemple · traducteur FR ⇄ EN</span></a></div>' +
-      '<h2>' + ic('receipt-tax') + 'Recettes de comptabilité</h2>' + rxCards('compta') +
-      '<h2>' + ic('network') + 'Informatique, système & réseau</h2>' + rxCards('it') +
-      '<h2>' + ic('math-function') + 'Les fonctions à connaître</h2><div class="fn-grid">' +
-      HOME_FNS.map(function (n) { var f = fnByName[n]; return '<a class="fn-tile" href="#/f/' + encodeURIComponent(n) + '"><span class="mono">' + esc(n) + '</span><small>' + esc(f.desc.split('.')[0]) + '</small></a>'; }).join('') +
-      '</div></div>';
-  }
-
-  function syntaxHTML(f) {
-    var m = f.syntax.match(/^([^(]+)\((.*)\)$/);
-    if (!m) return esc(f.syntax);
-    var args = m[2] ? m[2].split(';').map(function (a) {
-      a = a.trim(); var opt = /^\[.*\]$/.test(a);
-      return '<span class="arg' + (opt ? ' opt' : '') + '">' + esc(a) + '</span>';
-    }) : [];
-    return '<span class="tk-fn">' + esc(m[1]) + '</span>(' + args.join('<span class="tk-sep">; </span>') + ')';
-  }
-
-  function exampleHTML(ex, idx) {
-    var f = ex[0], isFormula = f.charAt(0) === '=';
-    var en = isFormula ? XL.formula.translate(f, 'fr2en').result : '';
-    return '<div class="ex">' +
-      '<div class="ex-f"><code class="formula">' + (isFormula ? hl(f, 'fr') : esc(f)) + '</code>' +
-      (isFormula ? '<div class="ex-btns"><button class="btn-s" data-copy="' + esc(f) + '" title="Copier la formule (Excel en français)">' + ic('copy') + 'Copier</button>' +
-        '<button class="btn-s ghost" data-toggle-en="' + idx + '" title="Voir la version Excel en anglais">EN</button></div>' : '') + '</div>' +
-      (isFormula ? '<div class="ex-en" id="en-' + idx + '" hidden><code class="formula">' + hl(en, 'en') + '</code><button class="btn-s ghost" data-copy="' + esc(en) + '">' + ic('copy') + 'Copier EN</button></div>' : '') +
-      '<div class="ex-d">' + esc(ex[1]) + (ex.length > 2 ? ' <span class="res">→ ' + esc(fmtExpected(ex[2])) + '</span>' : '') + '</div></div>';
-  }
-
-  function tipsHTML(tips) {
-    return tips && tips.length ? '<div class="tips">' + tips.map(function (t) { return '<div class="tip">' + ic('bulb') + '<p>' + esc(t) + '</p></div>'; }).join('') + '</div>' : '';
-  }
-
-  function detailFn(f) {
-    var cat = catById[f.cat], av = available(f);
-    var h = '<div class="d-top"><button class="back" data-back title="Retour">' + ic('arrow-left') + '</button><span class="tag">' + ic(cat.icon) + esc(cat.label) + '</span>' +
-      '<button class="fav-btn' + (isFav(f.key) ? ' on' : '') + '" data-fav="' + esc(f.key) + '" title="Favori">' + ic('star') + '</button></div>' +
-      '<h2 class="d-title mono">' + esc(f.fr) + '<button class="btn-s ghost" data-copy="' + esc(f.fr) + '">' + ic('copy') + 'Copier</button></h2>' +
-      '<div class="d-sub">Anglais : <span class="mono">' + esc(f.en) + '</span> · <span class="' + (av ? 'ok' : 'ko') + '">' +
-      (f.since ? esc(VLABEL[f.since]) : 'Toutes versions') + (av ? '' : ' — absente de ta version (' + esc(state.ver) + ')') + '</span></div>' +
-      '<p class="d-desc">' + esc(f.desc) + '</p>' +
-      '<h3>Syntaxe</h3><div class="syntax mono">' + syntaxHTML(f) + '</div>';
-    if (f.args.length) {
-      h += '<table class="args"><tbody>' + f.args.map(function (a) {
-        var opt = /^\[/.test(a[0]) || /facultatif/i.test(a[1]);
-        return '<tr><th class="mono">' + esc(a[0].replace(/^\[|\]$/g, '')) + (opt ? ' <em>facultatif</em>' : '') + '</th><td>' + esc(a[1]) + '</td></tr>';
-      }).join('') + '</tbody></table>';
-    }
-    h += '<h3>Exemples</h3>' + f.ex.map(exampleHTML).join('');
-    if (f.tips.length) h += '<h3>Bon à savoir</h3>' + tipsHTML(f.tips);
-    var see = f.see.filter(function (n) { return fnByName[n]; });
-    if (see.length) h += '<h3>Voir aussi</h3><div class="chips">' + see.map(function (n) { return '<a class="chip mono" href="#/f/' + encodeURIComponent(n) + '">' + esc(n) + '</a>'; }).join('') + '</div>';
-    var rx = usedIn[f.fr] || [];
-    if (rx.length) h += '<h3>Utilisée dans les recettes</h3><ul class="links">' + rx.map(function (r) { return '<li><a href="#/r/' + r.id + '">' + esc(r.title) + '</a></li>'; }).join('') + '</ul>';
-    return h;
-  }
-
-  function detailRx(r) {
-    var cat = rcatById[r.cat];
-    var h = '<div class="d-top"><button class="back" data-back title="Retour">' + ic('arrow-left') + '</button><span class="tag ' + (r.domain === 'it' ? 'tag-it' : 'tag-rx') + '">' + ic(cat.icon) + esc(cat.label) + '</span>' +
-      '<button class="fav-btn' + (isFav(r.key) ? ' on' : '') + '" data-fav="' + esc(r.key) + '" title="Favori">' + ic('star') + '</button></div>' +
-      '<h2 class="d-title">' + esc(r.title) + '</h2><p class="d-desc">' + esc(r.desc) + '</p>' +
-      '<h3>Formules</h3>' + r.steps.map(exampleHTML).join('');
-    if (r.tips.length) h += '<h3>Bon à savoir</h3>' + tipsHTML(r.tips);
-    if (r.fns.length) h += '<h3>Fonctions utilisées</h3><div class="chips">' + r.fns.map(function (n) {
-      return '<a class="chip mono' + (available(fnByName[n]) ? '' : ' chip-na') + '" href="#/f/' + encodeURIComponent(n) + '">' + esc(n) + badge(fnByName[n]) + '</a>';
-    }).join('') + '</div>';
-    return h;
-  }
-
-  function detailErr(e) {
-    return '<div class="d-top"><button class="back" data-back title="Retour">' + ic('arrow-left') + '</button><span class="tag tag-err">' + ic('alert-circle') + 'Erreur Excel</span>' +
-      '<button class="fav-btn' + (isFav(e.key) ? ' on' : '') + '" data-fav="' + esc(e.key) + '" title="Favori">' + ic('star') + '</button></div>' +
-      '<h2 class="d-title mono">' + esc(e.fr) + '</h2><div class="d-sub">Excel en anglais : <span class="mono">' + esc(e.en) + '</span></div>' +
-      '<h3>Cause</h3><p class="d-desc">' + esc(e.cause) + '</p><h3>Solutions</h3><ol class="fixes">' +
-      e.fixes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ol>';
-  }
-
-  /* ------------------------------ traducteur ------------------------------ */
-  var TR_SAMPLES = [
-    '=IFERROR(VLOOKUP(A2,Sheet2!$A:$C,3,FALSE),"Not found")',
-    '=SUMIFS(D:D,A:A,"607*",B:B,">="&DATE(2026,1,1))',
-    '=SOMMEPROD((GAUCHE(A2:A500;1)="6")*D2:D500)',
-    '=XLOOKUP(A2,Accounts[Code],Accounts[Label],"Unknown")'
-  ];
-  function translatorHTML() {
-    return '<div class="tr">' +
-      '<h1>' + ic('arrows-left-right') + 'Traducteur de formules FR ⇄ EN</h1>' +
-      '<p class="lead">Colle une formule trouvée dans un tuto anglais : elle est convertie pour Excel en français (noms de fonctions, « , » → « ; », décimales, VRAI/FAUX). Ça marche aussi dans l’autre sens.</p>' +
-      '<div class="tr-grid">' +
-      '<div class="tr-pane"><div class="tr-h"><b>' + ic('language') + 'Excel en français</b><button class="btn-s" id="trCopyFr">' + ic('copy') + 'Copier</button></div>' +
-      '<textarea id="trFr" class="mono" spellcheck="false" placeholder="=SOMME.SI(A2:A100;&quot;Payé&quot;;C2:C100)"></textarea></div>' +
-      '<div class="tr-mid"><span id="trDir">' + ic('arrows-left-right') + '</span></div>' +
-      '<div class="tr-pane"><div class="tr-h"><b>' + ic('world') + 'Excel en anglais</b><button class="btn-s" id="trCopyEn">' + ic('copy') + 'Copier</button></div>' +
-      '<textarea id="trEn" class="mono" spellcheck="false" placeholder="=SUMIF(A2:A100,&quot;Paid&quot;,C2:C100)"></textarea></div>' +
-      '</div><div id="trWarn" class="tr-warn"></div><div id="trFns" class="chips"></div>' +
-      '<div class="tr-samples"><span class="muted">Essayer :</span>' + TR_SAMPLES.map(function (s) { return '<button class="chip mono" data-sample="' + esc(s) + '">' + esc(s.length > 48 ? s.slice(0, 46) + '…' : s) + '</button>'; }).join('') + '</div>' +
-      '</div>';
-  }
-  function bindTranslator() {
-    var fr = $('#trFr'), en = $('#trEn'), warn = $('#trWarn'), fns = $('#trFns'), dir = $('#trDir');
-    var saved = store.get('tr', '');
-    function run(from) {
-      var src = from === 'fr' ? fr.value : en.value;
-      var r = XL.formula.translate(src, from === 'fr' ? 'fr2en' : 'en2fr');
-      (from === 'fr' ? en : fr).value = r.result;
-      dir.innerHTML = ic(from === 'fr' ? 'chevron-right' : 'arrow-left');
-      warn.innerHTML = r.warnings.map(function (w) { return '<div class="tip warn">' + ic('alert-triangle') + '<p>' + esc(w) + '</p></div>'; }).join('');
-      var used = XL.formula.functionsUsed(fr.value).filter(function (n) { return fnByName[n]; });
-      fns.innerHTML = used.length ? '<span class="muted">Fonctions :</span>' + used.map(function (n) { return '<a class="chip mono" href="#/f/' + encodeURIComponent(n) + '">' + esc(n) + badge(fnByName[n]) + '</a>'; }).join('') : '';
-      store.set('tr', fr.value);
-    }
-    fr.addEventListener('input', function () { run('fr'); });
-    en.addEventListener('input', function () { run('en'); });
-    $('#trCopyFr').addEventListener('click', function () { copy(fr.value, 'Formule FR copiée'); });
-    $('#trCopyEn').addEventListener('click', function () { copy(en.value, 'Formule EN copiée'); });
-    document.querySelectorAll('[data-sample]').forEach(function (b) {
-      b.addEventListener('click', function () {
-        var s = b.getAttribute('data-sample'), lang = XL.formula.detect(s);
-        if (lang === 'fr') { fr.value = s; run('fr'); } else { en.value = s; run('en'); }
-      });
-    });
-    if (state.q && /^=/.test(state.q.trim())) {
-      var s = state.q.trim(); if (XL.formula.detect(s) === 'fr') { fr.value = s; run('fr'); } else { en.value = s; run('en'); }
-    } else if (saved) { fr.value = saved; run('fr'); }
-    fr.focus();
-  }
-
-  /* ------------------------------ raccourcis ------------------------------ */
-  function shortcutsHTML() {
-    var q = XL.search.norm(state.q), groups = {};
-    XL.shortcuts.forEach(function (k) {
-      if (q && XL.search.norm(k.keys + ' ' + k.action + ' ' + k.cat).indexOf(q) < 0) return;
-      (groups[k.cat] = groups[k.cat] || []).push(k);
-    });
-    var names = Object.keys(groups);
-    return '<div class="kb"><h1>' + ic('keyboard') + 'Raccourcis clavier</h1><p class="lead">Excel pour Windows, clavier français (AZERTY). Filtre avec la barre de recherche.</p>' +
-      (names.length ? names.map(function (g) {
-        return '<h2>' + esc(g) + '</h2><table class="kb-t"><tbody>' + groups[g].map(function (k) {
-          return '<tr><td class="keys">' + k.keys.split(' / ').map(function (combo) {
-            return combo.split(' + ').map(function (x) { return '<kbd>' + esc(x) + '</kbd>'; }).join('<i>+</i>');
-          }).join(' <span class="muted">ou</span> ') + '</td><td>' + esc(k.action) + '</td></tr>';
-        }).join('') + '</tbody></table>';
-      }).join('') : '<p class="empty">Aucun raccourci ne correspond.</p>') + '</div>';
-  }
-
-  /* ------------------------------ rendu global ----------------------------- */
-  var layout, side, list, detail, lastSig = '';
   function render(force) {
-    var sig = [state.tab, state.q.trim(), state.cat, state.ver, state.favs.length, state.tab === 'home' && !state.q.trim() ? !!state.sel : ''].join('|');
-    if (!force && sig === lastSig && state.tab !== 'tr' && state.tab !== 'kb') {
-      layout.classList.toggle('has-detail', !!state.sel);
-      renderDetail(); return;
-    }
-    lastSig = sig;
-    var tab = state.tab, full = tab === 'tr' || tab === 'kb' || (tab === 'home' && !state.q.trim() && !state.sel);
-    document.querySelectorAll('#tabs a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-tab') === tab); });
-    layout.className = 'layout' + (full ? ' full' : '') + (state.sel ? ' has-detail' : '') + (tab === 'tr' || tab === 'kb' ? ' no-side' : '');
-    side.innerHTML = sideHTML();
+    var page = [state.view, state.act, state.level, state.domain, state.cat, state.type, state.q.trim()].join('|');
+    var sig = page + '|' + state.ver + '|' + state.favs.join(',');
+    if (!force && sig === lastSig) { renderDetail(); return; }
+    var samePage = page === lastPage, top = els.list.scrollTop;
+    lastPage = page; lastSig = sig;
 
-    if (tab === 'tr') { list.innerHTML = translatorHTML(); detail.innerHTML = ''; bindTranslator(); return; }
-    if (tab === 'kb') { list.innerHTML = shortcutsHTML(); detail.innerHTML = ''; return; }
-
-    if (tab === 'home' && !state.q.trim()) {
-      list.innerHTML = state.sel ? '' : homeHTML();
-    } else {
-      var res = listResults();
-      var head = '';
-      if (state.q.trim()) head = '<div class="list-h">' + res.length + ' résultat' + (res.length > 1 ? 's' : '') + ' pour « ' + esc(state.q.trim()) + ' »</div>';
-      else if (tab === 'fav') head = '<div class="list-h">' + res.length + ' favori' + (res.length > 1 ? 's' : '') + '</div>';
-      var empty = tab === 'fav' && !state.favs.length
-        ? '<p class="empty">Aucun favori pour l’instant. Clique sur l’étoile ' + ic('star') + ' d’une fiche pour la retrouver ici.</p>'
-        : '<p class="empty">Rien trouvé. Essaie d’autres mots (« total », « chercher », « date »…) ou le nom de la fonction en anglais.</p>';
-      list.innerHTML = head + (res.length ? res.map(itemHTML).join('') : empty);
-    }
+    var p = currentPage(), full = p.full !== undefined;
+    document.querySelectorAll('#tabs a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-tab') === currentTab()); });
+    els.layout.className = 'layout' + (full ? ' full' : '');
+    els.side.innerHTML = full ? '' : p.side;
+    els.list.innerHTML = full ? p.full : p.list;
+    els.list.scrollTop = samePage ? top : 0;
+    listItems = full ? [] : p.items;
+    state.active = -1;
+    if (p.translator) bindTranslator();
     renderDetail();
   }
 
   function renderDetail() {
-    var r = state.sel ? resolve(state.sel) : null;
-    if (!r) { detail.innerHTML = state.tab === 'home' ? '' : '<div class="d-empty">' + ic('math-function') + '<p>Choisis une fonction ou une recette pour voir sa fiche.</p></div>'; markActive(); return; }
-    detail.innerHTML = r.type === 'fn' ? detailFn(r.item) : r.type === 'rx' ? detailRx(r.item) : detailErr(r.item);
-    detail.scrollTop = 0;
-    markActive();
-    document.title = (r.type === 'fn' ? r.item.fr : r.type === 'rx' ? r.item.title : r.item.fr) + ' — XLGuide';
+    var ref = state.sel ? model.resolve(state.sel) : null;
+    var full = els.layout.classList.contains('full');
+    var keep = state.sel === shownSel, top = els.detail.scrollTop;
+    shownSel = state.sel;
+    els.layout.classList.toggle('has-detail', !!ref && !full);
+    if (full) {
+      els.detail.innerHTML = '';
+    } else if (!ref) {
+      els.detail.innerHTML = XL.views.emptySheet(ctx(), state.view === 'activity' && !searching() ? listItems[0] : null);
+    } else {
+      uid = 0;
+      els.detail.innerHTML = XL.views.sheet(ctx(), ref);
+      els.detail.scrollTop = keep ? top : 0;
+    }
+    document.title = ref && !full ? (ref.item.title || ref.item.fr) + ' — XLGuide' : 'XLGuide — Formules Excel en français';
+    els.list.querySelectorAll('.item').forEach(function (el) { el.classList.toggle('sel', el.getAttribute('data-key') === state.sel); });
   }
 
-  function markActive() {
-    list.querySelectorAll('.item').forEach(function (el) { el.classList.toggle('sel', el.getAttribute('data-key') === state.sel); });
+  /** Onglets : accueil, les 4 activités (depuis le modèle), outils, favoris. */
+  function renderTabs() {
+    var tabs = [['home', '#/', 'home', 'Accueil']].concat(model.activities.map(function (a) {
+      return [a.id, '#/a/' + a.id, a.icon, a.label];
+    }));
+    $('#tabs').innerHTML = tabs.map(function (t) {
+      return '<a href="' + t[1] + '" data-tab="' + t[0] + '">' + ic(t[2]) + XL.ui.esc(t[3]) + '</a>';
+    }).join('') + '<span class="tab-sep" aria-hidden="true"></span>' +
+      '<a href="#/outils" data-tab="outils">' + ic('bolt') + 'Outils</a>' +
+      '<a href="#/fav" data-tab="fav">' + ic('star') + 'Favoris <small id="cFav"></small></a>';
+  }
+  function updateFavCount() { $('#cFav').textContent = state.favs.length || ''; }
+
+  /* --------------------------------- routage --------------------------------- */
+  function setView(view, domain) {
+    if (state.view !== view || (domain && state.domain !== domain)) state.cat = '';
+    state.view = view;
+    if (domain) state.domain = domain;
   }
 
-  function updateCounts() {
-    $('#cFn').textContent = XL.functions.length;
-    $('#cRx').textContent = rxOf('compta').length;
-    $('#cIt').textContent = rxOf('it').length;
-    $('#cFav').textContent = state.favs.length || '';
+  /** La page affichée (hors recherche) contient-elle cet élément ? */
+  function viewShows(ref) {
+    var it = ref.item;
+    switch (state.view) {
+      case 'activity': return !!it.place && it.place.activity === state.act && it.place.level === state.level;
+      case 'index': return ref.type === 'fn' && (!state.cat || it.cat === state.cat);
+      case 'cases': return ref.type === 'rx' && it.domain === state.domain && (!state.cat || it.cat === state.cat);
+      case 'errors': return ref.type === 'err';
+      case 'fav': return state.favs.indexOf(it.key) >= 0;
+      default: return false;
+    }
   }
 
-  /* -------------------------------- routage -------------------------------- */
+  /** Ouvre une fiche : garde la page affichée si elle la contient, sinon va à l'emplacement naturel de l'élément. */
+  function openSheet(ref) {
+    var it = ref.item;
+    state.sel = it.key;
+    if (searching() || viewShows(ref)) return;
+    if ((state.view === 'index' && ref.type === 'fn') || (state.view === 'cases' && it.domain === state.domain)) { state.cat = ''; return; }
+    if (it.place) { setView('activity'); state.act = it.place.activity; state.level = it.place.level; }
+    else if (ref.type === 'fn') setView('index');
+    else if (ref.type === 'rx') setView('cases', it.domain);
+    else setView('errors');
+  }
+
   function route() {
-    var h = decodeURIComponent(location.hash.replace(/^#\/?/, ''));
-    var parts = h.split('/'), p0 = parts[0], rest = parts.slice(1).join('/');
+    var parts = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
+    var p0 = parts[0], rest = parts.slice(1).join('/');
+    var ref = /^[frne]$/.test(p0) ? model.resolve(p0 + ':' + rest) : null;
+    if (ref) { openSheet(ref); render(); return; }
+    // Aller sur une page (onglet, fil d'Ariane, niveau) termine la recherche en cours.
     state.sel = null;
-    if (p0 === 'f' && fnByName[rest]) { state.sel = 'f:' + rest; if (state.tab === 'tr' || state.tab === 'kb') state.tab = 'fn'; }
-    else if (p0 === 'r' && rxById[rest]) {
-      state.sel = 'r:' + rest;
-      var want = rxById[rest].domain === 'it' ? 'it' : 'rx';
-      if (state.tab === 'tr' || state.tab === 'kb' || ((state.tab === 'rx' || state.tab === 'it') && state.tab !== want && !state.q.trim())) state.tab = want;
-    }
-    else if (p0 === 'e' && XL.errors[+rest]) { state.sel = 'e:' + rest; if (state.tab === 'tr' || state.tab === 'kb') state.tab = 'err'; }
-    else if (['fn', 'rx', 'it', 'tr', 'err', 'kb', 'fav'].indexOf(p0) >= 0) { if (state.tab !== p0) state.cat = state.pendingCat || ''; state.tab = p0; }
-    else { state.tab = 'home'; state.cat = ''; }
-    state.pendingCat = '';
-    if (state.sel && state.tab === 'home' && !state.q.trim()) {
-      state.tab = state.sel.charAt(0) === 'f' ? 'fn' : state.sel.charAt(0) === 'r' ? (rxById[state.sel.slice(2)].domain === 'it' ? 'it' : 'rx') : 'err';
-    }
+    if (state.q) { state.q = ''; els.q.value = ''; }
+    if (p0 === 'a' && model.actById[parts[1]]) {
+      setView('activity');
+      state.act = parts[1];
+      state.level = model.levelById[parts[2]] ? parts[2] : 'base';
+    } else if (p0 === 'rx' || p0 === 'it') setView('cases', p0 === 'it' ? 'it' : 'compta');
+    else setView({ fn: 'index', err: 'errors', fav: 'fav', outils: 'tools', tr: 'tr', kb: 'kb' }[p0] || 'home');
     render();
   }
 
-  /* ------------------------------ événements ------------------------------ */
-  function bind() {
-    var q = $('#q'), timer;
-    q.addEventListener('input', function () {
+  function listHash() {
+    if (state.view === 'activity') return '#/a/' + state.act + '/' + state.level;
+    if (state.view === 'cases') return state.domain === 'it' ? '#/it' : '#/rx';
+    return { index: '#/fn', errors: '#/err', fav: '#/fav' }[state.view] || '#/';
+  }
+  /** Ferme la fiche sans quitter la liste affichée (résultats de recherche compris). */
+  function closeSheet() {
+    state.sel = null;
+    history.pushState(null, '', listHash());
+    render();
+  }
+
+  /** Nouvelle recherche ; quand elle est vidée, la fiche ouverte reste visible dans sa page naturelle. */
+  function setQuery(q) {
+    state.q = q;
+    state.type = '';
+    var ref = !searching() && state.sel ? model.resolve(state.sel) : null;
+    if (ref) openSheet(ref);
+    render();
+  }
+
+  /* ------------------------------- traducteur ------------------------------- */
+  function bindTranslator() {
+    var fr = $('#trFr'), en = $('#trEn'), warn = $('#trWarn'), fns = $('#trFns'), dir = $('#trDir');
+    function run(from) {
+      var r = XL.formula.translate(from === 'fr' ? fr.value : en.value, from === 'fr' ? 'fr2en' : 'en2fr');
+      (from === 'fr' ? en : fr).value = r.result;
+      dir.innerHTML = ic(from === 'fr' ? 'chevron-right' : 'arrow-left');
+      warn.innerHTML = XL.ui.tips(r.warnings, true);
+      var used = XL.formula.functionsUsed(fr.value).filter(function (n) { return model.fnByName[n]; });
+      fns.innerHTML = used.length ? '<span class="muted">Fonctions :</span>' + XL.ui.fnChips(model, used, state.ver) : '';
+      XL.store.set('tr', fr.value);
+    }
+    function load(formula) {
+      if (XL.formula.detect(formula) === 'fr') { fr.value = formula; run('fr'); } else { en.value = formula; run('en'); }
+    }
+    fr.addEventListener('input', function () { run('fr'); });
+    en.addEventListener('input', function () { run('en'); });
+    $('#trCopyFr').addEventListener('click', function () { copy(fr.value); });
+    $('#trCopyEn').addEventListener('click', function () { copy(en.value); });
+    els.list.querySelectorAll('[data-sample]').forEach(function (b) {
+      b.addEventListener('click', function () { load(b.getAttribute('data-sample')); });
+    });
+    var q = state.q.trim(), saved = XL.store.get('tr', '');
+    if (q.charAt(0) === '=') load(q); else if (saved) { fr.value = saved; run('fr'); }
+    if (document.activeElement !== els.q) fr.focus(); // ne pas voler le focus de la barre de recherche
+  }
+
+  /* -------------------------------- événements -------------------------------- */
+  function moveActive(step) {
+    var items = els.list.querySelectorAll('.item');
+    if (!items.length) return;
+    state.active = Math.max(0, Math.min(items.length - 1, state.active + step));
+    items.forEach(function (el, i) { el.classList.toggle('kb-active', i === state.active); });
+    var el = items[state.active];
+    el.scrollIntoView({ block: 'nearest' });
+    history.replaceState(null, '', el.getAttribute('href'));
+    state.sel = el.getAttribute('data-key');
+    renderDetail();
+  }
+
+  function onKey(e) {
+    var tag = (e.target.tagName || '').toLowerCase(), typing = tag === 'input' || tag === 'textarea' || tag === 'select';
+    if ((e.key === '/' && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
+      e.preventDefault(); els.q.focus(); els.q.select(); return;
+    }
+    if (e.key === 'Escape') {
+      if (els.q.value) { els.q.value = ''; setQuery(''); els.q.focus(); } else if (state.sel) closeSheet();
+      return;
+    }
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && (!typing || e.target === els.q)) {
+      e.preventDefault(); moveActive(e.key === 'ArrowDown' ? 1 : -1);
+    }
+  }
+
+  function toggleFav(key) {
+    var i = state.favs.indexOf(key);
+    if (i >= 0) state.favs.splice(i, 1); else state.favs.unshift(key);
+    XL.store.set('favs', state.favs);
+    updateFavCount();
+    toast(i >= 0 ? 'Retiré des favoris' : 'Ajouté aux favoris');
+    render(); // étoiles de la liste et bouton de la fiche ; positions de défilement conservées
+  }
+
+  function onClick(e) {
+    var t = e.target.closest('[data-copy],[data-fav],[data-cat],[data-type],[data-q],[data-toggle-en],[data-back]');
+    if (!t) return;
+    if (t.hasAttribute('data-copy')) { e.preventDefault(); copy(t.getAttribute('data-copy')); }
+    else if (t.hasAttribute('data-fav')) { e.preventDefault(); toggleFav(t.getAttribute('data-fav')); }
+    else if (t.hasAttribute('data-back')) { e.preventDefault(); closeSheet(); }
+    else if (t.hasAttribute('data-toggle-en')) {
+      var el = document.getElementById(t.getAttribute('data-toggle-en'));
+      if (el) { el.hidden = !el.hidden; t.classList.toggle('on', !el.hidden); }
+    } else if (t.hasAttribute('data-q')) {
+      e.preventDefault(); els.q.value = t.getAttribute('data-q'); setQuery(els.q.value); els.q.focus();
+    } else if (t.hasAttribute('data-type')) { state.type = t.getAttribute('data-type'); render(); }
+    else if (t.hasAttribute('data-cat')) { state.cat = t.getAttribute('data-cat'); render(); }
+  }
+
+  function bindSearch() {
+    var timer;
+    els.q.addEventListener('input', function () {
       clearTimeout(timer);
-      timer = setTimeout(function () {
-        state.q = q.value; state.active = -1;
-        if (state.tab === 'tr') {
-          if (/^=/.test(state.q.trim())) { render(); return; }
-          location.hash = '#/';
-          return;
-        }
-        if (state.tab === 'kb') { list.innerHTML = shortcutsHTML(); return; }
-        render();
-      }, 70);
+      timer = setTimeout(function () { setQuery(els.q.value); }, 70);
     });
-    q.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        var first = list.querySelector('.item.kb-active') || list.querySelector('.item');
-        if (first) { location.hash = first.getAttribute('href'); }
-      }
+    els.q.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var target = els.list.querySelector('.item.kb-active') || els.list.querySelector('.item');
+      if (target) location.hash = target.getAttribute('href');
     });
-
-    document.addEventListener('keydown', function (e) {
-      var tag = (e.target.tagName || '').toLowerCase(), typing = tag === 'input' || tag === 'textarea' || tag === 'select';
-      if ((e.key === '/' && !typing) || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k')) {
-        e.preventDefault(); q.focus(); q.select(); return;
-      }
-      if (e.key === 'Escape') {
-        if (q.value) { q.value = ''; state.q = ''; if (state.tab === 'kb') { list.innerHTML = shortcutsHTML(); } else render(); q.focus(); }
-        else if (state.sel) { closeDetail(); }
-        return;
-      }
-      if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && (!typing || e.target === q)) {
-        var items = list.querySelectorAll('.item'); if (!items.length) return;
-        e.preventDefault();
-        state.active = Math.max(0, Math.min(items.length - 1, state.active + (e.key === 'ArrowDown' ? 1 : -1)));
-        items.forEach(function (el, i) { el.classList.toggle('kb-active', i === state.active); });
-        items[state.active].scrollIntoView({ block: 'nearest' });
-        var key = items[state.active].getAttribute('data-key');
-        history.replaceState(null, '', items[state.active].getAttribute('href'));
-        state.sel = key; renderDetail();
-      }
-    });
-
-    document.addEventListener('click', function (e) {
-      var t = e.target.closest('[data-copy],[data-fav],[data-cat],[data-q],[data-toggle-en],[data-back]');
-      if (!t) return;
-      if (t.hasAttribute('data-back')) { e.preventDefault(); closeDetail(); return; }
-      if (t.hasAttribute('data-copy')) { e.preventDefault(); copy(t.getAttribute('data-copy'), 'Formule copiée'); return; }
-      if (t.hasAttribute('data-fav')) { e.preventDefault(); toggleFav(t.getAttribute('data-fav')); t.classList.toggle('on'); markFavInList(); return; }
-      if (t.hasAttribute('data-toggle-en')) { var el = $('#en-' + t.getAttribute('data-toggle-en')); if (el) { el.hidden = !el.hidden; t.classList.toggle('on', !el.hidden); } return; }
-      if (t.hasAttribute('data-q')) { e.preventDefault(); q.value = t.getAttribute('data-q'); state.q = q.value; if (state.tab !== 'home') location.hash = '#/'; else render(); q.focus(); return; }
-      if (t.hasAttribute('data-cat')) {
-        e.preventDefault(); state.cat = t.getAttribute('data-cat');
-        var href = t.getAttribute('href');
-        if (href && location.hash !== href) { state.pendingCat = state.cat; location.hash = href; } else render();
-      }
-    });
-
-    $('#ver').value = state.ver;
-    $('#ver').addEventListener('change', function () { state.ver = this.value; store.set('ver', state.ver); render(true); toast('Version : Excel ' + state.ver); });
-
-    var theme = store.get('theme', 'auto');
-    document.documentElement.setAttribute('data-theme', theme);
-    $('#theme').addEventListener('click', function () {
-      var cur = document.documentElement.getAttribute('data-theme');
-      var dark = cur === 'dark' || (cur === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-      var next = dark ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', next); store.set('theme', next); themeIcon();
-    });
-    themeIcon();
-
-    window.addEventListener('hashchange', route);
   }
 
-  function themeIcon() {
+  function isDark() {
     var cur = document.documentElement.getAttribute('data-theme');
-    var dark = cur === 'dark' || (cur === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-    $('#theme').innerHTML = ic(dark ? 'sun' : 'moon');
+    return cur === 'dark' || (cur === 'auto' && !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  function bindSettings() {
+    var ver = $('#ver'), theme = $('#theme');
+    ver.value = state.ver;
+    ver.addEventListener('change', function () { state.ver = ver.value; XL.store.set('ver', state.ver); render(true); toast('Version : Excel ' + state.ver); });
+    document.documentElement.setAttribute('data-theme', XL.store.get('theme', 'auto'));
+    theme.innerHTML = ic(isDark() ? 'sun' : 'moon');
+    theme.addEventListener('click', function () {
+      var next = isDark() ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      XL.store.set('theme', next);
+      theme.innerHTML = ic(isDark() ? 'sun' : 'moon');
+    });
   }
 
-  function closeDetail() {
-    var base = { fn: '#/fn', rx: '#/rx', it: '#/it', err: '#/err', fav: '#/fav' }[state.tab] || '#/';
-    location.hash = base;
-  }
-
-  function markFavInList() { if (state.tab === 'fav') render(); }
-
-  /* ---------------------------- environnement ---------------------------- */
+  /* ------------------------------ environnement ------------------------------ */
   function setupEnv() {
-    var isDesktop = !!window.xlguideDesktop;
+    var desktop = !!window.xlguideDesktop;
     var standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
-    if (!isDesktop && !standalone && location.protocol.indexOf('http') === 0) $('#install').hidden = false;
-    if (isDesktop) document.documentElement.classList.add('desktop');
-    if ('serviceWorker' in navigator && location.protocol === 'https:' && !isDesktop) {
+    if (!desktop && !standalone && location.protocol.indexOf('http') === 0) $('#install').hidden = false;
+    if (desktop) document.documentElement.classList.add('desktop');
+    if ('serviceWorker' in navigator && location.protocol === 'https:' && !desktop) {
       navigator.serviceWorker.register('sw.js').catch(function () { /* hors-ligne indisponible */ });
     }
-    if (/Mac/.test(navigator.platform || '')) $('#kbdHint').textContent = '/';
   }
 
-  /* --------------------------------- init --------------------------------- */
   document.addEventListener('DOMContentLoaded', function () {
-    layout = $('#layout'); side = $('#side'); list = $('#list'); detail = $('#detail');
-    hydrateIcons(); updateCounts(); bind(); setupEnv(); route();
-    if (!location.hash || location.hash === '#/' || location.hash === '#') $('#q').focus();
+    els = { layout: $('#layout'), side: $('#side'), list: $('#list'), detail: $('#detail'), q: $('#q'), toast: $('#toast') };
+    renderTabs();
+    document.querySelectorAll('i[data-ic]').forEach(function (el) { el.outerHTML = ic(el.getAttribute('data-ic')); });
+    updateFavCount();
+    bindSearch(); bindSettings(); setupEnv();
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('click', onClick);
+    window.addEventListener('hashchange', route);
+    route();
+    if (state.view === 'home') els.q.focus();
   });
-
-  XL.app = { version: APP_VERSION };
 })(window.XL);

@@ -89,6 +89,9 @@
     (XL.recipes || []).forEach(function (r) {
       addDoc(docs, 'rx', r, r.title, '', r.kw + ' ' + r.title, r.desc);
     });
+    (XL.notions || []).forEach(function (n) {
+      addDoc(docs, 'nt', n, n.title, '', n.kw + ' ' + n.title, n.intro + ' ' + n.points.join(' '));
+    });
     (XL.errors || []).forEach(function (e) {
       addDoc(docs, 'err', e, e.fr, e.en, e.kw + ' erreur', e.cause);
     });
@@ -125,7 +128,7 @@
       var score = 0;
 
       // Correspondance directe sur le nom (ex. "somme.si", "sumifs", "#n/a")
-      if (rk && doc.type !== 'rx') {
+      if (rk && doc.type !== 'rx' && doc.type !== 'nt') {
         if (doc.key === rk) score += 1000;
         else if (doc.enKey && doc.enKey === rk) score += 900;
         else if (rk.length >= 2 && doc.key.indexOf(rk) === 0) score += 300 - Math.min(100, doc.key.length * 4);
@@ -157,7 +160,9 @@
         score += cover * 18;
         if (cover === 1 && expanded.length > 1) score += 10;
       }
-      if (doc.type === 'rx' && expanded.length >= 2) score *= 1.08; // les recettes répondent bien aux phrases
+      // Priorité pédagogique : notions d'abord, puis méthodes du parcours, puis cas pratiques métier
+      if (doc.type === 'nt') score *= 1.15;
+      else if (doc.type === 'rx') score *= (XL.placement && XL.placement['r:' + doc.item.title]) ? (expanded.length >= 2 ? 1.08 : 1) : 0.85;
       if (score > 0) res.push({ type: doc.type, item: doc.item, score: score });
     }
     res.sort(function (a, b) { return b.score - a.score; });

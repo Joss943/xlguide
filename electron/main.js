@@ -2,9 +2,8 @@
 'use strict';
 const { app, BrowserWindow, Menu, shell, nativeTheme } = require('electron');
 const path = require('path');
-
-const REPO = 'https://github.com/Joss943/xlguide';
-const SITE = 'https://joss943.github.io/xlguide/';
+// Liens publics : même source que l'interface (vérifiée contre package.json par npm test).
+const { repoUrl: REPO, siteUrl: SITE } = require('../app/js/config.js');
 let win = null;
 
 if (!app.requestSingleInstanceLock()) {
