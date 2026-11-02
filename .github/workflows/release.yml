@@ -1,0 +1,97 @@
+name: Release
+
+# Publier une version :  git tag v1.0.1 && git push origin v1.0.1
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tests/run.js
+
+  linux:
+    name: Linux (deb, rpm, pacman, AppImage)
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Outils de paquetage
+        run: sudo apt-get update -q && sudo apt-get install -y -q rpm libarchive-tools
+      - run: npm ci
+      - run: npx electron-builder --linux --x64 --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          if-no-files-found: error
+          path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.pacman
+            dist/*.AppImage
+
+  windows:
+    name: Windows (installateur .exe)
+    needs: tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx electron-builder --win --x64 --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          if-no-files-found: error
+          path: dist/XLGuide-Setup.exe
+
+  publish:
+    name: Publication de la release
+    needs: [linux, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Sommes de contrôle
+        run: cd out && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - name: Créer la release GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<NOTES
+          ## Installer XLGuide ${GITHUB_REF_NAME}
+
+          | Système | Fichier | Installation |
+          |---|---|---|
+          | **Windows 10/11** | \`XLGuide-Setup.exe\` | Double-clic (si SmartScreen s'affiche : *Informations complémentaires → Exécuter quand même*) |
+          | **Ubuntu / Debian / Mint** | \`xlguide-amd64.deb\` | \`sudo apt install ./xlguide-amd64.deb\` |
+          | **Fedora / RHEL** | \`xlguide-x86_64.rpm\` | \`sudo dnf install ./xlguide-x86_64.rpm\` |
+          | **Arch / Manjaro** | \`xlguide-x86_64.pacman\` | \`sudo pacman -U xlguide-x86_64.pacman\` |
+          | **Autres Linux** | \`XLGuide-x86_64.AppImage\` | \`chmod +x XLGuide-x86_64.AppImage && ./XLGuide-x86_64.AppImage\` |
+
+          Linux en une commande : \`curl -fsSL https://joss943.github.io/xlguide/install.sh | bash\`
+
+          Version web (sans installation) : https://joss943.github.io/xlguide/app/
+          NOTES
+          gh release create "$GITHUB_REF_NAME" out/* --repo "$GITHUB_REPOSITORY" --title "XLGuide $GITHUB_REF_NAME" --notes-file notes.md --verify-tag

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>XLGuide — Les formules Excel en français, au bon moment</title>
+  <meta name="description" content="Application gratuite pour Windows et Linux : toutes les fonctions Excel expliquées en français, recherche en langage naturel, recettes de comptabilité et traducteur de formules FR ⇄ EN.">
+  <meta property="og:title" content="XLGuide — Les formules Excel en français">
+  <meta property="og:description" content="Décris ce que tu veux faire, XLGuide te donne la formule. Pour Windows, Linux et le web.">
+  <meta property="og:image" content="https://joss943.github.io/xlguide/screenshot.png">
+  <meta name="theme-color" content="#1a7f4b">
+  <link rel="icon" href="app/icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="#"><img src="app/icons/icon.svg" alt="" width="30" height="30"><span>XL<b>Guide</b></span></a>
+    <nav>
+      <a href="#fonctionnalites">Fonctionnalités</a>
+      <a href="#telecharger">Télécharger</a>
+      <a href="app/">Version web</a>
+      <a href="https://github.com/Joss943/xlguide" class="gh" rel="noopener">GitHub</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-txt">
+      <span class="pill">Gratuit · Open source · Hors-ligne</span>
+      <h1>Les formules Excel en français,<br><em>au moment où tu en as besoin.</em></h1>
+      <p>Tape ce que tu veux faire : « additionner si », « échéance 30 jours fin de mois », « rapprochement bancaire »… XLGuide trouve la bonne fonction, explique chaque argument et te donne la formule prête à coller. Pensé pour la comptabilité.</p>
+      <div class="cta">
+        <a class="btn btn-win" id="btnWin" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-Setup.exe">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.3 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.3z"/></svg>
+          <span><b>Installer pour Windows</b><small>Windows 10 / 11 · 64 bits</small></span>
+        </a>
+        <a class="btn btn-linux" id="btnLinux" href="#linux">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-2.2 0-3.6 1.9-3.6 4.6 0 1.4.3 2.3-.4 3.6-.9 1.7-3 3.6-3 6.4 0 .8.2 1.4.5 1.9-.6.4-1.3.8-1.3 1.5 0 .9 1.3 1.1 2.6 1.4 1.1.3 1.9.6 2.6.6.8 0 1.2-.4 1.6-.8h4c.4.4.8.8 1.6.8.7 0 1.5-.3 2.6-.6 1.3-.3 2.6-.5 2.6-1.4 0-.7-.7-1.1-1.3-1.5.3-.5.5-1.1.5-1.9 0-2.8-2.1-4.7-3-6.4-.7-1.3-.4-2.2-.4-3.6C15.6 3.9 14.2 2 12 2zm-1.6 4.2c.4 0 .7.5.7 1.1s-.3 1.1-.7 1.1-.7-.5-.7-1.1.3-1.1.7-1.1zm3.2 0c.4 0 .7.5.7 1.1s-.3 1.1-.7 1.1-.7-.5-.7-1.1.3-1.1.7-1.1zM12 9.2c.8 0 2 .5 2 1s-1.2 1-2 1-2-.5-2-1 1.2-1 2-1z"/></svg>
+          <span><b>Installer pour Linux</b><small>Ubuntu · Debian · Fedora · Arch</small></span>
+        </a>
+        <a class="btn btn-web" href="app/">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></svg>
+          <span><b>Ouvrir la version web</b><small>Sans installation</small></span>
+        </a>
+      </div>
+      <p class="meta" id="relInfo">Dernière version : <a href="https://github.com/Joss943/xlguide/releases/latest">voir sur GitHub</a></p>
+    </div>
+    <div class="hero-img">
+      <img src="screenshot.png" alt="Capture d’écran de XLGuide : fiche de la fonction SOMME.SI.ENS avec exemples" width="1400" height="875">
+    </div>
+  </section>
+
+  <section class="numbers">
+    <div><b id="nFn">220</b><span>fonctions détaillées</span></div>
+    <div><b id="nRx">73</b><span>recettes de comptabilité</span></div>
+    <div><b id="nEx">540+</b><span>formules d’exemple</span></div>
+    <div><b>171</b><span>résultats vérifiés automatiquement</span></div>
+  </section>
+
+  <section id="fonctionnalites" class="features">
+    <h2>Pensé pour aller vite</h2>
+    <div class="fgrid">
+      <article><span>🔎</span><h3>Recherche en langage naturel</h3><p>« compter les factures impayées », « dernier jour du mois », « enlever les espaces » : pas besoin de connaître le nom de la fonction. Tolère les accents oubliés et les fautes de frappe.</p></article>
+      <article><span>🧾</span><h3>Recettes de comptabilité</h3><p>TVA, mensualités et tableau d’emprunt, amortissements (linéaire, prorata, dégressif fiscal), balance âgée, rapprochement bancaire, FEC, lettrage, charges constatées d’avance…</p></article>
+      <article><span>🇫🇷</span><h3>100 % Excel en français</h3><p>Noms de fonctions français, séparateur « ; », virgule décimale. Chaque fiche donne aussi le nom anglais et la formule convertie en un clic.</p></article>
+      <article><span>⇄</span><h3>Traducteur de formules</h3><p>Colle une formule d’un tuto anglais (=SUMIFS(…, …)) et récupère sa version française (=SOMME.SI.ENS(…; …)), et inversement.</p></article>
+      <article><span>🏷️</span><h3>Compatibilité de version</h3><p>Indique ta version d’Excel (2010 à 365) : les fonctions que tu n’as pas sont signalées, avec une alternative compatible dans les recettes.</p></article>
+      <article><span>✈️</span><h3>Hors-ligne et léger</h3><p>Aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation au clavier (<kbd>/</kbd>, <kbd>↑</kbd><kbd>↓</kbd>, <kbd>Entrée</kbd>).</p></article>
+    </div>
+  </section>
+
+  <section id="telecharger" class="download">
+    <h2>Télécharger XLGuide</h2>
+    <p class="sub">Choisis ton système. Les fichiers viennent directement des <a href="https://github.com/Joss943/xlguide/releases/latest">releases GitHub</a>, compilés automatiquement à partir du code source.</p>
+
+    <div class="dl-grid">
+      <article class="dl-card" id="win">
+        <header><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5 10.5 4.4v7.1H3zM11.5 4.3 21 3v8.5h-9.5zM3 12.5h7.5v7.1L3 18.5zM11.5 12.5H21V21l-9.5-1.3z"/></svg><h3>Windows</h3><span class="tag">10 / 11 · x64</span></header>
+        <a class="btn btn-win wide" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-Setup.exe"><span><b>Télécharger l’installateur</b><small>XLGuide-Setup.exe</small></span></a>
+        <ol>
+          <li>Lance <code>XLGuide-Setup.exe</code> et suis l’assistant (installation sans droits administrateur).</li>
+          <li>Si Windows affiche « Windows a protégé votre ordinateur » : <b>Informations complémentaires</b> → <b>Exécuter quand même</b>. L’application n’est pas signée par un certificat payant, c’est normal.</li>
+          <li>XLGuide apparaît dans le menu Démarrer et sur le Bureau.</li>
+        </ol>
+        <details><summary>Installer en une ligne (PowerShell)</summary>
+          <div class="cmd"><code>irm https://joss943.github.io/xlguide/install.ps1 | iex</code><button data-copy>Copier</button></div>
+        </details>
+      </article>
+
+      <article class="dl-card" id="linux">
+        <header><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2c-2.2 0-3.6 1.9-3.6 4.6 0 1.4.3 2.3-.4 3.6-.9 1.7-3 3.6-3 6.4 0 .8.2 1.4.5 1.9-.6.4-1.3.8-1.3 1.5 0 .9 1.3 1.1 2.6 1.4 1.1.3 1.9.6 2.6.6.8 0 1.2-.4 1.6-.8h4c.4.4.8.8 1.6.8.7 0 1.5-.3 2.6-.6 1.3-.3 2.6-.5 2.6-1.4 0-.7-.7-1.1-1.3-1.5.3-.5.5-1.1.5-1.9 0-2.8-2.1-4.7-3-6.4-.7-1.3-.4-2.2-.4-3.6C15.6 3.9 14.2 2 12 2z"/></svg><h3>Linux</h3><span class="tag">x86_64</span></header>
+        <p class="lead-cmd">Le plus simple : une commande qui détecte ta distribution et installe le bon paquet.</p>
+        <div class="cmd big"><code>curl -fsSL https://joss943.github.io/xlguide/install.sh | bash</code><button data-copy>Copier</button></div>
+
+        <div class="distros" role="tablist">
+          <button class="on" data-d="deb">Ubuntu / Debian / Mint</button>
+          <button data-d="rpm">Fedora / RHEL / openSUSE</button>
+          <button data-d="arch">Arch / Manjaro</button>
+          <button data-d="appimage">Autres (AppImage)</button>
+        </div>
+
+        <div class="dpanel" data-p="deb">
+          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb"><span><b>Télécharger le paquet .deb</b><small>xlguide-amd64.deb</small></span></a>
+          <div class="cmd"><code>wget -qO /tmp/xlguide.deb https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb &amp;&amp; sudo apt install -y /tmp/xlguide.deb</code><button data-copy>Copier</button></div>
+          <p class="small">Désinstaller : <code>sudo apt remove xlguide</code></p>
+        </div>
+        <div class="dpanel" data-p="rpm" hidden>
+          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm"><span><b>Télécharger le paquet .rpm</b><small>xlguide-x86_64.rpm</small></span></a>
+          <div class="cmd"><code>sudo dnf install -y https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm</code><button data-copy>Copier</button></div>
+          <p class="small">openSUSE : <code>sudo zypper install --allow-unsigned-rpm ./xlguide-x86_64.rpm</code> · Désinstaller : <code>sudo dnf remove xlguide</code></p>
+        </div>
+        <div class="dpanel" data-p="arch" hidden>
+          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman"><span><b>Télécharger le paquet pacman</b><small>xlguide-x86_64.pacman</small></span></a>
+          <div class="cmd"><code>curl -fLo /tmp/xlguide.pacman https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman &amp;&amp; sudo pacman -U --noconfirm /tmp/xlguide.pacman</code><button data-copy>Copier</button></div>
+          <p class="small">Désinstaller : <code>sudo pacman -R xlguide</code></p>
+        </div>
+        <div class="dpanel" data-p="appimage" hidden>
+          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage"><span><b>Télécharger l’AppImage</b><small>Fonctionne sur la plupart des distributions</small></span></a>
+          <div class="cmd"><code>chmod +x XLGuide-x86_64.AppImage &amp;&amp; ./XLGuide-x86_64.AppImage</code><button data-copy>Copier</button></div>
+          <p class="small">Nécessite FUSE 2 (<code>libfuse2</code> sur Ubuntu). Le script d’installation crée aussi le raccourci dans le menu des applications.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="faq">
+    <h2>Questions fréquentes</h2>
+    <details><summary>C’est vraiment gratuit ?</summary><p>Oui, et open source (licence MIT). Le code est sur <a href="https://github.com/Joss943/xlguide">GitHub</a>.</p></details>
+    <details><summary>Excel ne tourne pas sous Linux, à quoi ça sert ?</summary><p>XLGuide sert à trouver et comprendre les formules : tu les utilises ensuite dans Excel (Windows, Mac ou Excel sur le web, qui fonctionne très bien depuis Linux). La grande majorité des formules marchent aussi dans LibreOffice Calc en français.</p></details>
+    <details><summary>Mes données sont-elles envoyées quelque part ?</summary><p>Non. L’application fonctionne entièrement en local, sans compte ni connexion. Les favoris sont stockés sur ton ordinateur.</p></details>
+    <details><summary>Comment mettre à jour ?</summary><p>Télécharge simplement la nouvelle version et installe-la par-dessus l’ancienne (ou relance la commande d’installation Linux). Le menu <b>Aide → Vérifier les mises à jour</b> de l’application ouvre la page des versions.</p></details>
+    <details><summary>Les résultats des exemples sont-ils fiables ?</summary><p>Chaque exemple chiffré est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) à chaque modification du code : 171 résultats sont ainsi contrôlés.</p></details>
+    <details><summary>Il manque une fonction ou une recette ?</summary><p>Ouvre une <a href="https://github.com/Joss943/xlguide/issues/new">issue sur GitHub</a> : la base est un simple fichier facile à enrichir.</p></details>
+  </section>
+
+  <footer>
+    <p><img src="app/icons/icon.svg" alt="" width="20" height="20"> XLGuide · Licence MIT · <a href="https://github.com/Joss943/xlguide">Code source</a> · <a href="https://github.com/Joss943/xlguide/releases">Toutes les versions</a></p>
+    <p class="small">Excel est une marque de Microsoft Corporation. XLGuide est un projet indépendant, non affilié à Microsoft.</p>
+  </footer>
+
+  <div class="toast" id="toast">Copié ✓</div>
+  <script src="site.js"></script>
+</body>
+</html>

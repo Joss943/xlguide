@@ -1,0 +1,117 @@
+{
+  "name": "xlguide",
+  "productName": "XLGuide",
+  "version": "1.0.0",
+  "description": "Formules Excel en français : explications, exemples, recettes de comptabilité et traducteur FR/EN.",
+  "main": "electron/main.js",
+  "homepage": "https://joss943.github.io/xlguide/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Joss943/xlguide.git"
+  },
+  "author": {
+    "name": "Joss943",
+    "email": "Joss943@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "test": "node tests/run.js",
+    "verify:formulas": "python3 tests/verify_libreoffice.py",
+    "dist:linux": "electron-builder --linux --x64 --publish never",
+    "dist:win": "electron-builder --win --x64 --publish never",
+    "site:build": "node scripts/build-site.js"
+  },
+  "devDependencies": {
+    "electron": "^45.2.1",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "io.github.joss943.xlguide",
+    "productName": "XLGuide",
+    "copyright": "Licence MIT",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "app/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "linux": {
+      "target": [
+        "deb",
+        "rpm",
+        "pacman",
+        "AppImage"
+      ],
+      "category": "Office",
+      "icon": "build/icon.png",
+      "maintainer": "Joss943 <Joss943@users.noreply.github.com>",
+      "vendor": "Joss943",
+      "synopsis": "Formules Excel en français, recettes compta et traducteur FR/EN",
+      "description": "Formules Excel en français : explications, exemples, recettes compta, traducteur FR/EN.",
+      "desktop": {
+        "entry": {
+          "Name": "XLGuide",
+          "Comment": "Formules Excel en français",
+          "Keywords": "excel;formule;comptabilite;tableur;",
+          "StartupWMClass": "XLGuide"
+        }
+      },
+      "executableName": "xlguide"
+    },
+    "deb": {
+      "artifactName": "xlguide-amd64.deb",
+      "depends": [
+        "libgtk-3-0 | libgtk-3-0t64",
+        "libnotify4",
+        "libnss3",
+        "libxss1",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0 | libatspi2.0-0t64",
+        "libuuid1",
+        "libsecret-1-0"
+      ]
+    },
+    "rpm": {
+      "artifactName": "xlguide-x86_64.rpm"
+    },
+    "pacman": {
+      "artifactName": "xlguide-x86_64.pacman"
+    },
+    "appImage": {
+      "artifactName": "XLGuide-x86_64.AppImage"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "XLGuide",
+      "artifactName": "XLGuide-Setup.exe",
+      "installerLanguages": [
+        "fr_FR"
+      ],
+      "language": "1036",
+      "deleteAppDataOnUninstall": false
+    },
+    "publish": null
+  }
+}

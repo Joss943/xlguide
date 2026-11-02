@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Tests (données, traducteur, recherche)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tests/run.js
+      - run: bash -n site/install.sh
+
+  formulas:
+    name: Résultats recalculés par LibreOffice
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Installer LibreOffice Calc
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends libreoffice-calc python3-openpyxl
+      - run: node tests/export-examples.js > "$RUNNER_TEMP/examples.json"
+      - run: python3 tests/verify_libreoffice.py "$RUNNER_TEMP/examples.json"
