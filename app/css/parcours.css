@@ -1,0 +1,204 @@
+/* XLGuide — parcours : niveaux, accueil, colonne des niveaux, notions, progression, mini-feuilles de calcul.
+   Les variables (couleurs, polices, rayon) viennent de app.css. */
+
+/* ------------------------------ couleurs d'arguments ------------------------------ */
+.arg-0, .ref-0 { --c: var(--a0); }
+.arg-1, .ref-1 { --c: var(--a1); }
+.arg-2, .ref-2 { --c: var(--a2); }
+.arg-3, .ref-3 { --c: var(--a3); }
+.arg-4, .ref-4 { --c: var(--a4); }
+.arg-5, .ref-5 { --c: var(--a5); }
+/* un argument garde une seule couleur, même s'il contient des références, nombres ou fonctions */
+.formula .arg, .formula .arg *, .syntax .arg { color: var(--c); }
+.formula .arg { background: color-mix(in srgb, var(--c) 10%, transparent); }
+.syntax .arg.opt { opacity: .85; }
+.dot { display: inline-block; width: 10px; height: 10px; margin-right: 8px; background: var(--c); vertical-align: 0; }
+
+/* ------------------------------------ niveaux ------------------------------------
+   Jauge de trois cases : le niveau 2 remplit deux cases. Le texte du niveau l'accompagne toujours. */
+.lvl { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.meter { display: inline-flex; gap: 2px; }
+.meter i { width: 7px; height: 11px; border: 1px solid var(--sel); }
+.meter.m1 i:nth-child(-n+1), .meter.m2 i:nth-child(-n+2), .meter.m3 i { background: var(--sel); }
+
+/* ------------------------------------- accueil ------------------------------------- */
+.resume { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px 28px; margin: 4px 0 10px; padding: 22px 24px; background: var(--sheet); }
+.resume-k { margin: 0; font-size: 15px; font-weight: 700; color: var(--sel); }
+.resume h2 { margin: 4px 0 6px; font-size: 27.6px; line-height: 1.2; letter-spacing: -.01em; }
+.resume-meta { display: flex; flex-wrap: wrap; gap: 2px 18px; margin: 0; color: var(--muted); font-size: 15px; }
+.resume.complete { grid-template-columns: 1fr; }
+.resume .prog-line { max-width: 440px; }
+.overall { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; margin: 0 0 8px; color: var(--muted); font-size: 14.5px; }
+.overall .prog-line { flex: 0 1 320px; margin: 0; }
+
+/* Carte du parcours : un tableau activités × niveaux ; chaque case a sa barre de données, comme dans Excel. */
+.map { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 6px; }
+.map caption { margin: 0 0 12px; text-align: left; font-size: 23px; font-weight: 700; letter-spacing: -.01em; }
+.map th, .map td { border: 1px solid var(--grid); padding: 0; }
+.map thead th { padding: 7px 12px; background: var(--head); color: var(--muted); font-size: 14.5px; font-weight: 600; text-align: left; }
+.map thead th:first-child { width: 38%; }
+.map tbody th { padding: 12px 14px; background: var(--head); text-align: left; vertical-align: top; font-weight: 400; }
+.map tbody th a { color: var(--ink); font-size: 17px; font-weight: 700; text-decoration: none; }
+.map tbody th a:hover { text-decoration: underline; }
+.map tbody th small { display: block; margin-top: 3px; color: var(--muted); font-size: 14px; line-height: 1.4; }
+.map td { height: 1px; vertical-align: top; } /* permet aux cases de remplir la hauteur de la ligne */
+.map .cell { display: flex; flex-direction: column; justify-content: space-between; gap: 8px; height: 100%; min-height: 76px; padding: 9px 10px 10px; color: var(--ink); text-decoration: none; font-variant-numeric: tabular-nums; }
+.map .cell:hover { background: var(--hover); }
+.map .cell-k { min-height: 1.3em; font-size: 14px; font-weight: 700; color: var(--sel); }
+/* La barre de données occupe une bande de la case ; le compte s'affiche par-dessus, à droite. */
+.map .cell-b { position: relative; display: flex; align-items: center; justify-content: flex-end; height: 26px; padding: 0 7px; }
+.map .bar { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: var(--head); -webkit-appearance: none; appearance: none; pointer-events: none; }
+.map .bar::-webkit-progress-bar { background: var(--head); }
+.map .bar::-webkit-progress-value { background: var(--bar); }
+.map .bar::-moz-progress-bar { background: var(--bar); }
+.map .cell-n { position: relative; font-size: 15px; }
+.map .cell.complete .cell-n { font-weight: 700; color: var(--sel-ink); }
+.quick { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 20px; margin-top: 30px; }
+.quick > span { color: var(--muted); }
+.quick button { padding: 2px 0; border: 0; background: none; color: var(--sel); font-size: 15.5px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.quick button:hover { text-decoration-thickness: 2px; }
+.tools-line { margin-top: 18px; color: var(--muted); font-size: 15.5px; }
+
+/* ------------------------------ page Outils ------------------------------ */
+.tool-list { max-width: 760px; }
+.tool-row { display: block; padding: 14px 14px 15px; border-bottom: 1px solid var(--grid); color: var(--ink); text-decoration: none; }
+.tool-row:hover { background: var(--hover); }
+.tool-row .nm { display: block; font-size: 18px; font-weight: 700; }
+.tool-row .ds { display: block; margin-top: 2px; color: var(--muted); font-size: 15.5px; }
+
+/* ------------------------- progression et actions ------------------------- */
+.btn-big { min-height: 48px; padding: 10px 24px; font-size: 17px; }
+.prog-line { display: flex; align-items: center; gap: 12px; margin: 10px 0 2px; }
+.prog { flex: 1; min-width: 60px; height: 10px; border: 1px solid var(--grid-2); border-radius: 0; background: var(--sheet); -webkit-appearance: none; appearance: none; }
+.prog::-webkit-progress-bar { background: var(--sheet); }
+.prog::-webkit-progress-value { background: var(--sel); }
+.prog::-moz-progress-bar { background: var(--sel); }
+.prog-n { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.done-tag { color: var(--sel); font-weight: 700; }
+
+/* ------------------------------- colonne des niveaux -------------------------------
+   Lignes à numéro d'en-tête ; le niveau ouvert reprend l'en-tête de ligne surligné d'Excel. */
+.side-title { margin: 2px 10px 6px; font-size: 21px; line-height: 1.2; letter-spacing: -.01em; }
+.side-desc { margin: 0 10px 14px; color: var(--muted); font-size: 14.5px; line-height: 1.45; }
+.levels { display: flex; flex-direction: column; border-top: 1px solid var(--grid); }
+.lvl-link { display: grid; grid-template-columns: 32px minmax(0, 1fr); border-bottom: 1px solid var(--grid); border-right: 3px solid transparent; color: var(--ink); text-decoration: none; }
+.lvl-link:hover { background: var(--head-2); }
+.lvl-link.on { background: var(--head-2); border-right-color: var(--sel); }
+.lvl-link .n { display: grid; place-items: center; border-right: 1px solid var(--grid); color: var(--muted); font-size: 14px; font-weight: 700; }
+.lvl-link.on .n { color: var(--ink); }
+.lvl-link.complete .n { color: var(--sel); }
+.lvl-link .n .ic { width: 15px; height: 15px; }
+.lvl-link > span:last-child { padding: 8px 10px; }
+.lvl-link b { display: block; font-size: 15.5px; }
+.lvl-link small { display: block; color: var(--muted); font-size: 13.3px; }
+
+/* --------------------------------- en-tête de liste --------------------------------- */
+.list-head { padding: 0 2px 14px; }
+.list-head h2 { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0 0 6px; font-size: 27.6px; line-height: 1.2; letter-spacing: -.01em; }
+.list-head h2 .meter i { width: 8px; height: 13px; }
+.list-head p { max-width: 62ch; margin: 0; color: var(--muted); font-size: 15.5px; line-height: 1.5; }
+.list-h { padding: 0 2px 10px; color: var(--muted); font-size: 15px; }
+/* Sélecteur de niveau sur petit écran (la colonne latérale y est masquée) : onglets de feuilles */
+.seg { display: none; margin: 14px 0 4px; border-bottom: 1px solid var(--grid); }
+.seg a { flex: 1; padding: 7px 6px; border: 1px solid var(--grid); border-bottom: 0; margin-right: -1px; background: var(--head); color: var(--muted); font-size: 14px; font-weight: 600; text-align: center; text-decoration: none; }
+.seg a.on { position: relative; top: 1px; background: var(--sheet); color: var(--ink); box-shadow: inset 0 -3px 0 var(--sel); }
+
+/* ----------------------------------- groupes ----------------------------------- */
+.group { margin-top: 16px; }
+.group > h3 { display: flex; align-items: baseline; gap: 10px; margin: 0 2px 8px; font-size: 17px; }
+.group > h3 small { font-size: 14px; font-weight: 400; color: var(--muted); }
+details.fold { margin-top: 18px; border-top: 1px solid var(--grid); }
+details.fold > summary { padding: 11px 2px; }
+details.fold[open] > summary { padding-bottom: 8px; }
+.fold-body { padding-bottom: 6px; }
+.fold-body > .rows:first-child, .fold-body > h4.theme:first-child { margin-top: 0; }
+h4.theme { margin: 14px 2px 6px; font-size: 15px; color: var(--muted); }
+.item .step { display: grid; place-items: center; background: var(--head); border-right: 1px solid var(--grid); color: var(--muted); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.item.done .step { color: var(--sel); }
+.item .step .ic { width: 16px; height: 16px; }
+.item.sel .step, .item.kb-active .step { background: var(--head-2); color: var(--ink); }
+.item.done.sel .step, .item.done.kb-active .step { color: var(--sel); }
+.kind { font-weight: 700; color: var(--ink); }
+.next-level { display: block; margin-top: 18px; font-size: 15.5px; }
+
+/* ----------------------------------- notion ----------------------------------- */
+.crumbs { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; min-width: 0; font-size: 14.5px; }
+.crumbs a { color: var(--muted); text-decoration: none; }
+.crumbs a:hover { color: var(--ink); text-decoration: underline; }
+.crumbs .sep { color: var(--grid-2); }
+/* « À retenir » : surligné, comme une cellule passée au surligneur */
+.points { margin: 0; padding: 12px 16px 12px 34px; background: var(--mark); color: var(--mark-ink); font-size: 16.5px; line-height: 1.55; }
+.points li { margin: 5px 0; padding-left: 2px; }
+.points li::marker { color: var(--mark-ink); }
+/* « Comment faire » : des lignes numérotées à cocher, comme des lignes de feuille */
+.steps-list { margin: 0; padding: 0; list-style: none; counter-reset: step; border-top: 1px solid var(--grid); }
+.steps-list li { counter-increment: step; position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); border: 1px solid var(--grid); border-top: 0; background: var(--sheet); transition: background-color .15s; }
+.steps-list li::before { content: counter(step); display: grid; place-items: center; background: var(--head); border-right: 1px solid var(--grid); color: var(--muted); font-size: 14px; font-weight: 700; pointer-events: none; }
+.steps-list label { display: block; padding: 10px 14px; font-size: 16.5px; line-height: 1.55; cursor: pointer; }
+.steps-list input { position: absolute; width: 1px; height: 1px; opacity: 0; } /* case native, invisible mais utilisable au clavier */
+.steps-list li:has(input:checked) { background: var(--sel-soft); }
+.steps-list li:has(input:checked)::before { content: "✓"; color: var(--sel); }
+.steps-list li:has(input:checked) label { color: var(--muted); }
+.steps-list li:has(input:focus-visible) { outline: 2px solid var(--sel); outline-offset: -2px; }
+.steps-hint { margin: 8px 2px 0; color: var(--muted); font-size: 14px; }
+/* Fin de notion : une seule action principale */
+.next-step { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--grid); }
+.next-step .prog-line { width: 100%; max-width: 440px; margin: 0; }
+.next-what { margin: 0; color: var(--muted); font-size: 15.5px; }
+.next-what b { color: var(--ink); }
+.next-links { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; width: 100%; font-size: 15px; }
+
+/* ----------------------------- mini-feuille de calcul ----------------------------- */
+.sheet { margin: 0; border: 1px solid var(--grid); background: var(--sheet); }
+.sheet-scroll { overflow-x: auto; }
+.sheet .grid { min-width: 100%; border-collapse: collapse; font-size: 14.5px; }
+.sheet .grid th, .sheet .grid td { padding: 4px 10px; border: 1px solid var(--grid); white-space: nowrap; }
+.sheet .grid tr > :first-child { border-left: 0; }
+.sheet .grid tr > :last-child { border-right: 0; }
+.sheet .grid thead th { border-top: 0; }
+.sheet .grid thead th, .sheet .grid tbody th { background: var(--head); color: var(--muted); font-size: 13px; font-weight: 400; text-align: center; }
+.sheet .grid tbody th, .sheet .grid .corner { width: 34px; }
+.sheet .grid td.hd { font-weight: 700; }
+.sheet .grid td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.sheet .grid .fx { background: var(--sel-soft); color: var(--sel-ink); font-weight: 700; }
+.sheet .grid thead .fx { color: var(--sel-ink); }
+.sheet .grid td.ref { background: color-mix(in srgb, var(--c) 13%, var(--sheet)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent); }
+/* Barre de formule : zone Nom, « fx », formule */
+.sheet-f, .sheet-calc li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 12px; border-top: 1px solid var(--grid); background: var(--code-bg); }
+.addr { min-width: 52px; padding: 1px 8px; border: 1px solid var(--grid-2); background: var(--sheet); color: var(--ink); font-size: 14px; text-align: center; }
+.fx-l { color: var(--muted); font-family: Georgia, "Times New Roman", serif; font-size: 15px; font-style: italic; }
+.sheet-f .formula, .sheet-calc .formula { min-width: 0; }
+.sheet-f small { flex-basis: 100%; color: var(--muted); font-size: 13.3px; }
+.sheet-sel small { flex-basis: auto; font-size: 14px; }
+.sheet-calc { margin: 0; padding: 0; list-style: none; }
+.sheet-calc .lbl { flex-basis: 100%; color: var(--muted); font-size: 14px; }
+.res-v { color: var(--ink); font-size: 14.5px; }
+.res-v b { display: inline-block; padding: 0 7px; border: 1px solid var(--grid-2); background: var(--sheet); font-variant-numeric: tabular-nums; }
+.spill { display: inline-table; margin-left: 4px; border-collapse: collapse; vertical-align: top; font-size: 13.5px; }
+.spill td { padding: 2px 8px; border: 1px solid color-mix(in srgb, var(--sel) 40%, var(--grid)); background: var(--sel-soft); color: var(--sel-ink); white-space: nowrap; }
+.spill td.num { text-align: right; }
+.sheet-note { margin: 0; padding: 9px 12px; border-top: 1px solid var(--grid); background: var(--head); color: var(--ink); font-size: 15px; line-height: 1.5; }
+
+/* -------------------------------- responsive -------------------------------- */
+@media (max-width: 760px) {
+  .seg { display: flex; }
+  .resume { grid-template-columns: 1fr; padding: 18px 16px; }
+  .resume .btn-big { width: 100%; }
+  .resume h2 { font-size: 23px; }
+  /* Petit écran : le nom de l'activité passe sur sa propre ligne, au-dessus de ses trois niveaux. */
+  .map, .map thead, .map tbody, .map caption { display: block; }
+  .map thead tr, .map tbody tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .map th, .map td { border: 0; border-right: 1px solid var(--grid); border-bottom: 1px solid var(--grid); }
+  .map thead, .map tbody { border-left: 1px solid var(--grid); }
+  .map thead { border-top: 1px solid var(--grid); }
+  .map thead th:first-child { display: none; }
+  .map thead th { padding: 6px 8px; font-size: 13.3px; }
+  .map tbody th { grid-column: 1 / -1; padding: 9px 10px; }
+  .map tbody th a { font-size: 16px; }
+  .map tbody th small { display: none; }
+  .map td { height: auto; }
+  .map .cell { min-height: 64px; padding: 7px 8px 8px; }
+  .map .cell-k { font-size: 13px; }
+  .map .cell-n { font-size: 14px; }
+  .next-step .btn-big { width: 100%; }
+}

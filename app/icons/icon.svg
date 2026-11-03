@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Pictogramme « math-function » de Tabler Icons (MIT, https://tabler.io/icons) sur fond XLGuide -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#27b06a"/>
+      <stop offset="1" stop-color="#0f5f37"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#g)"/>
+  <g transform="translate(76 76) scale(15)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 19a2 2 0 0 0 2 2c2 0 2 -4 3 -9s1 -9 3 -9a2 2 0 0 1 2 2"/>
+    <path d="M5 12h6"/>
+    <path d="M15 12l6 6"/>
+    <path d="M15 18l6 -6"/>
+  </g>
+</svg>

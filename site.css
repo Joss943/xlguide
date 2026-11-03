@@ -1,0 +1,138 @@
+/* XLGuide — site d'installation. Même identité que l'application : la feuille de calcul
+   (blanc, en-têtes gris, quadrillage), la police Atkinson Hyperlegible et le vert de sélection. */
+@font-face {
+  font-family: "Atkinson Hyperlegible Next";
+  src: url("app/fonts/atkinson-hyperlegible-next.woff2") format("woff2");
+  font-weight: 200 800; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible Mono";
+  src: url("app/fonts/atkinson-hyperlegible-mono.woff2") format("woff2");
+  font-weight: 200 800; font-style: normal; font-display: swap;
+}
+:root {
+  --sheet: #ffffff; --head: #f1f3f1; --head-2: #e4e8e5; --grid: #d5dad6; --grid-2: #b9c0bb;
+  --ink: #1e2522; --muted: #59635e; --sel: #10703f; --sel-soft: #e3f1e8; --action: #10703f; --action-hover: #0b5a33;
+  --code-bg: #f6f7f6; --r: 4px;
+  --sans: "Atkinson Hyperlegible Next", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "Atkinson Hyperlegible Mono", ui-monospace, Consolas, "Liberation Mono", monospace;
+  --page: max(20px, calc(50% - 580px));
+}
+@media (prefers-color-scheme: dark) {
+  :root { --sheet: #1f2321; --head: #272c29; --head-2: #323935; --grid: #3b433e; --grid-2: #56605a;
+    --ink: #e3e8e5; --muted: #a3aea8; --sel: #5cc08c; --sel-soft: #1f3a2b; --action: #2b7f51; --action-hover: #33905d; --code-bg: #252a27; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 400 17px/1.6 var(--sans); color: var(--ink); background: var(--sheet); -webkit-font-smoothing: antialiased; }
+a { color: var(--sel); text-underline-offset: 3px; }
+code, kbd { font-family: var(--mono); font-size: .9em; }
+kbd { padding: 0 5px; border: 1px solid var(--grid-2); border-bottom-width: 2px; border-radius: 3px; background: var(--sheet); font-family: var(--sans); font-weight: 600; }
+.small { font-size: 14px; color: var(--muted); }
+:focus-visible { outline: 2px solid var(--sel); outline-offset: 2px; }
+.ic { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; }
+
+/* Barre du haut : en-tête gris, comme celui de l'application */
+.nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px var(--page); background: var(--head); border-bottom: 1px solid var(--grid); }
+.brand { display: flex; align-items: center; gap: 9px; color: var(--ink); font-size: 19px; font-weight: 700; text-decoration: none; }
+.nav nav { display: flex; align-items: center; gap: 4px 22px; flex-wrap: wrap; }
+.nav nav a { color: var(--muted); font-size: 15.5px; font-weight: 600; text-decoration: none; }
+.nav nav a:hover { color: var(--ink); }
+.nav .gh { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Présentation */
+.hero { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 48px; align-items: center; padding: 56px var(--page) 28px; }
+.hero h1 { margin: 0 0 18px; font-size: clamp(34px, 4vw, 48px); line-height: 1.08; letter-spacing: -.02em; text-wrap: balance; }
+.hero p { max-width: 34em; margin: 0 0 12px; color: var(--muted); font-size: 18px; }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 14px; }
+.btn { display: inline-flex; align-items: center; gap: 12px; padding: 10px 16px; border: 1px solid var(--grid-2); border-radius: var(--r); background: var(--sheet); color: var(--ink); text-decoration: none; }
+.btn:hover { border-color: var(--sel); }
+.btn .ic { width: 22px; height: 22px; }
+.btn span { display: flex; flex-direction: column; line-height: 1.25; }
+.btn b { font-size: 16px; }
+.btn small { color: var(--muted); font-size: 13px; }
+/* Le bouton du système détecté devient l'action principale (site.js) */
+.btn.recommended, .btn-main { background: var(--action); border-color: var(--action); color: #fff; }
+.btn.recommended:hover, .btn-main:hover { background: var(--action-hover); border-color: var(--action-hover); }
+.btn.recommended small, .btn-main small { color: rgba(255, 255, 255, .85); }
+.meta { font-size: 15px !important; }
+.hero-img { margin: 0; border: 1px solid var(--grid); }
+.hero-img img { display: block; width: 100%; height: auto; }
+
+.facts { margin: 0; padding: 18px var(--page); border-top: 1px solid var(--grid); border-bottom: 1px solid var(--grid); background: var(--head); font-size: 18px; }
+.facts b { font-variant-numeric: tabular-nums; }
+
+section h2 { margin: 0 0 8px; font-size: 30px; line-height: 1.2; letter-spacing: -.015em; }
+.parcours, .focus, .download, .faq { padding: 56px var(--page) 8px; }
+.sub { max-width: 46em; margin: 0 0 24px; color: var(--muted); }
+
+/* Le parcours : un tableau, comme dans l'application */
+.table-wrap { overflow-x: auto; }
+.map { width: 100%; min-width: 640px; border-collapse: collapse; }
+.map th, .map td { padding: 10px 12px; border: 1px solid var(--grid); text-align: left; vertical-align: top; font-size: 15.5px; line-height: 1.45; }
+.map thead th { background: var(--head); color: var(--muted); font-weight: 600; }
+.map tbody th { width: 22%; background: var(--head); font-weight: 700; }
+.map td ol { margin: 0; padding-left: 20px; }
+.map td li { margin: 2px 0; }
+.map td small { display: block; margin-top: 6px; color: var(--muted); font-size: 13.5px; }
+
+/* Pensé pour rester concentré : définitions sur deux colonnes */
+.focus dl { display: grid; grid-template-columns: minmax(0, 15em) minmax(0, 1fr); margin: 18px 0 0; border-top: 1px solid var(--grid); }
+.focus dt, .focus dd { margin: 0; padding: 12px 0; border-bottom: 1px solid var(--grid); }
+.focus dt { padding-right: 20px; font-weight: 700; }
+.focus dd { color: var(--muted); }
+
+/* Téléchargement */
+.dl-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 20px; align-items: start; }
+.dl-card { min-width: 0; padding: 22px; border: 1px solid var(--grid); scroll-margin-top: 80px; }
+.dl-card.target { box-shadow: 0 0 0 2px var(--sel); }
+.dl-card header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.dl-card header .ic { width: 26px; height: 26px; }
+.dl-card h3 { margin: 0; font-size: 23px; }
+.tag { margin-left: auto; color: var(--muted); font-size: 14px; }
+.dl-card ol { padding-left: 20px; color: var(--muted); font-size: 16px; }
+.dl-card li { margin: 6px 0; }
+.dl-card li b { color: var(--ink); }
+.wide { width: 100%; justify-content: center; margin: 6px 0 12px; }
+.lead-cmd { margin: 0 0 8px; color: var(--muted); font-size: 16px; }
+.cmd { display: flex; align-items: center; gap: 8px; margin: 8px 0; padding: 8px 8px 8px 12px; border: 1px solid var(--grid); background: var(--code-bg); }
+.cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font-size: 14px; scrollbar-width: thin; }
+.cmd.big code { font-size: 15px; }
+.cmd button { flex: none; padding: 3px 10px; border: 1px solid var(--grid-2); border-radius: var(--r); background: var(--sheet); color: var(--ink); font: 600 13.5px var(--sans); cursor: pointer; }
+.cmd button:hover { border-color: var(--sel); }
+/* Choix de la distribution : des onglets de feuille */
+.distros { display: flex; flex-wrap: wrap; margin: 22px 0 12px; border-bottom: 1px solid var(--grid); }
+.distros button { display: inline-flex; align-items: center; gap: 5px; margin: 0 -1px -1px 0; padding: 7px 12px; border: 1px solid var(--grid); background: var(--head); color: var(--muted); font: 600 14.5px var(--sans); cursor: pointer; }
+.distros button.on { background: var(--sheet); border-bottom-color: var(--sheet); color: var(--ink); box-shadow: inset 0 -3px 0 var(--sel); }
+.distros .ic { width: 16px; height: 16px; }
+details { margin: 10px 0; }
+summary { cursor: pointer; font-weight: 700; }
+
+/* Questions fréquentes : des lignes séparées par le quadrillage */
+.faq { padding-bottom: 56px; }
+.faq details { margin: 0; padding: 14px 2px; border-bottom: 1px solid var(--grid); }
+.faq details:first-of-type { border-top: 1px solid var(--grid); }
+.faq p { max-width: 46em; margin: 8px 0 0; color: var(--muted); }
+
+footer { padding: 28px 20px 48px; border-top: 1px solid var(--grid); background: var(--head); color: var(--muted); text-align: center; font-size: 15px; }
+footer img { vertical-align: -4px; }
+.toast { position: fixed; left: 50%; bottom: 24px; padding: 9px 16px; border-radius: var(--r); background: var(--ink); color: var(--sheet); opacity: 0; transform: translate(-50%, 12px); transition: opacity .18s, transform .18s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 960px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding-top: 36px; }
+  .dl-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 620px) {
+  .nav nav a:not(.gh) { display: none; }
+  /* Le parcours : une activité après l'autre, chaque niveau sous son nom */
+  .map, .map tbody, .map tr, .map th, .map td { display: block; min-width: 0; }
+  .map thead { display: none; }
+  .map tr { margin-bottom: 14px; border: 1px solid var(--grid); }
+  .map th, .map td { width: auto !important; border: 0; border-top: 1px solid var(--grid); }
+  .map tbody th { border-top: 0; }
+  .map td::before { content: attr(data-level); display: block; margin-bottom: 4px; color: var(--muted); font-weight: 700; }
+  .focus dl { grid-template-columns: minmax(0, 1fr); }
+  .focus dt { padding-bottom: 0; border-bottom: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

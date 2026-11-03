@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr" data-theme="auto">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="description" content="XLGuide : apprendre à utiliser Excel en français, des bases au niveau expert. Saisir et mettre en forme, calculer, organiser et analyser, présenter, avec des exemples vérifiés.">
+  <meta name="theme-color" content="#f1f3f1">
+  <title>XLGuide — Apprendre à utiliser Excel</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/parcours.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#/" title="Accueil">
+      <img src="icons/icon.svg" alt="" width="28" height="28">
+      <span>XLGuide</span>
+    </a>
+    <div class="searchbox">
+      <i data-ic="search"></i>
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Que veux-tu faire ? Par exemple « figer la première ligne »"
+             aria-label="Rechercher une notion, une fonction, une méthode ou une erreur">
+      <kbd id="kbdHint">/</kbd>
+    </div>
+    <div class="tools">
+      <label class="ver" title="Ta version d’Excel : les fonctions indisponibles sont signalées">
+        <span>Excel</span>
+        <select id="ver">
+          <option value="365">365</option>
+          <option value="2024">2024</option>
+          <option value="2021">2021</option>
+          <option value="2019">2019</option>
+          <option value="2016">2016</option>
+          <option value="2013">2013</option>
+          <option value="2010">2010</option>
+        </select>
+      </label>
+      <button id="big" class="icon-btn" title="Texte plus grand" aria-label="Texte plus grand" aria-pressed="false">
+        <i data-ic="text-size"></i>
+      </button>
+      <button id="theme" class="icon-btn" title="Thème clair / sombre" aria-label="Changer de thème">
+        <i data-ic="moon"></i>
+      </button>
+      <a id="install" class="btn" href="../#telecharger" title="Installer l’appli" hidden><i data-ic="download"></i><span>Installer l’appli</span></a>
+    </div>
+  </header>
+
+  <!-- onglets générés par js/app.js à partir des activités (data/parcours.js) -->
+  <nav class="tabs" id="tabs" aria-label="Navigation principale"></nav>
+
+  <main class="layout" id="layout">
+    <aside class="side" id="side"></aside>
+    <section class="list" id="list" aria-live="polite"></section>
+    <article class="detail" id="detail" tabindex="-1"></article>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="data/core.js"></script>
+  <script src="data/fn-logique-recherche.js"></script>
+  <script src="data/fn-math-stats.js"></script>
+  <script src="data/fn-texte-date.js"></script>
+  <script src="data/recipes.js"></script>
+  <script src="data/misc.js"></script>
+  <script src="data/parcours.js"></script>
+  <script src="data/notions/saisir.js"></script>
+  <script src="data/notions/calculer.js"></script>
+  <script src="data/notions/organiser.js"></script>
+  <script src="data/notions/presenter.js"></script>
+  <script src="data/samples.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/formula.js"></script>
+  <script src="js/search.js"></script>
+  <script src="js/core/store.js"></script>
+  <script src="js/core/model.js"></script>
+  <script src="js/core/progress.js"></script>
+  <script src="js/views/ui.js"></script>
+  <script src="js/views/home.js"></script>
+  <script src="js/views/lists.js"></script>
+  <script src="js/views/sheets.js"></script>
+  <script src="js/views/tools.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
