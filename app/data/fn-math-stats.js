@@ -119,6 +119,29 @@
     [], 'valeur absolue sans signe positif ecart',
     '');
 
+  F('SOMMEPROD', 'SUMPRODUCT', 'math', '',
+    'Multiplie des plages ligne à ligne puis additionne. Avec des conditions, elle fait des sommes que SOMME.SI.ENS ne sait pas faire.',
+    'SOMMEPROD(tableau1; [tableau2]; …)',
+    [['tableau1…', 'Plages de même taille ; une condition comme (A2:A9="x") vaut 1 ou 0.']],
+    [['=SOMMEPROD(B2:B10;C2:C10)', 'Quantités × prix unitaires : le montant total d’une commande.'],
+     ['=SOMMEPROD((MOIS(A2:A500)=3)*D2:D500)', 'Total du mois de mars, toutes années confondues.'],
+     ['=SOMMEPROD(((B2:B500="Nord")+(B2:B500="Sud")>0)*D2:D500)', 'Somme avec une condition OU : régions Nord ou Sud.']],
+    ['Évite les colonnes entières (A:A) : SOMMEPROD calcule chaque cellule, c’est très lent.',
+     'Multiplier des conditions (*) = ET ; les additionner (+) = OU.'],
+    'multiplier additionner quantite prix somme conditionnelle complexe ou plusieurs conditions moyenne ponderee',
+    'SOMME.SI.ENS SOMME');
+
+  F('AGREGAT', 'AGGREGATE', 'math', '2010',
+    'Comme SOUS.TOTAL, mais peut aussi ignorer les erreurs : pratique pour additionner une colonne qui contient des #N/A.',
+    'AGREGAT(no_fonction; options; réf1; [k])',
+    [['no_fonction', '9 = SOMME, 1 = MOYENNE, 2 = NB, 4 = MAX, 5 = MIN, 14 = GRANDE.VALEUR, 15 = PETITE.VALEUR…'],
+     ['options', '6 = ignorer les erreurs ; 5 = ignorer les lignes masquées ; 7 = les deux.'],
+     ['réf1', 'Plage.'], ['k', 'Rang, pour 14 et 15.']],
+    [['=AGREGAT(9;6;D2:D500)', 'Somme qui ignore les #N/A et les #DIV/0!.'],
+     ['=AGREGAT(14;6;D2:D500;1)', 'Plus grande valeur, erreurs ignorées.']],
+    [], 'somme en ignorant les erreurs na total malgre erreur lignes masquees',
+    'SOUS.TOTAL SIERREUR');
+
   /* ===================== STATISTIQUES & COMPTAGE ===================== */
   F('MOYENNE', 'AVERAGE', 'stats', '',
     'Moyenne arithmétique (les cellules vides et le texte sont ignorés, les zéros comptent).',
@@ -220,4 +243,39 @@
     [['=EQUATION.RANG(C2;$C$2:$C$50)', 'Classement d’un client par CA.']],
     ['Ex-aequo = même rang. Ancienne version : RANG().'],
     'rang classement position classer', 'GRANDE.VALEUR');
+  F('MAX.SI.ENS', 'MAXIFS', 'stats', '2019',
+    'Plus grande valeur parmi les lignes qui répondent à un ou plusieurs critères.',
+    'MAX.SI.ENS(plage_max; plage_critères1; critère1; …)',
+    [['plage_max', 'Valeurs parmi lesquelles chercher le maximum.'], ['plage_critères1; critère1', 'Où tester et quoi tester.']],
+    [['=MAX.SI.ENS(C2:C500;A2:A500;"Martin")', 'Date de la dernière commande du client Martin (dates en colonne C).']],
+    [], 'maximum avec condition derniere date plus grande valeur si', 'MIN.SI.ENS MAX');
+
+  F('MIN.SI.ENS', 'MINIFS', 'stats', '2019',
+    'Plus petite valeur parmi les lignes qui répondent à un ou plusieurs critères.',
+    'MIN.SI.ENS(plage_min; plage_critères1; critère1; …)',
+    [['plage_min', 'Valeurs parmi lesquelles chercher le minimum.'], ['plage_critères1; critère1', 'Où tester et quoi tester.']],
+    [['=MIN.SI.ENS(C2:C500;D2:D500;"En attente")', 'Date la plus ancienne parmi les commandes « En attente ».']],
+    [], 'minimum avec condition premiere date plus ancienne plus petite valeur si', 'MAX.SI.ENS MIN');
+
+  F('ECARTYPE.STANDARD', 'STDEV.S', 'stats', '2010',
+    'Écart-type d’un échantillon : il mesure à quel point les valeurs s’éloignent de la moyenne.',
+    'ECARTYPE.STANDARD(nombre1; [nombre2]; …)', [['nombre1…', 'Valeurs.']],
+    [['=ECARTYPE.STANDARD(B2:B13)', 'Variabilité des ventes mensuelles : plus le résultat est grand, plus elles varient.']],
+    ['Pour une population complète (toutes les valeurs, pas un échantillon) : ECARTYPE.PEARSON.'],
+    'ecart type dispersion variabilite statistiques', 'MOYENNE MEDIANE');
+
+  F('QUARTILE.INCLURE', 'QUARTILE.INC', 'stats', '2010',
+    'Quartile d’une série : 1 = 25 % des valeurs sont en dessous, 2 = la médiane, 3 = 75 %.',
+    'QUARTILE.INCLURE(tableau; quart)', [['tableau', 'Plage de nombres.'], ['quart', '0 = minimum, 1, 2, 3, 4 = maximum.']],
+    [['=QUARTILE.INCLURE(B2:B500;3)', '3e quartile : 75 % des valeurs sont inférieures ou égales.']],
+    [], 'quartile repartition statistiques', 'MEDIANE');
+
+  F('PREVISION.LINEAIRE', 'FORECAST.LINEAR', 'stats', '2016',
+    'Prévoit une valeur future en prolongeant la tendance en ligne droite.',
+    'PREVISION.LINEAIRE(x; y_connus; x_connus)',
+    [['x', 'Point à prévoir (par exemple le mois 13).'], ['y_connus', 'Valeurs connues (par exemple le chiffre d’affaires).'], ['x_connus', 'Repères connus (par exemple les mois 1 à 12).']],
+    [['=PREVISION.LINEAIRE(13;B2:B13;A2:A13)', 'Chiffre d’affaires prévu pour le mois 13, à partir des 12 mois connus.']],
+    ['Ancien nom : PREVISION. Une droite ignore la saisonnalité : c’est un ordre de grandeur.'],
+    'prevision prevoir tendance futur projection estimation', 'MOYENNE');
+
 })(window.XL);

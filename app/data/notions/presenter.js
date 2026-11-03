@@ -134,4 +134,87 @@
     ],
     kw: 'imprimer grand tableau plusieurs pages repeter en tetes imprimer les titres lignes a repeter saut de page en tete pied de page numero de page'
   });
+
+  /* --------------------------------- EXPERT --------------------------------- */
+  N({
+    activity: 'presenter', level: 'expert', title: 'Graphique croisé dynamique',
+    intro: 'Un graphique croisé dynamique est relié à un TCD : quand on filtre ou réorganise le tableau, le graphique suit.',
+    steps: [
+      'Clique dans tes données, puis Insertion > Graphique croisé dynamique, et OK.',
+      'Dans le volet des champs, place la catégorie dans Axe (catégories) et le montant dans Valeurs.',
+      'Ajoute un segment pour filtrer d’un clic : clique dans le graphique, puis Insérer un segment.'
+    ],
+    points: [
+      'Le graphique et son TCD partagent les mêmes filtres : modifier l’un modifie l’autre.',
+      'Clic droit sur un bouton de champ du graphique > Masquer tous les boutons de champ, pour un rendu plus propre.',
+      'Après un changement dans les données : Données > Actualiser tout.'
+    ],
+    kw: 'graphique croise dynamique tcd graphique filtre segment boutons de champ actualiser'
+  });
+
+  N({
+    activity: 'presenter', level: 'expert', title: 'Graphiques spécialisés : cascade, entonnoir, compartimentage…',
+    intro: 'Depuis Excel 2016, des graphiques répondent à des questions précises : comment on passe d’un total à un autre, où se perdent les étapes, comment se répartit un ensemble.',
+    steps: [
+      'Sélectionne les données, puis Insertion > Graphiques recommandés > onglet Tous les graphiques.',
+      'Choisis le type dans la liste de gauche (Cascade, Entonnoir, Compartimentage…), puis OK.'
+    ],
+    points: [
+      'Cascade : les hausses et les baisses qui mènent d’une valeur de départ à une valeur finale. Clic droit sur la barre d’un total > Définir comme total.',
+      'Entonnoir (Excel 2019 et plus) : des étapes qui se vident, par exemple contacts, devis, commandes.',
+      'Compartimentage et Rayons de soleil : la part de chaque élément dans un ensemble, avec des sous-catégories.',
+      'Pareto : les causes classées de la plus fréquente à la plus rare, avec le cumul en %.'
+    ],
+    tips: ['Ces graphiques n’existent pas avant Excel 2016 : une version plus ancienne ne peut pas les afficher.'],
+    kw: 'graphique cascade entonnoir compartimentage rayons de soleil pareto treemap waterfall funnel sunburst types de graphiques 2016'
+  });
+
+  N({
+    activity: 'presenter', level: 'expert', title: 'Un graphique piloté par une liste déroulante',
+    intro: 'Une liste déroulante choisit ce qu’on montre (un produit, une région) ; une ligne de formules va chercher les chiffres, et le graphique construit sur cette ligne change tout seul.',
+    steps: [
+      'Dans une cellule libre (par exemple H1), crée une liste déroulante des produits : Données > Validation des données > Liste.',
+      'Sous le tableau, écris une ligne de formules qui va chercher les chiffres du produit choisi, puis recopie-la vers la droite.',
+      'Crée le graphique sur cette ligne (avec les mois comme étiquettes) : il change dès qu’on choisit un autre produit.'
+    ],
+    points: [
+      'Le graphique ne montre qu’une série à la fois : plus lisible que tous les produits ensemble.',
+      'Toutes versions : =INDEX(B2:B4;EQUIV($H$1;$A$2:$A$4;0)), recopiée vers la droite pour les mois suivants.',
+      'Titre automatique : sélectionne le titre du graphique, tape = dans la barre de formule, puis clique sur H1.'
+    ],
+    sample: {
+      cols: ['Produit', 'Janv', 'Févr', 'Mars'],
+      rows: [['Stylo', 120, 95, 130], ['Cahier', 60, 80, 75], ['Agenda', 30, 25, 40]],
+      calc: [
+        ['Janvier du produit choisi (Cahier)', '=INDEX(B2:B4;EQUIV("Cahier";A2:A4;0))', 60],
+        ['Mars du produit choisi (Cahier)', '=INDEX(D2:D4;EQUIV("Cahier";A2:A4;0))', 75]
+      ],
+      note: 'Dans le classeur, « Cahier » est remplacé par $H$1, la cellule de la liste déroulante.'
+    },
+    examples: [['=RECHERCHEX($H$1;$A$2:$A$4;B2:B4)', 'La même ligne avec RECHERCHEX (Excel 2021 et plus), à recopier vers la droite.']],
+    kw: 'graphique dynamique interactif liste deroulante choisir serie produit tableau de bord index equiv recherchex titre lie a une cellule'
+  });
+
+  N({
+    activity: 'presenter', level: 'expert', title: 'Construire un tableau de bord',
+    intro: 'Un tableau de bord tient sur un écran : quelques chiffres clés, deux ou trois graphiques et des filtres communs. Il se construit à partir de TCD reliés aux mêmes données.',
+    steps: [
+      'Mets les données sous forme de tableau (Ctrl+L), sur une feuille à part.',
+      'Sur une feuille « Calculs », crée les TCD et graphiques croisés dynamiques dont tu as besoin.',
+      'Sur une feuille « Tableau de bord », place les graphiques et affiche les chiffres clés : tape = puis clique dans un TCD.',
+      'Ajoute des segments ou une chronologie, puis relie-les à tous les TCD : clic droit > Connexions de rapport.',
+      'Pour alléger l’affichage : Affichage > décoche Quadrillage et En-têtes.'
+    ],
+    points: [
+      'Un chiffre clé répond à une question (« Ventes du mois », « Écart au budget ») : écris la question au-dessus du nombre.',
+      'Peu d’indicateurs, bien choisis : au-delà de cinq ou six, plus personne ne regarde.',
+      'Données > Actualiser tout met à jour tous les TCD d’un coup après l’ajout de données.',
+      'La formule créée en cliquant dans un TCD (LIREDONNEESTABCROISDYNAMIQUE) suit la bonne valeur même si le TCD change de forme.'
+    ],
+    examples: [
+      ['=LIREDONNEESTABCROISDYNAMIQUE("Ventes";Calculs!$A$3;"Région";"Nord")', 'Ventes du Nord lues dans le TCD de la feuille Calculs.'],
+      ['=LIEN_HYPERTEXTE("#Données!A1";"Voir les données")', 'Lien vers la feuille des données.']
+    ],
+    kw: 'tableau de bord dashboard indicateurs chiffres cles kpi segments tcd graphiques synthese reporting quadrillage'
+  });
 })(window.XL);

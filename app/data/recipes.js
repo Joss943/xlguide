@@ -144,4 +144,20 @@
      ['=SIERREUR(C2/B2;"")', 'Taux de réalisation.'],
      ['=SI(C2>B2;"▲ Dépassement";"▼ Sous budget")', 'Indicateur pour un tableau de bord.']],
     [], 'budget realise ecart budgetaire taux realisation controle gestion');
+
+  /* --------------------------------- EXPERT --------------------------------- */
+  R('Cumul depuis le début de l’année',
+    'Total des montants du 1er janvier jusqu’à aujourd’hui : il avance tout seul, chaque jour.',
+    [['=SOMME.SI.ENS(B:B;A:A;">="&DATE(ANNEE(AUJOURDHUI());1;1);A:A;"<="&AUJOURDHUI())', 'Dates en colonne A, montants en colonne B.'],
+     ['=SOMME.SI.ENS(B:B;A:A;">="&DATE(ANNEE(AUJOURDHUI())-1;1;1);A:A;"<="&MOIS.DECALER(AUJOURDHUI();-12))', 'La même période l’an dernier, pour comparer.']],
+    ['Le critère se construit avec & : ">="&DATE(…) colle l’opérateur et la date.'],
+    'cumul annuel depuis le debut de l annee total a date periode en cours comparaison annee precedente ytd');
+
+  R('Les 5 meilleurs par formule',
+    'Afficher les plus gros montants et le nom qui va avec, à jour dès que les chiffres changent.',
+    [['=PRENDRE(TRIERPAR(A2:B100;B2:B100;-1);5)', 'Excel 2024 et 365 : les 5 lignes au plus gros montant, en une formule.'],
+     ['=GRANDE.VALEUR($B$2:$B$100;1)', 'Toutes versions : le plus gros montant ; remplace 1 par 2, 3… pour les suivants.'],
+     ['=INDEX($A$2:$A$100;EQUIV(GRANDE.VALEUR($B$2:$B$100;1);$B$2:$B$100;0))', 'Le nom qui correspond à ce montant.']],
+    ['En cas d’égalité, EQUIV renvoie toujours le premier nom trouvé : la version PRENDRE + TRIERPAR n’a pas ce défaut.'],
+    'top 5 meilleurs classement plus gros montants palmares premiers grande valeur');
 })(window.XL);

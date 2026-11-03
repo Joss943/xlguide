@@ -76,6 +76,38 @@
     [], 'non inverser contraire negation pas',
     'ET OU');
 
+  F('SI.MULTIPLE', 'SWITCH', 'logique', '2019',
+    'Compare une valeur à une liste de cas et renvoie le résultat du cas qui correspond.',
+    'SI.MULTIPLE(expression; valeur1; résultat1; [valeur2; résultat2]; …; [défaut])',
+    [['expression', 'Valeur à comparer.'], ['valeur1; résultat1', 'Un cas et le résultat associé.'],
+     ['défaut', 'Résultat si aucun cas ne correspond (facultatif, dernier argument isolé).']],
+    [['=SI.MULTIPLE(3;1;"Janv";2;"Févr";3;"Mars";"?")', 'Traduit un numéro de mois en libellé.', 'Mars'],
+     ['=SI.MULTIPLE(A2;"N";"Nord";"S";"Sud";"E";"Est";"O";"Ouest";"Inconnu")', 'Remplace un code de région par son nom.']],
+    ['Ne teste que l’égalité. Pour des seuils (>, <), utilise SI.CONDITIONS.'],
+    'selon valeur correspondance cas liste remplacer code par libelle switch',
+    'SI.CONDITIONS CHOISIR');
+
+  F('LET', 'LET', 'logique', '2021',
+    'Donne un nom aux étapes d’une formule. Une formule longue devient lisible, et chaque étape n’est calculée qu’une fois.',
+    'LET(nom1; valeur1; [nom2; valeur2]; …; calcul)',
+    [['nom1', 'Nom de l’étape (commence par une lettre).'], ['valeur1', 'Valeur ou calcul associé.'],
+     ['calcul', 'Dernier argument : le résultat final, qui utilise les noms.']],
+    [['=LET(ht;100;tva;20%;ht*(1+tva))', 'Prix TTC avec des étapes nommées.', 120],
+     ['=LET(j;AUJOURDHUI()-E2;SI(j<=0;"À l’heure";j&" j de retard"))', 'Le retard est calculé une seule fois puis réutilisé.']],
+    ['Très utile avec FILTRE et TRIER : chaque étape porte un nom, comme dans une recette.'],
+    'nommer etapes variable intermediaire lisible simplifier formule longue',
+    'LAMBDA');
+
+  F('LAMBDA', 'LAMBDA', 'logique', '2024',
+    'Crée ta propre fonction. Enregistrée dans le Gestionnaire de noms, elle s’utilise comme une fonction d’Excel.',
+    'LAMBDA([paramètre1; paramètre2; …]; calcul)',
+    [['paramètre…', 'Noms des valeurs d’entrée.'], ['calcul', 'Formule qui utilise les paramètres.']],
+    [['=LAMBDA(ht;taux;ht*(1+taux))(100;20%)', 'Fonction testée directement dans une cellule.', 120],
+     ['Nom « TTC » = LAMBDA(ht;taux;ARRONDI(ht*(1+taux);2)), puis =TTC(B2;20%)', 'Fonction TTC créée dans Formules > Gestionnaire de noms.']],
+    ['Teste la LAMBDA dans une cellule en ajoutant les valeurs entre parenthèses à la fin, puis enregistre-la comme nom.'],
+    'creer sa propre fonction personnalisee reutilisable gestionnaire de noms',
+    'LET');
+
   /* ============================ RECHERCHE ============================ */
   F('RECHERCHEX', 'XLOOKUP', 'recherche', '2021',
     'LA fonction de recherche moderne : cherche une valeur dans une colonne et renvoie la valeur correspondante d’une autre colonne, à gauche ou à droite, avec message si introuvable.',
@@ -109,7 +141,87 @@
     'rechercher trouver valeur colonne vlookup recherche verticale correspondance aller chercher autre feuille',
     'RECHERCHEX');
 
-  /* ================ TABLEAUX DYNAMIQUES (Excel 2021+) ================ */
+  F('INDEX', 'INDEX', 'recherche', '',
+    'Renvoie la valeur située à une position donnée d’une plage. Avec EQUIV, elle cherche dans tous les sens, dans toutes les versions d’Excel.',
+    'INDEX(tableau; no_lig; [no_col])',
+    [['tableau', 'Plage de cellules.'], ['no_lig', 'Position de la ligne dans la plage.'], ['no_col', 'Position de la colonne (si la plage a plusieurs colonnes).']],
+    [['=INDEX(C2:C500;EQUIV(A2;B2:B500;0))', 'Valeur de la colonne C sur la ligne où B vaut A2.'],
+     ['=INDEX($B$2:$M$50;EQUIV(P2;$A$2:$A$50;0);EQUIV(Q2;$B$1:$M$1;0))', 'Tableau à double entrée : la ligne du produit écrit en P2, la colonne du mois écrit en Q2.']],
+    ['Avec INDEX + EQUIV, insérer ou déplacer des colonnes ne casse pas la formule, contrairement au numéro de colonne de RECHERCHEV.'],
+    'position ligne colonne recuperer cellule double entree croisement index equiv',
+    'EQUIV RECHERCHEX DECALER');
+
+  F('EQUIV', 'MATCH', 'recherche', '',
+    'Renvoie la position d’une valeur dans une ligne ou une colonne (1, 2, 3…).',
+    'EQUIV(valeur_cherchée; tableau_recherche; [type])',
+    [['valeur_cherchée', 'Valeur à trouver.'], ['tableau_recherche', 'Une seule ligne ou une seule colonne.'],
+     ['type', '0 = exacte (recommandé) ; 1 = plus grande valeur inférieure ou égale (liste croissante, par défaut) ; -1 = plus petite valeur supérieure ou égale (liste décroissante).']],
+    [['=EQUIV("Mars";B1:M1;0)', 'Numéro de la colonne « Mars » dans la ligne des mois.'],
+     ['=ESTNUM(EQUIV(A2;Liste2!A:A;0))', 'VRAI si la valeur de A2 existe dans l’autre liste.']],
+    ['Le type par défaut est 1 (approché) : mets toujours 0 pour une recherche exacte.'],
+    'position rang trouver ou se trouve numero ligne existe dans liste',
+    'INDEX EQUIVX RECHERCHEX');
+
+  F('EQUIVX', 'XMATCH', 'recherche', '2021',
+    'Version moderne d’EQUIV : correspondance exacte par défaut, recherche depuis la fin possible.',
+    'EQUIVX(valeur_cherchée; tableau_recherche; [mode_correspondance]; [mode_recherche])',
+    [['valeur_cherchée', 'Valeur à trouver.'], ['tableau_recherche', 'Ligne ou colonne.'],
+     ['mode_correspondance', '0 = exacte (par défaut), -1 = exacte ou inférieure, 1 = exacte ou supérieure, 2 = caractères génériques.'],
+     ['mode_recherche', '1 = depuis le début, -1 = depuis la fin.']],
+    [['=EQUIVX(A2;B2:B500;0;-1)', 'Position de la dernière ligne où B vaut A2.']],
+    [], 'position derniere occurrence equiv moderne',
+    'EQUIV INDEX RECHERCHEX');
+
+  F('CHOISIR', 'CHOOSE', 'recherche', '',
+    'Renvoie l’élément numéro X d’une liste de valeurs.',
+    'CHOISIR(no_index; valeur1; [valeur2]; …)',
+    [['no_index', 'Numéro de l’élément voulu (de 1 à 254).'], ['valeur1…', 'Liste des choix.']],
+    [['=CHOISIR(2;"T1";"T2";"T3";"T4")', 'Renvoie le 2e élément.', 'T2'],
+     ['=CHOISIR(JOURSEM(A2;2);"Lun";"Mar";"Mer";"Jeu";"Ven";"Sam";"Dim")', 'Jour de la semaine en toutes lettres.']],
+    [], 'choisir element liste numero option scenario',
+    'SI.MULTIPLE INDEX');
+
+  F('DECALER', 'OFFSET', 'recherche', '',
+    'Renvoie une plage décalée d’un certain nombre de lignes et de colonnes par rapport à une cellule de départ, avec la taille voulue.',
+    'DECALER(réf; lignes; colonnes; [hauteur]; [largeur])',
+    [['réf', 'Cellule de départ.'], ['lignes', 'Décalage vers le bas (négatif = vers le haut).'], ['colonnes', 'Décalage vers la droite (négatif = vers la gauche).'],
+     ['hauteur', 'Nombre de lignes de la plage renvoyée.'], ['largeur', 'Nombre de colonnes de la plage renvoyée.']],
+    [['=SOMME(DECALER(B2;0;0;1;3))', 'Somme des 3 cellules à partir de B2, vers la droite.'],
+     ['=SOMME(DECALER($B2;0;0;1;$P$1))', 'Cumul jusqu’au mois N, N étant écrit en P1.']],
+    ['Fonction « volatile » : recalculée à chaque modification, elle ralentit les gros classeurs. INDEX ou PRENDRE font souvent la même chose sans ce défaut.'],
+    'plage dynamique glissante cumul variable decaler',
+    'INDEX PRENDRE INDIRECT');
+
+  F('INDIRECT', 'INDIRECT', 'recherche', '',
+    'Transforme un texte en référence de cellule. Par exemple, viser la feuille dont le nom est écrit dans une cellule.',
+    'INDIRECT(réf_texte; [a1])',
+    [['réf_texte', 'Adresse sous forme de texte (par exemple "Janvier!B5").'], ['a1', 'VRAI (par défaut) = style A1 ; FAUX = style L1C1.']],
+    [['=INDIRECT(A1&"!B10")', 'Lit B10 dans la feuille dont le nom est écrit en A1 (un mois, par exemple).'],
+     ['=SOMME(INDIRECT("B2:B"&C1))', 'Somme de B2 jusqu’à la ligne indiquée en C1.']],
+    ['Volatile, et invisible pour l’audit des formules. Si le nom de la feuille contient des espaces : "\'"&A1&"\'!B10".'],
+    'reference texte nom de feuille variable dynamique liste en cascade',
+    'DECALER');
+
+  F('LIREDONNEESTABCROISDYNAMIQUE', 'GETPIVOTDATA', 'recherche', '',
+    'Lit une valeur dans un tableau croisé dynamique par les noms des champs, pas par la position de la cellule : la formule reste juste quand le TCD change de forme.',
+    'LIREDONNEESTABCROISDYNAMIQUE(champ_données; tableau_croisé_dyn; [champ1; élément1]; …)',
+    [['champ_données', 'Nom du champ de valeurs (par exemple "Ventes").'], ['tableau_croisé_dyn', 'Une cellule du TCD.'],
+     ['champ; élément', 'Paires champ / valeur qui désignent la case voulue.']],
+    [['=LIREDONNEESTABCROISDYNAMIQUE("Ventes";$A$3;"Région";"Nord";"Mois";"Mars")', 'Ventes du Nord en mars, lues dans le TCD qui commence en A3.']],
+    ['Elle s’écrit toute seule quand tu tapes = puis cliques dans un TCD.'],
+    'tcd tableau croise dynamique lire extraire valeur tableau de bord',
+    'PIVOTER.PAR SOMME.SI.ENS');
+
+  F('LIEN_HYPERTEXTE', 'HYPERLINK', 'recherche', '',
+    'Crée un lien cliquable vers une page web, un fichier ou une cellule du classeur.',
+    'LIEN_HYPERTEXTE(emplacement_lien; [nom_convivial])',
+    [['emplacement_lien', 'Adresse web, chemin d’un fichier, ou "#Feuille!A1" pour une cellule du classeur.'], ['nom_convivial', 'Texte affiché.']],
+    [['=LIEN_HYPERTEXTE("#Synthèse!A1";"Retour à la synthèse")', 'Lien de navigation vers la cellule A1 de la feuille Synthèse.'],
+     ['=LIEN_HYPERTEXTE("https://www.exemple.fr";"Site du fournisseur")', 'Lien vers une page web.']],
+    [], 'lien hypertexte url cliquable navigation sommaire tableau de bord',
+    'INDIRECT');
+
+  /* ============== TABLEAUX DYNAMIQUES (Excel 2021 et plus) ============== */
   F('FILTRE', 'FILTER', 'tableaux', '2021',
     'Extrait toutes les lignes qui répondent à un ou plusieurs critères. Le résultat se met à jour tout seul.',
     'FILTRE(tableau; inclure; [si_vide])',
@@ -143,6 +255,63 @@
      ['=UNIQUE(A2:A500;;VRAI)', 'Valeurs qui n’apparaissent qu’une seule fois.']],
     [], 'doublons supprimer distinct sans doublon liste unique valeurs differentes',
     'TRIER FILTRE NB.SI');
+
+  F('TRIERPAR', 'SORTBY', 'tableaux', '2021',
+    'Trie un tableau selon une ou plusieurs autres colonnes, même si elles ne sont pas affichées.',
+    'TRIERPAR(tableau; par_tableau1; [ordre_tri1]; [par_tableau2; ordre_tri2]; …)',
+    [['tableau', 'Données à renvoyer.'], ['par_tableau1', 'Colonne qui sert au tri.'], ['ordre_tri1', '1 = croissant, -1 = décroissant.']],
+    [['=TRIERPAR(A2:A50;B2:B50;-1)', 'Les noms classés du plus gros au plus petit chiffre d’affaires (colonne B).'],
+     ['=TRIERPAR(A2:D200;C2:C200;1;A2:A200;1)', 'Tri par date (colonne C), puis par nom.']],
+    [], 'trier selon une autre colonne classement plusieurs criteres',
+    'TRIER PRENDRE');
+
+  F('PRENDRE', 'TAKE', 'tableaux', '2024',
+    'Garde les N premières lignes ou colonnes d’un tableau (les dernières si N est négatif).',
+    'PRENDRE(tableau; lignes; [colonnes])',
+    [['tableau', 'Plage source.'], ['lignes', 'Nombre de lignes (négatif = depuis la fin).'], ['colonnes', 'Nombre de colonnes.']],
+    [['=PRENDRE(TRIERPAR(A2:B100;B2:B100;-1);5)', 'Les 5 meilleures lignes selon la colonne B.'],
+     ['=PRENDRE(A2:D500;-10)', 'Les 10 dernières lignes.']],
+    [], 'top 5 premiers derniers n lignes classement meilleurs',
+    'TRIERPAR GRANDE.VALEUR');
+
+  F('CHOISIRCOLS', 'CHOOSECOLS', 'tableaux', '2024',
+    'Renvoie seulement certaines colonnes d’un tableau, dans l’ordre voulu.',
+    'CHOISIRCOLS(tableau; col_num1; [col_num2]; …)',
+    [['tableau', 'Plage source.'], ['col_num…', 'Numéros des colonnes à garder (négatif = depuis la fin).']],
+    [['=CHOISIRCOLS(A2:F100;1;3;5)', 'Garde les colonnes 1, 3 et 5 (par exemple Date, Client et Montant).']],
+    [], 'selectionner certaines colonnes extraire reorganiser',
+    'PRENDRE FILTRE');
+
+  F('ASSEMB.V', 'VSTACK', 'tableaux', '2024',
+    'Empile plusieurs plages les unes sous les autres en un seul tableau.',
+    'ASSEMB.V(tableau1; [tableau2]; …)',
+    [['tableau1…', 'Plages à empiler (de préférence avec les mêmes colonnes).']],
+    [['=ASSEMB.V(Janvier!A2:D100;Février!A2:D100;Mars!A2:D100)', 'Rassemble les tableaux de trois mois en un seul.'],
+     ['=ASSEMB.V(Janvier:Décembre!A2:D100)', 'Référence 3D : la même plage de toutes les feuilles, de Janvier à Décembre.']],
+    ['Les lignes vides des plages sont reprises : retire-les ensuite avec FILTRE.'],
+    'empiler rassembler consolider feuilles fusionner tableaux vertical',
+    'FILTRE');
+
+  F('SEQUENCE', 'SEQUENCE', 'tableaux', '2021',
+    'Génère une suite de nombres (1, 2, 3… ou avec un pas) sur plusieurs lignes ou colonnes.',
+    'SEQUENCE(lignes; [colonnes]; [début]; [pas])',
+    [['lignes', 'Nombre de lignes.'], ['colonnes', 'Nombre de colonnes (1 par défaut).'], ['début', 'Premier nombre (1 par défaut).'], ['pas', 'Écart entre deux nombres (1 par défaut).']],
+    [['=SEQUENCE(12)', 'Les nombres de 1 à 12, un par ligne.'],
+     ['=FIN.MOIS(DATE(2026;1;1);SEQUENCE(12)-1)', 'Les 12 fins de mois de 2026.'],
+     ['=SOMME(SEQUENCE(10))', 'Somme de 1 à 10.', 55]],
+    [], 'suite de nombres numerotation serie generer 1 a n',
+    'PRENDRE');
+
+  F('PIVOTER.PAR', 'PIVOTBY', 'tableaux', '365',
+    'Un tableau croisé dynamique en une formule : regroupe en lignes et en colonnes, puis calcule (somme, moyenne…).',
+    'PIVOTER.PAR(champs_lignes; champs_colonnes; valeurs; fonction; [en_têtes]; [profondeur_total_lignes]; [ordre_tri_lignes]; [profondeur_total_colonnes]; [ordre_tri_colonnes]; [filtre]; [relatif_à])',
+    [['champs_lignes', 'Colonne affichée en lignes (par exemple Produit).'], ['champs_colonnes', 'Colonne affichée en colonnes (par exemple Mois).'],
+     ['valeurs', 'Nombres à regrouper.'], ['fonction', 'SOMME, MOYENNE, NB… (le nom seul, sans parenthèses).'],
+     ['autres', 'En-têtes, totaux, tris, filtre : facultatifs.']],
+    [['=PIVOTER.PAR(B2:B100;A2:A100;C2:C100;SOMME)', 'Ventes par produit (colonne B) et par mois (colonne A), totaux compris.']],
+    ['Pas de bouton Actualiser : le résultat suit les données en direct.'],
+    'tableau croise dynamique tcd en formule regrouper synthese par mois par produit',
+    'LIREDONNEESTABCROISDYNAMIQUE SOMME.SI.ENS');
 
   /* =========================== INFORMATION =========================== */
   F('ESTVIDE', 'ISBLANK', 'info', '',

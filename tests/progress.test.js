@@ -18,7 +18,7 @@ module.exports = function (XL) {
   check(st.done === 2 && st.total === all.length, 'stats globales (clé inconnue ignorée)');
   const lvl = P.stats(m, [all[0].key], 'saisir', 'base');
   check(lvl.done === 1 && lvl.total === m.place('saisir', 'base').notions.length, 'stats d’un niveau');
-  check(P.stats(m, [], 'calculer').total === m.place('calculer', 'base').notions.length + m.place('calculer', 'intermediaire').notions.length, 'stats d’une activité');
+  check(P.stats(m, [], 'calculer').total === m.levels.reduce((t, l) => t + m.place('calculer', l.id).notions.length, 0), 'stats d’une activité');
 
   check(P.resume(m, [], '') === all[0], 'reprise : la 1re notion au départ');
   check(P.resume(m, [], all[5].key) === all[5], 'reprise : la dernière notion ouverte si elle n’est pas terminée');

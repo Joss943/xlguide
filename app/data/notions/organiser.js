@@ -231,4 +231,93 @@
     },
     kw: 'filtre trier unique formule dynamique liste filtree debordement propagation tableau dynamique'
   });
+
+  /* --------------------------------- EXPERT --------------------------------- */
+  N({
+    activity: 'organiser', level: 'expert', title: 'TCD : segments, chronologie et champs calculés',
+    intro: 'Un tableau croisé dynamique devient un outil d’analyse interactif : des boutons pour filtrer, une frise pour choisir la période, des calculs ajoutés au tableau.',
+    steps: [
+      'Clique dans le TCD, puis Analyse du tableau croisé dynamique > Insérer un segment, et coche un champ (Région, Produit…).',
+      'Pour filtrer par période : Analyse du tableau croisé dynamique > Insérer une chronologie, puis choisis le champ de dates.',
+      'Pour un calcul entre deux champs (marge = ventes − coûts) : Analyse du tableau croisé dynamique > Champs, éléments et jeux > Champ calculé.',
+      'Pour qu’un segment filtre plusieurs TCD : clic droit sur le segment > Connexions de rapport, puis coche les TCD.'
+    ],
+    points: [
+      'Un segment affiche un bouton par valeur : Ctrl+clic en sélectionne plusieurs, et le bouton Effacer le filtre, en haut à droite, remet tout.',
+      'La chronologie (Excel 2013 et plus) filtre par jours, mois, trimestres ou années.',
+      'Double-clic sur un total : Excel crée une feuille avec les lignes qui le composent.',
+      'Création > Disposition du rapport > Afficher sous forme tabulaire : une colonne par champ, plus facile à relire.'
+    ],
+    tips: ['Les segments fonctionnent aussi sur un tableau (Ctrl+L) : Création de tableau > Insérer un segment.'],
+    kw: 'tcd tableau croise dynamique segment chronologie champ calcule filtre interactif connexions de rapport detail forme tabulaire'
+  });
+
+  N({
+    activity: 'organiser', level: 'expert', title: 'Importer et nettoyer avec Power Query',
+    intro: 'Power Query enregistre chaque étape de nettoyage (colonnes en trop, types, doublons). Quand le fichier change, un clic sur Actualiser refait tout le travail.',
+    steps: [
+      'Clique dans tes données, puis Données > À partir de Tableau ou d’une Plage : l’éditeur Power Query s’ouvre.',
+      'Nettoie avec les menus : clic droit sur une colonne > Supprimer, Modifier le type, Remplacer les valeurs… Chaque action s’ajoute à la liste Étapes appliquées.',
+      'Accueil > Fermer et charger : le résultat arrive sur une nouvelle feuille, sous forme de tableau.',
+      'Quand la source change : Données > Actualiser tout.'
+    ],
+    points: [
+      'Power Query ne modifie jamais la source : il en fait une copie transformée.',
+      'Pour un fichier externe (CSV, autre classeur) : Données > Obtenir des données > À partir d’un fichier.',
+      'Une étape se corrige ou se supprime dans la liste Étapes appliquées.',
+      'Intégré à Excel depuis la version 2016.'
+    ],
+    tips: ['Garde le même nom et le même emplacement pour le fichier source : la requête le retrouve à chaque actualisation.'],
+    kw: 'power query importer nettoyer transformer csv requete etapes appliquees actualiser fermer et charger obtenir des donnees automatiser'
+  });
+
+  N({
+    activity: 'organiser', level: 'expert', title: 'Résumer une série : moyenne, médiane, écart-type',
+    intro: 'Pour décrire une série (délais, montants, notes), on regarde sa valeur centrale et sa dispersion.',
+    points: [
+      'MOYENNE est sensible aux valeurs extrêmes ; MEDIANE donne la valeur du milieu.',
+      'ECARTYPE.STANDARD mesure la dispersion : plus il est grand, plus les valeurs s’éloignent de la moyenne.',
+      'QUARTILE.INCLURE découpe la série : 25 % des valeurs sous le 1er quartile, 75 % sous le 3e.'
+    ],
+    sample: {
+      cols: ['Délai (jours)'],
+      rows: [[12], [15], [9], [30], [14]],
+      calc: [['Moyenne', '=MOYENNE(A2:A6)', 16], ['Médiane', '=MEDIANE(A2:A6)', 14],
+        ['Écart-type', '=ARRONDI(ECARTYPE.STANDARD(A2:A6);2)', 8.15], ['3e quartile', '=QUARTILE.INCLURE(A2:A6;3)', 15]]
+    },
+    kw: 'statistiques moyenne mediane ecart type dispersion quartile resume serie'
+  });
+
+  N({
+    activity: 'organiser', level: 'expert', title: 'Prévoir une tendance',
+    intro: 'PREVISION.LINEAIRE prolonge une série en ligne droite : une première estimation de chiffre d’affaires ou de consommation.',
+    points: [
+      '=PREVISION.LINEAIRE(x à prévoir;valeurs connues;repères connus).',
+      'Les repères sont souvent des numéros de période (1, 2, 3…) ou des dates.',
+      'Une tendance en ligne droite ignore la saisonnalité : c’est un ordre de grandeur.',
+      'Données > Feuille de prévision construit automatiquement un graphique de prévision.'
+    ],
+    sample: {
+      cols: ['Mois', 'CA'],
+      rows: [[1, 100], [2, 110], [3, 120], [4, 130]],
+      calc: [['Prévision pour le mois 5', '=PREVISION.LINEAIRE(5;B2:B5;A2:A5)', 140]]
+    },
+    kw: 'prevision tendance prevoir projection futur estimation chiffre affaires feuille de prevision'
+  });
+
+  N({
+    activity: 'organiser', level: 'expert', title: 'Construire un tableau entier par formule',
+    intro: 'Les versions récentes d’Excel construisent des synthèses entières par formule : PIVOTER.PAR, PRENDRE, ASSEMB.V…',
+    points: [
+      '=PIVOTER.PAR(lignes;colonnes;valeurs;SOMME) : un tableau croisé en une formule (Microsoft 365).',
+      '=PRENDRE(TRIERPAR(A2:B100;B2:B100;-1);5) : les 5 meilleures lignes (2024 et 365).',
+      '=ASSEMB.V(Feuil1!A2:C50;Feuil2!A2:C50) : empile plusieurs tableaux (2024 et 365).',
+      '=CHOISIRCOLS(A2:F100;1;3) : garde seulement les colonnes utiles (2024 et 365).'
+    ],
+    examples: [
+      ['=PIVOTER.PAR(B2:B100;A2:A100;C2:C100;SOMME)', 'Synthèse produit × mois (365).'],
+      ['=PRENDRE(TRIERPAR(A2:B100;B2:B100;-1);5)', 'Les 5 meilleurs (2024 et 365).']
+    ],
+    kw: 'pivoter par prendre assemb choisircols top 5 tableau par formule synthese 365 dynamique'
+  });
 })(window.XL);

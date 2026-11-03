@@ -53,7 +53,7 @@ module.exports = function (XL) {
 
   section('Parcours : activités, niveaux, placements');
   check(ACTS.join() === 'saisir,calculer,organiser,presenter', '4 activités attendues : saisir, calculer, organiser, presenter');
-  check(LEVELS.join() === 'base,intermediaire', 'niveaux attendus : base, intermediaire');
+  check(LEVELS.join() === 'base,intermediaire,expert', 'niveaux attendus : base, intermediaire, expert');
   XL.activities.forEach((a) => {
     check(a.label && a.desc && !!XL.icon(a.icon), a.id + ' : libellé, description ou icône manquant');
     LEVELS.forEach((l) => check(a.levels[l] && a.levels[l].length > 20, a.id + ' : texte d’introduction du niveau ' + l + ' manquant'));

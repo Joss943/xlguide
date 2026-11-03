@@ -115,4 +115,38 @@
     fill: { header: 'Trimestre', formula: '="T"&ARRONDI.SUP(MOIS(A2)/3;0)', results: ['T1', 'T3', 'T4'] } });
   S('r:Budget vs réel', { cols: ['Poste', 'Budget', 'Réel'], rows: [['Achats', 10000, 11200], ['Frais', 3000, 2400]],
     fill: { header: 'Taux de réalisation', formula: '=SIERREUR(C2/B2;"")', results: [1.12, 0.8], fmt: '%' } });
+
+  /* ------------------------------ Niveau expert ------------------------------ */
+  var DELAIS = { cols: ['Délai (jours)'], rows: [[12], [15], [9], [30], [14]] };
+  var MOIS4 = { cols: ['Mois', 'Ventes'], rows: [['Janv', 100], ['Févr', 120], ['Mars', 90], ['Avr', 140]] };
+  var EMAILS = { cols: ['E-mail'], rows: [['jean.dupont@exemple.fr'], ['m.martin@exemple.com']] };
+
+  S('f:INDEX', on(PRODUITS, { calc: [['3e produit de la liste', '=INDEX(B2:B5;3)', 'Classeur']] }));
+  S('f:EQUIV', on(PRODUITS, { calc: [['Position de « Agenda »', '=EQUIV("Agenda";B2:B5;0)', 4]] }));
+  S('f:EQUIVX', on(PRODUITS, { calc: [['Position de « Agenda »', '=EQUIVX("Agenda";B2:B5)', 4]] }));
+  S('f:CHOISIR', { cols: ['Trimestre'], rows: [[1], [3], [4]],
+    fill: { header: 'Libellé', formula: '=CHOISIR(A2;"T1";"T2";"T3";"T4")', results: ['T1', 'T3', 'T4'] } });
+  S('f:SI.MULTIPLE', { cols: ['Code'], rows: [['N'], ['E'], ['X']],
+    fill: { header: 'Région', formula: '=SI.MULTIPLE(A2;"N";"Nord";"S";"Sud";"E";"Est";"O";"Ouest";"Inconnu")', results: ['Nord', 'Est', 'Inconnu'] } });
+  S('f:DECALER', on(MOIS4, { calc: [['Cumul des 3 premiers mois', '=SOMME(DECALER(B2;0;0;3;1))', 310]] }));
+  S('f:INDIRECT', on(MOIS4, { calc: [['Cellule dont l’adresse est construite en texte', '=INDIRECT("B"&3)', 120]] }));
+  S('f:SOMMEPROD', { cols: ['Produit', 'Quantité', 'Prix'], rows: [['A-101', 3, 10], ['B-205', 2, 25], ['A-330', 5, 4]],
+    calc: [['Montant total', '=SOMMEPROD(B2:B4;C2:C4)', 100]] });
+  S('f:MAX.SI.ENS', on(VENTES, { calc: [['Plus grosse vente du Nord', '=MAX.SI.ENS(C2:C6;B2:B6;"Nord")', 1430]] }));
+  S('f:MIN.SI.ENS', on(VENTES, { calc: [['Plus petite vente du Sud', '=MIN.SI.ENS(C2:C6;B2:B6;"Sud")', 850]] }));
+  S('f:ECARTYPE.STANDARD', on(DELAIS, { calc: [['Écart-type (arrondi)', '=ARRONDI(ECARTYPE.STANDARD(A2:A6);2)', 8.15]] }));
+  S('f:QUARTILE.INCLURE', on(DELAIS, { calc: [['3e quartile', '=QUARTILE.INCLURE(A2:A6;3)', 15]] }));
+  S('f:PREVISION.LINEAIRE', { cols: ['Mois', 'CA'], rows: [[1, 100], [2, 110], [3, 120], [4, 130]],
+    calc: [['Prévision pour le mois 5', '=PREVISION.LINEAIRE(5;B2:B5;A2:A5)', 140]] });
+  S('f:VALEURNOMBRE', { cols: ['Montant importé (texte)'], rows: [['1 234,50'], ['980,00'], ['12 000,75']],
+    fill: { header: 'Nombre', formula: '=VALEURNOMBRE(A2;",";" ")', results: [1234.5, 980, 12000.75], fmt: '0.00' } });
+  S('f:TEXTE.AVANT', on(EMAILS, { fill: { header: 'Identifiant', formula: '=TEXTE.AVANT(A2;"@")', results: ['jean.dupont', 'm.martin'] } }));
+  S('f:TEXTE.APRES', on(EMAILS, { fill: { header: 'Domaine', formula: '=TEXTE.APRES(A2;"@")', results: ['exemple.fr', 'exemple.com'] } }));
+
+  S('r:Cumul depuis le début de l’année', { cols: ['Date', 'Montant'],
+    rows: [['d:2025-12-20', 80], ['d:2026-01-15', 100], ['d:2026-03-02', 250], ['d:2026-06-30', 40]],
+    calc: [['Cumul du 1er janvier au 31 mars 2026', '=SOMME.SI.ENS(B2:B5;A2:A5;">="&DATE(2026;1;1);A2:A5;"<="&DATE(2026;3;31))', 350]],
+    note: 'Dans un vrai classeur, DATE(2026;3;31) devient AUJOURD’HUI() : le cumul avance chaque jour.' });
+  S('r:Les 5 meilleurs par formule', on(CA, { calc: [['Plus gros CA', '=GRANDE.VALEUR(B2:B6;1)', 5000],
+    ['Commercial correspondant', '=INDEX(A2:A6;EQUIV(GRANDE.VALEUR(B2:B6;1);B2:B6;0))', 'Emma'], ['2e plus gros CA', '=GRANDE.VALEUR(B2:B6;2)', 1430]] }));
 })(window.XL);

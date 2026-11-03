@@ -124,6 +124,47 @@
     ['Astuce : --A2 ou A2*1 convertit aussi un texte en nombre.'],
     'convertir texte en nombre nombre stocke en texte transformer chiffre', 'TEXTE');
 
+  F('TEXTE.AVANT', 'TEXTBEFORE', 'texte', '2024',
+    'Renvoie le texte situé avant un séparateur.',
+    'TEXTE.AVANT(texte; délimiteur; [no_instance]; [mode_correspondance]; [correspondance_fin]; [si_non_trouvé])',
+    [['texte', 'Texte source.'], ['délimiteur', 'Séparateur.'], ['no_instance', 'Quelle occurrence (négatif = depuis la fin).'],
+     ['mode_correspondance', '1 = ignorer les majuscules.'], ['correspondance_fin', '1 = la fin du texte compte comme un séparateur.'], ['si_non_trouvé', 'Valeur renvoyée si le séparateur est absent.']],
+    [['=TEXTE.AVANT("Dupont Jean";" ")', 'Le premier mot.', 'Dupont'],
+     ['=TEXTE.AVANT(A2;" - ";-1)', 'Tout sauf le dernier morceau.']],
+    [], 'avant separateur extraire debut premier mot nom prenom', 'TEXTE.APRES FRACTIONNER.TEXTE GAUCHE');
+
+  F('TEXTE.APRES', 'TEXTAFTER', 'texte', '2024',
+    'Renvoie le texte situé après un séparateur.',
+    'TEXTE.APRES(texte; délimiteur; [no_instance]; [mode_correspondance]; [correspondance_fin]; [si_non_trouvé])',
+    [['texte', 'Texte source.'], ['délimiteur', 'Séparateur.'], ['no_instance', 'Quelle occurrence (négatif = depuis la fin).'],
+     ['mode_correspondance', '1 = ignorer les majuscules.'], ['correspondance_fin', '1 = la fin du texte compte comme un séparateur.'], ['si_non_trouvé', 'Valeur renvoyée si le séparateur est absent.']],
+    [['=TEXTE.APRES("jean.dupont@exemple.fr";"@")', 'Le domaine d’une adresse e-mail.', 'exemple.fr'],
+     ['=TEXTE.APRES(A2;" ";-1)', 'Le dernier mot (après la dernière espace).']],
+    [], 'apres separateur extraire fin domaine email dernier mot', 'TEXTE.AVANT FRACTIONNER.TEXTE DROITE');
+
+  F('FRACTIONNER.TEXTE', 'TEXTSPLIT', 'texte', '2024',
+    'Découpe un texte en plusieurs cellules selon un séparateur : l’équivalent de Données > Convertir, en formule.',
+    'FRACTIONNER.TEXTE(texte; délimiteur_col; [délimiteur_ligne]; [ignorer_vide]; [mode_correspondance]; [remplir_avec])',
+    [['texte', 'Texte source.'], ['délimiteur_col', 'Séparateur entre les colonnes.'], ['délimiteur_ligne', 'Séparateur entre les lignes.'],
+     ['ignorer_vide', 'VRAI = ignorer les morceaux vides.'], ['mode_correspondance', '1 = ignorer les majuscules.'], ['remplir_avec', 'Valeur pour les cases manquantes.']],
+    [['=FRACTIONNER.TEXTE(A2;";")', 'Répartit « Dupont;Jean;Lyon » sur trois cellules voisines.']],
+    ['Le résultat se met à jour tout seul quand le texte d’origine change, contrairement à Données > Convertir.'],
+    'decouper separer diviser colonnes separateur convertir', 'TEXTE.AVANT TEXTE.APRES JOINDRE.TEXTE');
+
+  F('VALEURNOMBRE', 'NUMBERVALUE', 'texte', '2013',
+    'Convertit un texte en nombre en précisant les séparateurs décimal et de milliers utilisés dans le texte. Idéal pour les exports au format anglais.',
+    'VALEURNOMBRE(texte; [séparateur_décimal]; [séparateur_groupe])',
+    [['texte', 'Texte à convertir.'], ['séparateur_décimal', 'Par exemple "." pour un format anglais.'], ['séparateur_groupe', 'Par exemple "," pour un format anglais.']],
+    [['=VALEURNOMBRE("1,234.56";".";",")', 'Montant au format anglais converti en nombre.', 1234.56],
+     ['=VALEURNOMBRE("12,5%";",")', 'Fonctionne aussi avec les pourcentages.', 0.125]],
+    [], 'convertir texte en nombre format anglais point virgule decimal import csv', 'CNUM SUBSTITUE');
+
+  F('EPURAGE', 'CLEAN', 'texte', '',
+    'Supprime les caractères invisibles d’un texte importé (sauts de ligne, codes de contrôle).',
+    'EPURAGE(texte)', [['texte', 'Texte à nettoyer.']],
+    [['=SUPPRESPACE(EPURAGE(A2))', 'Nettoyage complet d’un libellé importé : caractères invisibles et espaces en trop.']],
+    [], 'nettoyer caracteres invisibles saut de ligne import', 'SUPPRESPACE');
+
   /* ========================== DATES & HEURES ========================== */
   F('AUJOURDHUI', 'TODAY', 'date', '',
     'Date du jour (mise à jour à chaque ouverture).',

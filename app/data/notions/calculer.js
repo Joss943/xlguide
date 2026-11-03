@@ -391,4 +391,121 @@
     tips: ['Les codes de format dépendent de la langue d’Excel : « aaaa » en français, « yyyy » en anglais.'],
     kw: 'texte format nombre zeros devant date en texte libelle mettre en forme'
   });
+
+  /* --------------------------------- EXPERT --------------------------------- */
+  N({
+    activity: 'calculer', level: 'expert', title: 'INDEX + EQUIV : chercher dans tous les sens',
+    intro: 'EQUIV trouve la position d’une valeur dans une colonne ; INDEX renvoie la valeur située à cette position. Ensemble, ils remplacent RECHERCHEV dans toutes les versions, même vers la gauche.',
+    points: [
+      '=EQUIV(valeur;colonne;0) renvoie un numéro de ligne (0 = correspondance exacte).',
+      '=INDEX(colonne à renvoyer;numéro) renvoie la valeur de cette ligne.',
+      'Combinés : =INDEX(A2:A5;EQUIV("Cahier";B2:B5;0)).',
+      'Avec deux EQUIV, un pour la ligne et un pour la colonne, on lit un tableau à double entrée.'
+    ],
+    sample: {
+      cols: ['Code', 'Produit', 'Prix'],
+      rows: [['P01', 'Stylo', 1.5], ['P02', 'Cahier', 3.2], ['P03', 'Classeur', 5.9], ['P04', 'Agenda', 12]],
+      fmt: [null, null, '0.00'],
+      calc: [
+        ['Position de « Cahier »', '=EQUIV("Cahier";B2:B5;0)', 2],
+        ['Code de « Cahier » (vers la gauche)', '=INDEX(A2:A5;EQUIV("Cahier";B2:B5;0))', 'P02']
+      ]
+    },
+    kw: 'index equiv recherche vers la gauche position double entree index match remplacer recherchev'
+  });
+
+  N({
+    activity: 'calculer', level: 'expert', title: 'Chercher avec plusieurs critères',
+    intro: 'Quand une ligne se reconnaît à plusieurs colonnes à la fois (produit et mois, nom et prénom), on cherche sur tous les critères ensemble.',
+    points: [
+      'Pour récupérer un nombre quand la combinaison est unique, SOMME.SI.ENS suffit.',
+      'Pour récupérer du texte (Excel 2021 et plus) : =RECHERCHEX(1;(A2:A10=x)*(B2:B10=y);C2:C10).',
+      'Toutes versions : =INDEX(C2:C10;EQUIV(1;INDEX((A2:A10=x)*(B2:B10=y);0);0)).',
+      'Autre méthode : une colonne clé =A2&"|"&B2 dans chaque tableau, puis une recherche simple sur cette clé.'
+    ],
+    sample: {
+      cols: ['Produit', 'Mois', 'Ventes'],
+      rows: [['Stylo', 'Janv', 120], ['Stylo', 'Févr', 95], ['Cahier', 'Janv', 60], ['Cahier', 'Févr', 80]],
+      calc: [['Ventes de Cahier en Févr', '=SOMME.SI.ENS(C2:C5;A2:A5;"Cahier";B2:B5;"Févr")', 80]]
+    },
+    examples: [['=RECHERCHEX(1;(A2:A5="Cahier")*(B2:B5="Févr");C2:C5)', 'Même résultat avec RECHERCHEX (Excel 2021 et plus).']],
+    kw: 'plusieurs criteres recherche multicritere deux colonnes combinaison cle composite'
+  });
+
+  N({
+    activity: 'calculer', level: 'expert', title: 'Calculer sur des plages entières avec SOMMEPROD',
+    intro: 'SOMMEPROD multiplie des colonnes ligne à ligne, puis additionne. Avec des conditions entre parenthèses, elle prend le relais quand SOMME.SI.ENS ne suffit plus.',
+    points: [
+      '=SOMMEPROD(B2:B4;C2:C4) : la somme des quantités × prix.',
+      'Une condition comme (A2:A4="X") vaut 1 ou 0 : la multiplier revient à filtrer.',
+      'Multiplier des conditions = ET ; les additionner = OU.',
+      'Elle accepte des fonctions appliquées aux plages (GAUCHE, MOIS…), ce que SOMME.SI ne permet pas.'
+    ],
+    sample: {
+      cols: ['Produit', 'Quantité', 'Prix'],
+      rows: [['A-101', 3, 10], ['B-205', 2, 25], ['A-330', 5, 4]],
+      calc: [
+        ['Montant total', '=SOMMEPROD(B2:B4;C2:C4)', 100],
+        ['Produits dont le code commence par A', '=SOMMEPROD((GAUCHE(A2:A4;1)="A")*B2:B4*C2:C4)', 50]
+      ]
+    },
+    examples: [['=SOMMEPROD((MOIS(A2:A100)=3)*C2:C100)', 'Total des ventes de mars, toutes années confondues.']],
+    tips: ['Évite les colonnes entières (A:A) dans SOMMEPROD : le calcul devient très lent.'],
+    kw: 'sommeprod somme produit plages entieres conditions complexes ou quantite prix'
+  });
+
+  N({
+    activity: 'calculer', level: 'expert', title: 'Extraire un morceau de texte repéré par un séparateur',
+    intro: 'Quand la position du morceau varie d’une ligne à l’autre, on repère un séparateur avec TROUVE ou CHERCHE, puis on extrait avec STXT. Excel 2024 et Microsoft 365 simplifient avec TEXTE.AVANT et TEXTE.APRES.',
+    points: [
+      'TROUVE renvoie la position d’un texte en respectant les majuscules ; CHERCHE fait de même sans en tenir compte.',
+      '=STXT(A2;TROUVE("CMD-";A2);13) extrait 13 caractères à partir de « CMD- ».',
+      '=TEXTE.APRES(A2;"@") renvoie tout ce qui suit « @ » ; =TEXTE.AVANT(A2;"@") tout ce qui précède (2024 et 365).',
+      '=FRACTIONNER.TEXTE(A2;";") répartit les morceaux dans les cellules voisines et se met à jour tout seul (2024 et 365).',
+      'Entoure la formule de SIERREUR pour les lignes où le repère est absent.'
+    ],
+    sample: {
+      cols: ['Libellé'],
+      rows: [['CMD-2026-0042 / Martin'], ['Retour CMD-2026-0107'], ['Devis sans numéro']],
+      fill: { header: 'N° de commande', formula: '=SIERREUR(STXT(A2;TROUVE("CMD-";A2);13);"")', results: ['CMD-2026-0042', 'CMD-2026-0107', ''] }
+    },
+    examples: [
+      ['=TEXTE.APRES("jean.dupont@exemple.fr";"@")', 'Le domaine d’une adresse e-mail (2024 et 365).', 'exemple.fr'],
+      ['=TEXTE.AVANT("Dupont Jean";" ")', 'Le premier mot (2024 et 365).', 'Dupont'],
+      ['=FRACTIONNER.TEXTE(A2;";")', 'Découpe sur les points-virgules (2024 et 365).']
+    ],
+    kw: 'extraire texte entre separateur trouve cherche stxt texte avant texte apres fractionner texte libelle numero'
+  });
+
+  N({
+    activity: 'calculer', level: 'expert', title: 'Références dynamiques : DECALER et INDIRECT',
+    intro: 'DECALER construit une plage à partir d’un point de départ et d’une taille ; INDIRECT transforme un texte en adresse. Utile pour un cumul de longueur variable, ou une feuille choisie dans une liste.',
+    points: [
+      '=SOMME(DECALER(B2;0;0;3;1)) : la somme des 3 cellules à partir de B2.',
+      '=INDIRECT(A1&"!B10") : la cellule B10 de la feuille dont le nom est écrit en A1.',
+      'Ces fonctions sont « volatiles » : recalculées à chaque modification, elles ralentissent les gros classeurs.'
+    ],
+    sample: {
+      cols: ['Mois', 'Ventes'],
+      rows: [['Janv', 100], ['Févr', 120], ['Mars', 90], ['Avr', 140]],
+      calc: [['Cumul des 3 premiers mois', '=SOMME(DECALER(B2;0;0;3;1))', 310]]
+    },
+    kw: 'decaler indirect plage dynamique cumul variable feuille variable reference texte'
+  });
+
+  N({
+    activity: 'calculer', level: 'expert', title: 'Nommer ses calculs : LET et LAMBDA',
+    intro: 'À partir d’Excel 2021, LET donne un nom aux étapes d’une formule ; LAMBDA (Excel 2024 et Microsoft 365) permet de créer ses propres fonctions.',
+    points: [
+      '=LET(nom;valeur;calcul) : chaque étape n’est calculée qu’une fois, et la formule se lit comme une phrase.',
+      'Une LAMBDA s’enregistre dans Formules > Gestionnaire de noms, puis s’utilise comme une fonction d’Excel.',
+      'Pour tester une LAMBDA dans une cellule, ajoute les valeurs entre parenthèses à la fin.'
+    ],
+    examples: [
+      ['=LET(ht;B2;tva;20%;ht*(1+tva))', 'Prix TTC avec des étapes nommées.'],
+      ['=LAMBDA(ht;taux;ht*(1+taux))(100;20%)', 'LAMBDA testée directement.', 120]
+    ],
+    tips: ['Si Excel affiche #NOM?, ces fonctions n’existent pas dans ta version.'],
+    kw: 'let lambda nommer variables fonction personnalisee creer sa fonction gestionnaire de noms'
+  });
 })(window.XL);

@@ -244,4 +244,141 @@
     ],
     kw: 'collage special coller valeurs coller sans formule transposer coller format ctrl alt v copier coller'
   });
+
+  /* --------------------------------- EXPERT --------------------------------- */
+  N({
+    activity: 'saisir', level: 'expert', title: 'Nommer des cellules et des plages',
+    intro: 'Un nom (Taux_TVA, Ventes) remplace une adresse comme $B$1 : les formules se lisent mieux, et le nom reste valable dans tout le classeur.',
+    steps: [
+      'Sélectionne la cellule ou la plage à nommer.',
+      'Clique dans la zone Nom, à gauche de la barre de formule, tape le nom sans espace (par exemple Taux_TVA), puis Entrée.',
+      'Utilise le nom dans une formule : =B2*(1+Taux_TVA).',
+      'Pour revoir, corriger ou supprimer les noms : Formules > Gestionnaire de noms (Ctrl+F3).'
+    ],
+    points: [
+      'Un nom commence par une lettre ou un trait de soulignement, et ne contient pas d’espace : Taux_TVA, pas « Taux TVA ».',
+      'Un nom désigne une adresse fixe : pas besoin d’ajouter des $ pour le bloquer quand on recopie la formule.',
+      'Formules > Créer à partir de la sélection nomme chaque colonne d’après son en-tête, en une seule fois.',
+      'Pendant la saisie d’une formule, F3 affiche la liste des noms à insérer.'
+    ],
+    sample: {
+      cols: ['Article', 'Prix HT'],
+      rows: [['Stylo', 1.5], ['Cahier', 3.2], ['Agenda', 12]],
+      fmt: [null, '0.00'],
+      select: 'B2:B4',
+      note: 'Une fois B2:B4 nommée Prix, =SOMME(Prix) donne le même résultat que =SOMME(B2:B4), et se comprend sans regarder la feuille.'
+    },
+    examples: [
+      ['=B2*(1+Taux_TVA)', 'Prix TTC : Taux_TVA est le nom de la cellule qui contient 20 %.'],
+      ['=SOMME(Ventes)', 'Somme de la plage nommée Ventes.']
+    ],
+    tips: ['#NOM? dans une formule : le nom est mal orthographié ou n’existe plus. Vérifie dans le Gestionnaire de noms.'],
+    kw: 'nommer plage nom defini zone nom gestionnaire de noms reference absolue nom de cellule creer a partir de la selection'
+  });
+
+  N({
+    activity: 'saisir', level: 'expert', title: 'Contrôler la saisie avec une règle',
+    intro: 'La validation des données refuse ce qui sort des règles : un nombre trop grand, une date hors période, un doublon. Les erreurs sont arrêtées avant d’entrer dans le tableau.',
+    steps: [
+      'Sélectionne les cellules à contrôler, en commençant par la première (par exemple A2:A100).',
+      'Données > Validation des données, onglet Options.',
+      'Dans Autoriser, choisis Nombre entier, Décimal, Date ou Longueur du texte, puis fixe les limites.',
+      'Pour une règle sur mesure, choisis Personnalisé et écris une formule qui vaut VRAI quand la saisie est correcte.',
+      'Onglet Alerte d’erreur : écris un message qui explique quoi saisir.'
+    ],
+    points: [
+      'La formule est écrite pour la première cellule de la sélection (A2) : Excel l’adapte aux autres, comme une formule recopiée.',
+      'Refuser les doublons : Personnalisé, avec =NB.SI($A$2:$A$100;A2)=1.',
+      'Onglet Message de saisie : une bulle d’aide s’affiche quand on sélectionne la cellule.',
+      'La règle ne vérifie que la saisie au clavier : un copier-coller peut la contourner. Données > Validation des données > Entourer les données non valides retrouve les cellules fautives.'
+    ],
+    sample: {
+      cols: ['Code client'],
+      rows: [['C-101'], ['C-102'], ['C-101'], ['C-205']],
+      fill: { header: 'Saisie acceptée ?', formula: '=NB.SI($A$2:$A$5;A2)=1', results: [false, true, false, true] },
+      note: 'Cette colonne montre le test : FAUX pour le code présent deux fois. Placée dans Validation des données > Personnalisé, la même formule refuse de saisir C-101 une deuxième fois.'
+    },
+    tips: ['Une liste déroulante est une validation de type Liste : la règle et le message d’erreur se règlent au même endroit.'],
+    kw: 'validation des donnees regle saisie controler interdire doublons limite nombre date message erreur personnalise entourer donnees non valides'
+  });
+
+  N({
+    activity: 'saisir', level: 'expert', title: 'Listes déroulantes en cascade',
+    intro: 'Une seconde liste qui dépend du premier choix : on choisit une catégorie en A2, et B2 ne propose que les articles de cette catégorie.',
+    steps: [
+      'Prépare une colonne par catégorie : le nom de la catégorie en en-tête (Fruits, Légumes…), ses articles en dessous.',
+      'Sélectionne ces colonnes avec leurs en-têtes, puis Formules > Créer à partir de la sélection, en gardant la ligne du haut cochée : chaque liste prend le nom de sa catégorie.',
+      'En A2, crée la première liste : Données > Validation des données > Liste, avec les noms des catégories comme source.',
+      'En B2, crée la seconde liste avec la source =INDIRECT(A2).'
+    ],
+    points: [
+      'INDIRECT transforme le texte choisi en A2 (« Fruits ») en référence vers la plage nommée Fruits.',
+      'Un nom ne contient pas d’espace : pour « Fruits secs », Excel crée le nom Fruits_secs. La source devient =INDIRECT(SUBSTITUE(A2;" ";"_")).',
+      'Changer la catégorie n’efface pas l’article déjà choisi en B2 : pense à le vérifier.'
+    ],
+    sample: {
+      cols: ['Fruits', 'Légumes'],
+      rows: [['Pomme', 'Carotte'], ['Poire', 'Poireau'], ['Prune', 'Radis']],
+      select: 'A2:A4',
+      note: 'A2:A4 porte le nom Fruits (son en-tête). Quand la catégorie choisie est « Fruits », la seconde liste propose Pomme, Poire et Prune.'
+    },
+    examples: [
+      ['=INDIRECT(A2)', 'Source de la seconde liste : la plage dont le nom est écrit en A2.'],
+      ['=INDIRECT(SUBSTITUE(A2;" ";"_"))', 'La même chose quand les catégories contiennent des espaces.']
+    ],
+    tips: ['Liste vide ou message d’erreur : vérifie dans Formules > Gestionnaire de noms que le nom existe et s’écrit exactement comme la catégorie.'],
+    kw: 'liste deroulante cascade dependante conditionnelle liee indirect sous categorie seconde liste validation des donnees'
+  });
+
+  N({
+    activity: 'saisir', level: 'expert', title: 'Protéger une feuille sans bloquer la saisie',
+    intro: 'Protéger une feuille évite d’écraser une formule par erreur. On déverrouille d’abord les cellules à remplir, puis on protège.',
+    steps: [
+      'Sélectionne les cellules que les utilisateurs doivent pouvoir remplir.',
+      'Ctrl+1 (Format de cellule), onglet Protection : décoche « Verrouillée », puis OK.',
+      'Révision > Protéger la feuille : ajoute un mot de passe si tu veux, puis OK.',
+      'Pour modifier la feuille plus tard : Révision > Ôter la protection de la feuille.'
+    ],
+    points: [
+      'Toutes les cellules sont « Verrouillées » par défaut, mais ce réglage ne compte qu’une fois la feuille protégée.',
+      'Dans Format de cellule > Protection, « Masquée » cache la formule dans la barre de formule quand la feuille est protégée.',
+      'Révision > Protéger le classeur empêche d’ajouter, de supprimer ou de renommer des feuilles.',
+      'C’est une protection contre les fausses manœuvres, pas un coffre-fort : ne compte pas dessus pour cacher des données confidentielles.'
+    ],
+    sample: {
+      cols: ['Article', 'Quantité', 'Prix', 'Total'],
+      rows: [['Stylo', 10, 1.5, 15], ['Cahier', 4, 3.2, 12.8]],
+      fmt: [null, null, '0.00', '0.00'],
+      select: 'B2:C3',
+      note: 'Seules les cellules de saisie B2:C3 sont déverrouillées : une fois la feuille protégée, les totaux de la colonne D ne peuvent plus être écrasés.'
+    },
+    tips: ['Note le mot de passe quelque part : Excel ne permet pas de le retrouver.'],
+    kw: 'proteger feuille verrouiller cellules deverrouiller mot de passe proteger classeur bloquer modification formules masquer'
+  });
+
+  N({
+    activity: 'saisir', level: 'expert', title: 'Convertir du texte importé en nombre',
+    intro: 'Un export (logiciel, site web, fichier CSV) donne souvent des montants en texte : ils ne s’additionnent pas et se trient mal.',
+    steps: [
+      'Sélectionne la colonne de montants importés.',
+      'Données > Convertir, puis Terminer : Excel relit chaque cellule et transforme les textes en nombres.',
+      'Si les décimales sont des points (format anglais), clique sur Avancé à la dernière étape et indique « . » comme séparateur décimal.'
+    ],
+    points: [
+      '=CNUM(A2) convertit un texte « propre » en nombre.',
+      '=VALEURNOMBRE(A2;",";" ") précise les séparateurs décimal et de milliers utilisés dans le texte.',
+      'Caractères invisibles d’un import (sauts de ligne) : EPURAGE les supprime, SUPPRESPACE enlève les espaces en trop.'
+    ],
+    sample: {
+      cols: ['Montant importé (texte)'],
+      rows: [['1 234,50'], ['980,00'], ['12 000,75']],
+      fill: { header: 'Nombre', formula: '=VALEURNOMBRE(A2;",";" ")', results: [1234.5, 980, 12000.75], fmt: '0.00' }
+    },
+    examples: [
+      ['=VALEURNOMBRE("1,234.56";".";",")', 'Montant au format anglais.', 1234.56],
+      ['=SUPPRESPACE(EPURAGE(A2))', 'Libellé importé débarrassé des caractères invisibles et des espaces en trop.']
+    ],
+    tips: ['Pour vérifier la conversion, sélectionne la colonne : la somme s’affiche dans la barre d’état, en bas à droite.'],
+    kw: 'convertir texte en nombre import export csv nombre stocke en texte valeurnombre cnum epurage separateur decimal point'
+  });
 })(window.XL);
