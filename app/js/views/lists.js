@@ -1,7 +1,7 @@
 /*
  * Pages de liste (colonne centrale + colonne latérale) :
- * activité (parcours), résultats de recherche, index A→Z, cas pratiques, erreurs, favoris.
- * Chaque vue renvoie { side, list } (HTML) ; « items » donne l'ordre pour la navigation au clavier.
+ * activité (parcours), résultats de recherche, index A→Z, erreurs, favoris.
+ * Chaque vue renvoie { side, list, items } ; « items » donne l'ordre pour la navigation au clavier.
  */
 (function (g) {
   'use strict';
@@ -22,6 +22,12 @@
     return body ? '<section class="group"><h3>' + title + (hint ? ' <small>' + hint + '</small>' : '') + '</h3>' + body + '</section>' : '';
   }
   function empty(text) { return '<p class="empty">' + text + '</p>'; }
+  /** Fonctions regroupées par thème (ordre des catégories de XL.categories). */
+  function byTheme(functions) {
+    return XL.categories.map(function (c) {
+      return { cat: c, items: functions.filter(function (f) { return f.cat === c.id; }) };
+    }).filter(function (gr) { return gr.items.length; });
+  }
 
   /* -------------------------------- activité -------------------------------- */
   function activitySide(ctx, act, levelId) {
@@ -31,8 +37,8 @@
       '<nav class="levels" aria-label="Niveaux">' + m.levels.map(function (l) {
         var p = m.place(act.id, l.id);
         var detail = [p.notions.length && p.notions.length + ' notion' + (p.notions.length > 1 ? 's' : ''),
-          p.functions.length && p.functions.length + ' fonction' + (p.functions.length > 1 ? 's' : ''),
-          p.recipes.length && p.recipes.length + ' méthode' + (p.recipes.length > 1 ? 's' : '')].filter(Boolean).join(' · ');
+          p.recipes.length && p.recipes.length + ' méthode' + (p.recipes.length > 1 ? 's' : ''),
+          p.functions.length && p.functions.length + ' fonction' + (p.functions.length > 1 ? 's' : '')].filter(Boolean).join(' · ');
         return '<a class="lvl-link lvl-' + l.id + (l.id === levelId ? ' on' : '') + '" href="#/a/' + act.id + '/' + l.id + '">' +
           '<span class="n">' + l.step + '</span><span><b>' + esc(l.label) + '</b><small>' + detail + '</small></span></a>';
       }).join('') + '</nav>' +
@@ -45,22 +51,27 @@
     var m = ctx.m, act = m.actById[actId], lvl = m.levelById[levelId];
     var p = m.place(actId, levelId);
     var next = m.levels[m.levels.indexOf(lvl) + 1];
+    var themes = byTheme(p.functions);
     // .seg : sélecteur de niveau affiché seulement sur petit écran (la colonne latérale y est masquée)
     var seg = '<nav class="seg" aria-label="Niveaux">' + m.levels.map(function (l) {
       return '<a class="' + (l.id === levelId ? 'on' : '') + '" href="#/a/' + act.id + '/' + l.id + '">' + l.step + '. ' + esc(l.label) + '</a>';
     }).join('') + '</nav>';
+    var functions = themes.length > 1 ? themes.map(function (gr) {
+      return '<h4 class="theme">' + ic(gr.cat.icon) + esc(gr.cat.label) + '</h4>' + cards(ctx, gr.items);
+    }).join('') : cards(ctx, p.functions);
     var list = '<header class="list-head"><div class="eyebrow">' + ic(act.icon) + esc(act.label) + '</div>' +
       '<h2><span class="lvl lvl-' + lvl.id + '">' + lvl.step + ' · ' + esc(lvl.label) + '</span></h2>' +
       '<p>' + esc(act.levels[levelId]) + '</p>' + seg + '</header>' +
       group('Notions', 'à lire dans l’ordre', cards(ctx, p.notions, { numbered: true })) +
-      group('Fonctions', '', cards(ctx, p.functions)) +
       group('Méthodes', 'des cas concrets', cards(ctx, p.recipes)) +
+      group('Fonctions', themes.length > 1 ? 'par thème' : '', functions) +
       (next ? '<a class="next-level" href="#/a/' + actId + '/' + next.id + '">Niveau suivant : <b>' + esc(next.label) + '</b>' + ic('chevron-right') + '</a>' : '');
-    return { side: activitySide(ctx, act, levelId), list: list, items: p.notions.concat(p.functions, p.recipes) };
+    var ordered = [].concat.apply(p.notions.concat(p.recipes), themes.map(function (gr) { return gr.items; }));
+    return { side: activitySide(ctx, act, levelId), list: list, items: ordered };
   };
 
   /* -------------------------------- recherche -------------------------------- */
-  var TYPE_FILTERS = [['', 'Tout'], ['nt', 'Notions'], ['fn', 'Fonctions'], ['rx', 'Méthodes et cas pratiques'], ['err', 'Erreurs']];
+  var TYPE_FILTERS = [['', 'Tout'], ['nt', 'Notions'], ['fn', 'Fonctions'], ['rx', 'Méthodes'], ['err', 'Erreurs']];
 
   views.search = function (ctx) {
     var q = ctx.s.q.trim(), type = ctx.s.type || '';
@@ -75,40 +86,24 @@
     }).join('') + ui.sideFooter(ctx.cfg);
     var list = '<div class="list-h">' + items.length + ' résultat' + (items.length > 1 ? 's' : '') + ' pour « ' + esc(q) + ' »</div>' +
       (items.length ? cards(ctx, items, { showType: true, showPlace: true }) :
-        empty('Rien trouvé. Essaie d’autres mots (« total », « chercher », « date »…) ou le nom anglais d’une fonction.'));
+        empty('Rien trouvé. Essaie d’autres mots (« total », « figer », « graphique »…) ou le nom anglais d’une fonction.'));
     return { side: side, list: list, items: items };
   };
 
   /* ------------------------------- outils (listes) ------------------------------- */
-  function catSide(ctx, title, cats, all, route) {
-    return views.toolsNav(ctx, route) + '<div class="side-h">' + esc(title) + '</div>' +
-      '<button class="cat' + (!ctx.s.cat ? ' on' : '') + '" data-cat=""><span>Tout</span><small>' + all.length + '</small></button>' +
-      cats.map(function (c) {
-        var n = all.filter(function (x) { return x.cat === c.id; }).length;
-        return n ? '<button class="cat' + (ctx.s.cat === c.id ? ' on' : '') + '" data-cat="' + c.id + '">' + ic(c.icon) + '<span>' + esc(c.label) + '</span><small>' + n + '</small></button>' : '';
-      }).join('') + ui.sideFooter(ctx.cfg);
-  }
-  function byCat(ctx, list) { return ctx.s.cat ? list.filter(function (x) { return x.cat === ctx.s.cat; }) : list; }
-
   views.functionIndex = function (ctx) {
     var all = XL.functions.slice().sort(function (a, b) { return a.fr.localeCompare(b.fr, 'fr'); });
-    var items = byCat(ctx, all);
+    var items = ctx.s.cat ? all.filter(function (f) { return f.cat === ctx.s.cat; }) : all;
+    var side = views.toolsNav(ctx, 'fn') + '<div class="side-h">Thèmes</div>' +
+      '<button class="cat' + (!ctx.s.cat ? ' on' : '') + '" data-cat=""><span>Tout</span><small>' + all.length + '</small></button>' +
+      byTheme(all).map(function (gr) {
+        return '<button class="cat' + (ctx.s.cat === gr.cat.id ? ' on' : '') + '" data-cat="' + gr.cat.id + '">' + ic(gr.cat.icon) +
+          '<span>' + esc(gr.cat.label) + '</span><small>' + gr.items.length + '</small></button>';
+      }).join('') + ui.sideFooter(ctx.cfg);
     var list = '<header class="list-head"><div class="eyebrow">' + ic('book') + 'Outils</div><h2>Index des fonctions A→Z</h2>' +
-      '<p>Toutes les fonctions, y compris les plus spécialisées (finance, statistiques, conversions) qui ne font pas partie du parcours.</p></header>' +
-      items.map(function (f) { return ui.card(ctx.m, f, { ver: ctx.s.ver, fav: isFav(ctx, f), showPlace: true }); }).join('');
-    return { side: catSide(ctx, 'Catégories', XL.categories, all, 'fn'), list: list, items: items };
-  };
-
-  views.cases = function (ctx, domain) {
-    var all = ctx.m.recipesOfDomain(domain), items = byCat(ctx, all);
-    var cats = XL.recipeCategories.filter(function (c) { return c.domain === domain; });
-    var it = domain === 'it';
-    var list = '<header class="list-head"><div class="eyebrow">' + ic(it ? 'network' : 'receipt-tax') + 'Outils · Cas pratiques</div>' +
-      '<h2>' + (it ? 'Informatique, système et réseau' : 'Comptabilité et gestion') + '</h2>' +
-      '<p>' + (it ? 'Formules pour l’administration : adresses IP, Active Directory, parc, supervision, comparaison de bases.' :
-        'Formules métier : TVA, emprunts, amortissements, factures, trésorerie, contrôles.') + '</p></header>' +
+      '<p>Les ' + all.length + ' fonctions du parcours, de la base au niveau intermédiaire, avec leur place dans les activités.</p></header>' +
       cards(ctx, items, { showPlace: true });
-    return { side: catSide(ctx, 'Thèmes', cats, all, it ? 'it' : 'rx'), list: list, items: items };
+    return { side: side, list: list, items: items };
   };
 
   views.errors = function (ctx) {

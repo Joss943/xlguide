@@ -105,7 +105,10 @@
       '<div class="d-sub">' + ui.levelBadge(m, n) + '<span>Notion ' + n.step + ' sur ' + nb.total + '</span></div>' +
       '<p class="d-desc">' + esc(n.intro) + '</p>' +
       (n.sample ? section('Exemple', ui.sampleSheet(n.sample), 'essential') : '') +
-      section('À retenir', '<ul class="points">' + n.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>', n.sample ? '' : 'essential') +
+      (n.steps.length ? section('Comment faire', '<ol class="steps-list">' + n.steps.map(function (st) { return '<li>' + esc(st) + '</li>'; }).join('') + '</ol>',
+        n.sample ? '' : 'essential') : '') +
+      section('À retenir', '<ul class="points">' + n.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>',
+        n.sample || n.steps.length ? '' : 'essential') +
       (n.examples.length ? section(n.sample ? 'D’autres formules' : 'Exemples', examples(ctx, n.examples)) : '') +
       (n.tips.length ? section('Bon à savoir', ui.tips(n.tips)) : '') +
       (n.fns.length ? section('Fonctions de cette notion', ui.fnChips(m, n.fns, ctx.s.ver)) : '') +

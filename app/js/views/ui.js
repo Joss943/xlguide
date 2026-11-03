@@ -42,7 +42,7 @@
       (f.since === '365' ? '365' : f.since + '+') + '</span>';
   };
   ui.levelBadge = function (m, item) {
-    if (!item.place) return item.domain ? '<span class="lvl lvl-case">Cas pratique</span>' : '<span class="lvl lvl-ref">Référence</span>';
+    if (!item.place) return '';
     var l = m.levelById[item.place.level];
     return '<span class="lvl lvl-' + l.id + '">' + esc(l.label) + '</span>';
   };
@@ -54,9 +54,6 @@
       var a = m.actById[item.place.activity], l = m.levelById[item.place.level];
       parts.push('<a href="#/a/' + a.id + '">' + ic(a.icon) + esc(a.label) + '</a>');
       parts.push('<a href="#/a/' + a.id + '/' + l.id + '">' + esc(l.label) + '</a>');
-    } else if (item.domain) {
-      parts.push('<a href="#/outils">Outils</a>');
-      parts.push('<a href="#/' + (item.domain === 'it' ? 'it' : 'rx') + '">Cas pratiques · ' + (item.domain === 'it' ? 'informatique' : 'comptabilité') + '</a>');
     } else if (item.cause) {
       parts.push('<a href="#/outils">Outils</a>', '<a href="#/err">Erreurs</a>');
     } else {
@@ -129,7 +126,8 @@
   }
 
   /**
-   * Mini-feuille de calcul : données en A1, colonne recopiée (fill) et calculs (calc).
+   * Mini-feuille de calcul : données en A1, colonne recopiée (fill), calculs (calc)
+   * ou plage à sélectionner (select) pour une manipulation sans formule.
    * opts.fnName : colore les arguments de cette fonction (fiche fonction).
    */
   ui.sampleSheet = function (s, opts) {
@@ -137,6 +135,9 @@
     var ncols = s.cols.length, fmt = s.fmt || [];
     var primary = s.fill ? s.fill.formula : (s.calc && s.calc.length ? s.calc[0][1] : '');
     var paint = primary ? ui.paint(primary, opts.fnName) : { spans: [], refs: [] };
+    if (s.select) {
+      paint.refs = F.refs('=' + s.select).map(function (r) { return { c1: r.c1, r1: r.r1, c2: r.c2, r2: r.r2, k: 0 }; });
+    }
     function color(r, c) {
       for (var i = 0; i < paint.refs.length; i++) {
         var x = paint.refs[i];
@@ -164,6 +165,7 @@
     });
     html += '</tbody></table></div>';
 
+    if (s.select) html += '<div class="sheet-f sheet-sel"><small>Sélection</small><span class="addr">' + esc(s.select) + '</span></div>';
     if (s.fill) {
       html += '<div class="sheet-f"><span class="addr">' + fillCol + '2</span><code class="formula">' +
         F.highlightSpans(s.fill.formula, 'fr', paint.spans) + '</code>' + ui.copyButton(s.fill.formula) +

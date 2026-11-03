@@ -1,8 +1,8 @@
 {
   "name": "xlguide",
   "productName": "XLGuide",
-  "version": "1.2.0",
-  "description": "Apprendre Excel en français : 4 activités en 3 niveaux, exemples vérifiés, traducteur FR/EN et cas pratiques.",
+  "version": "1.3.0",
+  "description": "Apprendre à utiliser Excel en français : saisir, calculer, organiser, présenter, des bases au niveau intermédiaire.",
   "main": "electron/main.js",
   "homepage": "https://joss943.github.io/xlguide/",
   "repository": {
@@ -22,8 +22,7 @@
     "dist:linux": "electron-builder --linux --x64 --publish never",
     "dist:win": "electron-builder --win --x64 --publish never",
     "site:build": "node scripts/build-site.js",
-    "icons": "node scripts/build-icons.js",
-    "gen:it": "python3 scripts/gen-recipes-it.py"
+    "icons": "node scripts/build-icons.js"
   },
   "devDependencies": {
     "@tabler/icons": "^3.50.0",
@@ -55,13 +54,13 @@
       "icon": "build/icon.png",
       "maintainer": "Joss943 <Joss943@users.noreply.github.com>",
       "vendor": "Joss943",
-      "synopsis": "Apprendre Excel en français, des bases aux formules avancées",
-      "description": "Apprendre Excel en français : notions, fonctions et méthodes en 3 niveaux, exemples vérifiés, traducteur FR/EN.",
+      "synopsis": "Apprendre à utiliser Excel en français, des bases à l’intermédiaire",
+      "description": "Apprendre à utiliser Excel en français : 4 activités en 2 niveaux, exemples vérifiés, traducteur FR/EN.",
       "desktop": {
         "entry": {
           "Name": "XLGuide",
           "Comment": "Apprendre Excel en français",
-          "Keywords": "excel;formule;comptabilite;tableur;",
+          "Keywords": "excel;formule;tableur;apprendre;",
           "StartupWMClass": "XLGuide"
         }
       },

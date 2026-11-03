@@ -1,6 +1,6 @@
 /*
  * XLGuide — recherche en langage naturel
- * « je veux additionner si la date est en mars » → SOMME.SI.ENS, recettes « Total par mois »…
+ * « je veux additionner si la date est en mars » → SOMME.SI.ENS, méthode « Total par mois »…
  * Index en mémoire, tolérant aux accents, pluriels, fautes de frappe légères.
  */
 (function (g) {
@@ -21,9 +21,8 @@
     arrondir: 'arrondi', arrondis: 'arrondi',
     coller: 'concatener', fusionner: 'concatener', assembler: 'concatener', joindre: 'concatener',
     aujourdhui: 'aujourdhui', today: 'aujourdhui',
-    pret: 'emprunt', credit: 'emprunt', mensualites: 'mensualite',
     doublon: 'doublons', duplicate: 'doublons',
-    impaye: 'impayes', relancer: 'relance',
+    graphe: 'graphique', diagramme: 'graphique', chart: 'graphique', camembert: 'secteurs',
     erreur: 'erreur', bug: 'erreur'
   };
 
@@ -90,7 +89,7 @@
       addDoc(docs, 'rx', r, r.title, '', r.kw + ' ' + r.title, r.desc);
     });
     (XL.notions || []).forEach(function (n) {
-      addDoc(docs, 'nt', n, n.title, '', n.kw + ' ' + n.title, n.intro + ' ' + n.points.join(' '));
+      addDoc(docs, 'nt', n, n.title, '', n.kw + ' ' + n.title, n.intro + ' ' + n.points.join(' ') + ' ' + n.steps.join(' '));
     });
     (XL.errors || []).forEach(function (e) {
       addDoc(docs, 'err', e, e.fr, e.en, e.kw + ' erreur', e.cause);
@@ -160,9 +159,9 @@
         score += cover * 18;
         if (cover === 1 && expanded.length > 1) score += 10;
       }
-      // Priorité pédagogique : notions d'abord, puis méthodes du parcours, puis cas pratiques métier
+      // Priorité pédagogique : les notions d'abord, puis les méthodes pour les requêtes de plusieurs mots
       if (doc.type === 'nt') score *= 1.15;
-      else if (doc.type === 'rx') score *= (XL.placement && XL.placement['r:' + doc.item.title]) ? (expanded.length >= 2 ? 1.08 : 1) : 0.85;
+      else if (doc.type === 'rx' && expanded.length >= 2) score *= 1.08;
       if (score > 0) res.push({ type: doc.type, item: doc.item, score: score });
     }
     res.sort(function (a, b) { return b.score - a.score; });

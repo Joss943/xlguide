@@ -1,6 +1,6 @@
 /*
- * Modèle : indexe les contenus (fonctions, recettes, notions, erreurs) et les relie au parcours
- * « 4 activités × 3 niveaux ». Pur : aucune dépendance au DOM ni au stockage (testé en Node).
+ * Modèle : indexe les contenus (fonctions, méthodes, notions, erreurs) et les relie au parcours
+ * « 4 activités × 2 niveaux ». Pur : aucune dépendance au DOM ni au stockage (testé en Node).
  *
  * Clés stables (favoris, liens) : 'f:NOM', 'r:<slug du titre>', 'n:<slug du titre>', 'e:<index>'.
  */
@@ -38,7 +38,7 @@
   XL.buildModel = function () {
     var m = {
       activities: XL.activities, levels: XL.levelDefs,
-      actById: {}, levelById: {}, catById: {}, rcatById: {},
+      actById: {}, levelById: {}, catById: {},
       fnByName: {}, rxById: {}, ntById: {}, errById: {},
       usedIn: {}, byPlace: {}
     };
@@ -48,7 +48,6 @@
     });
     m.levels.forEach(function (l) { m.levelById[l.id] = l; });
     XL.categories.forEach(function (c) { m.catById[c.id] = c; });
-    XL.recipeCategories.forEach(function (c) { m.rcatById[c.id] = c; });
 
     XL.functions.forEach(function (f) {
       f.key = 'f:' + f.fr;
@@ -61,7 +60,6 @@
     XL.recipes.forEach(function (r) {
       r.id = slug(r.title);
       r.key = 'r:' + r.id;
-      r.domain = m.rcatById[r.cat].domain;
       r.place = XL.placement['r:' + r.title] || null;
       r.sample = XL.samples['r:' + r.title] || null;
       r.fns = functionsIn(r.steps.map(function (s) { return s[0]; }).concat(sampleFormulas(r.sample)), m.fnByName);
@@ -89,7 +87,6 @@
 
     /* --------------------------------- requêtes --------------------------------- */
     m.place = function (activity, level) { return m.byPlace[placeKey(activity, level)] || { notions: [], functions: [], recipes: [] }; };
-    m.recipesOfDomain = function (domain) { return XL.recipes.filter(function (r) { return r.domain === domain; }); };
     m.neighbors = function (n) {
       var list = m.place(n.activity, n.level).notions, i = list.indexOf(n);
       return { prev: list[i - 1] || null, next: list[i + 1] || null, total: list.length };
@@ -110,12 +107,9 @@
       if (t === 'f') return '#/f/' + encodeURIComponent(item.fr);
       return '#/' + t + '/' + item.id;
     };
-    /** Libellé d'emplacement : « Calculer › Les bases », « Cas pratique · Comptabilité » ou « Index A→Z ». */
+    /** Libellé d'emplacement : « Calculer › Les bases » (les erreurs n'en ont pas). */
     m.placeLabel = function (item) {
-      if (item.place) return m.actById[item.place.activity].label + ' › ' + m.levelById[item.place.level].label;
-      if (item.domain) return 'Cas pratique · ' + (item.domain === 'it' ? 'Informatique' : 'Comptabilité');
-      if (item.fr && item.cat && m.catById[item.cat]) return 'Index A→Z · ' + m.catById[item.cat].label;
-      return '';
+      return item.place ? m.actById[item.place.activity].label + ' › ' + m.levelById[item.place.level].label : '';
     };
     return m;
   };

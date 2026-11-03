@@ -5,7 +5,7 @@
  * Routes (stables, utilisées par les favoris et les liens) :
  *   #/                 accueil            #/a/<activité>[/<niveau>]  parcours
  *   #/n/<id>  notion   #/f/<NOM> fonction  #/r/<id> méthode   #/e/<n> erreur
- *   #/outils  #/fn (index)  #/rx #/it (cas pratiques)  #/err  #/tr  #/kb  #/fav
+ *   #/outils  #/fn (index)  #/err  #/tr  #/kb  #/fav
  */
 (function (XL) {
   'use strict';
@@ -13,10 +13,10 @@
   var $ = function (sel) { return document.querySelector(sel); };
   var ic = XL.icon;
   var model = XL.buildModel();
-  var TOOL_VIEWS = ['tools', 'index', 'cases', 'errors', 'tr', 'kb'];
+  var TOOL_VIEWS = ['tools', 'index', 'errors', 'tr', 'kb'];
 
   var state = {
-    view: 'home', act: '', level: 'base', domain: 'compta', cat: '', type: '',
+    view: 'home', act: '', level: 'base', cat: '', type: '',
     q: '', sel: null, active: -1,
     ver: XL.store.get('ver', '365'),
     favs: XL.store.get('favs', [])
@@ -60,7 +60,6 @@
     switch (state.view) {
       case 'activity': return V.activity(c, state.act, state.level);
       case 'index': return V.functionIndex(c);
-      case 'cases': return V.cases(c, state.domain);
       case 'errors': return V.errors(c);
       case 'fav': return V.favorites(c);
       case 'tools': return { full: V.toolsHub(c) };
@@ -76,7 +75,7 @@
   }
 
   function render(force) {
-    var page = [state.view, state.act, state.level, state.domain, state.cat, state.type, state.q.trim()].join('|');
+    var page = [state.view, state.act, state.level, state.cat, state.type, state.q.trim()].join('|');
     var sig = page + '|' + state.ver + '|' + state.favs.join(',');
     if (!force && sig === lastSig) { renderDetail(); return; }
     var samePage = page === lastPage, top = els.list.scrollTop;
@@ -127,10 +126,9 @@
   function updateFavCount() { $('#cFav').textContent = state.favs.length || ''; }
 
   /* --------------------------------- routage --------------------------------- */
-  function setView(view, domain) {
-    if (state.view !== view || (domain && state.domain !== domain)) state.cat = '';
+  function setView(view) {
+    if (state.view !== view) state.cat = '';
     state.view = view;
-    if (domain) state.domain = domain;
   }
 
   /** La page affichée (hors recherche) contient-elle cet élément ? */
@@ -139,7 +137,6 @@
     switch (state.view) {
       case 'activity': return !!it.place && it.place.activity === state.act && it.place.level === state.level;
       case 'index': return ref.type === 'fn' && (!state.cat || it.cat === state.cat);
-      case 'cases': return ref.type === 'rx' && it.domain === state.domain && (!state.cat || it.cat === state.cat);
       case 'errors': return ref.type === 'err';
       case 'fav': return state.favs.indexOf(it.key) >= 0;
       default: return false;
@@ -151,11 +148,9 @@
     var it = ref.item;
     state.sel = it.key;
     if (searching() || viewShows(ref)) return;
-    if ((state.view === 'index' && ref.type === 'fn') || (state.view === 'cases' && it.domain === state.domain)) { state.cat = ''; return; }
+    if (state.view === 'index' && ref.type === 'fn') { state.cat = ''; return; }
     if (it.place) { setView('activity'); state.act = it.place.activity; state.level = it.place.level; }
-    else if (ref.type === 'fn') setView('index');
-    else if (ref.type === 'rx') setView('cases', it.domain);
-    else setView('errors');
+    else setView(ref.type === 'err' ? 'errors' : 'index');
   }
 
   function route() {
@@ -166,18 +161,17 @@
     // Aller sur une page (onglet, fil d'Ariane, niveau) termine la recherche en cours.
     state.sel = null;
     if (state.q) { state.q = ''; els.q.value = ''; }
-    if (p0 === 'a' && model.actById[parts[1]]) {
+    var act = XL.routeAliases[parts[1]] || parts[1], level = XL.routeAliases[parts[2]] || parts[2];
+    if (p0 === 'a' && model.actById[act]) {
       setView('activity');
-      state.act = parts[1];
-      state.level = model.levelById[parts[2]] ? parts[2] : 'base';
-    } else if (p0 === 'rx' || p0 === 'it') setView('cases', p0 === 'it' ? 'it' : 'compta');
-    else setView({ fn: 'index', err: 'errors', fav: 'fav', outils: 'tools', tr: 'tr', kb: 'kb' }[p0] || 'home');
+      state.act = act;
+      state.level = model.levelById[level] ? level : 'base';
+    } else setView({ fn: 'index', err: 'errors', fav: 'fav', outils: 'tools', tr: 'tr', kb: 'kb' }[p0] || 'home');
     render();
   }
 
   function listHash() {
     if (state.view === 'activity') return '#/a/' + state.act + '/' + state.level;
-    if (state.view === 'cases') return state.domain === 'it' ? '#/it' : '#/rx';
     return { index: '#/fn', errors: '#/err', fav: '#/fav' }[state.view] || '#/';
   }
   /** Ferme la fiche sans quitter la liste affichée (résultats de recherche compris). */

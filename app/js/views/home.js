@@ -7,8 +7,8 @@
   var ui = XL.ui, esc = ui.esc, ic = ui.ic;
   var views = (XL.views = XL.views || {});
 
-  var QUICK = ['additionner avec une condition', 'chercher une valeur dans un tableau', 'bloquer une cellule avec $',
-    'calculer un pourcentage', 'comparer deux listes', 'enlever les espaces', 'jours ouvrés', 'tableau croisé dynamique'];
+  var QUICK = ['figer la première ligne', 'liste déroulante', 'bloquer une cellule avec $', 'additionner avec une condition',
+    'supprimer les doublons', 'tableau croisé dynamique', 'créer un graphique', 'imprimer sur une page'];
 
   function activityCard(m, a, i) {
     var first = m.place(a.id, 'base').notions.slice(0, 3);
@@ -27,13 +27,13 @@
     var m = ctx.m;
     return '<div class="page home">' +
       '<h1>Que veux-tu faire dans Excel ?</h1>' +
-      '<p class="lead">Choisis une activité et commence par les bases, ou décris ton besoin dans la barre de recherche.</p>' +
+      '<p class="lead">Quatre activités, chacune en deux niveaux : les bases, puis l’intermédiaire. Commence où tu veux, ou décris ton besoin dans la barre de recherche.</p>' +
       '<div class="acts">' + m.activities.map(function (a, i) { return activityCard(m, a, i); }).join('') + '</div>' +
       '<div class="quick"><span class="muted">Recherches fréquentes :</span>' + QUICK.map(function (q) {
         return '<button class="chip" data-q="' + esc(q) + '">' + esc(q) + '</button>';
       }).join('') + '</div>' +
-      '<p class="tools-line">' + ic('bolt') + 'Aussi dans <a href="#/outils">Outils</a> : traducteur FR ⇄ EN, erreurs, raccourcis, index des ' +
-      XL.functions.length + ' fonctions et cas pratiques métier (comptabilité, informatique).</p>' +
+      '<p class="tools-line">' + ic('bolt') + 'Aussi dans <a href="#/outils">Outils</a> : traducteur de formules FR ⇄ EN, erreurs Excel, raccourcis clavier et index des ' +
+      XL.functions.length + ' fonctions.</p>' +
       '</div>';
   };
 })(typeof window !== 'undefined' ? window : globalThis);

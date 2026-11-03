@@ -25,6 +25,7 @@ function addExample(where, ex) {
   rows.push(Object.assign({ kind: 'ex', where, fr: ex[0], expected: ex[2], since: versionsUsed(ex[0]) }, toEn(ex[0])));
 }
 function addSample(where, s) {
+  if (!s.fill && !(s.calc || []).length) return; // sélection ou illustration seule : rien à recalculer
   const out = { kind: 'sample', where, cols: s.cols, rows: s.rows, fill: null, calc: [] };
   if (s.fill) {
     out.fill = {

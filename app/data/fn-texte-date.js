@@ -3,7 +3,7 @@
   'use strict';
   var F = XL.F;
 
-  /* =============================== TEXTE =============================== */
+  /* ============================== TEXTE ============================== */
   F('CONCATENER', 'CONCATENATE', 'texte', '',
     'Assemble plusieurs textes en un seul. L’opérateur & fait la même chose, plus court.',
     'CONCATENER(texte1; [texte2]; …)',
@@ -13,14 +13,7 @@
      ['="Total : "&TEXTE(D50;"# ##0,00 €")', 'Texte + montant formaté.']],
     ['Un nombre collé perd son format : passe-le dans TEXTE() pour garder les décimales et le symbole €.'],
     'coller assembler fusionner joindre texte concatener ajouter texte et',
-    'CONCAT JOINDRE.TEXTE TEXTE');
-
-  F('CONCAT', 'CONCAT', 'texte', '2019',
-    'Assemble des textes ET des plages entières (CONCATENER n’accepte pas les plages).',
-    'CONCAT(texte1; [texte2]; …)',
-    [['texte1…', 'Textes ou plages.']],
-    [['=CONCAT(A2:D2)', 'Colle toutes les cellules de la ligne.']],
-    [], 'coller plage assembler concatener plage', 'JOINDRE.TEXTE CONCATENER');
+    'JOINDRE.TEXTE TEXTE');
 
   F('JOINDRE.TEXTE', 'TEXTJOIN', 'texte', '2019',
     'Assemble une plage avec un séparateur, en ignorant éventuellement les vides.',
@@ -29,23 +22,23 @@
     [['=JOINDRE.TEXTE(", ";VRAI;"Paris";"";"Lyon")', 'Liste séparée par des virgules, sans trou.', 'Paris, Lyon'],
      ['=JOINDRE.TEXTE(", ";VRAI;FILTRE(Fact[N°];Fact[Client]=A2))', 'Tous les n° de factures d’un client dans une cellule.']],
     [], 'joindre liste separateur virgule regrouper valeurs une cellule',
-    'CONCAT FRACTIONNER.TEXTE');
+    '');
 
   F('GAUCHE', 'LEFT', 'texte', '',
     'Extrait les N premiers caractères d’un texte.',
     'GAUCHE(texte; [no_car])',
     [['texte', 'Texte source.'], ['no_car', 'Nombre de caractères (1 par défaut).']],
-    [['=GAUCHE("607100";3)', 'Racine de compte.', '607'], ['=GAUCHE(A2;1)', 'Classe PCG d’un compte (1 à 7).']],
+    [['=GAUCHE("75008 Paris";5)', 'Code postal en début d’adresse.', '75008'], ['=GAUCHE(A2;1)', 'Première lettre (initiale).']],
     ['Renvoie toujours du TEXTE : =GAUCHE(A2;1)=6 est FAUX, compare avec "6" ou convertis avec CNUM().'],
     'extraire debut premiers caracteres gauche racine compte classe prefixe',
-    'DROITE STXT TEXTE.AVANT');
+    'DROITE STXT');
 
   F('DROITE', 'RIGHT', 'texte', '',
     'Extrait les N derniers caractères d’un texte.',
     'DROITE(texte; [no_car])',
     [['texte', 'Texte source.'], ['no_car', 'Nombre de caractères.']],
     [['=DROITE("FR7612345";5)', 'Derniers caractères.', '12345'], ['=DROITE(A2;4)', 'Année à la fin d’un libellé.']],
-    [], 'extraire fin derniers caracteres droite suffixe', 'GAUCHE STXT TEXTE.APRES');
+    [], 'extraire fin derniers caracteres droite suffixe', 'GAUCHE STXT');
 
   F('STXT', 'MID', 'texte', '',
     'Extrait une portion de texte à partir d’une position.',
@@ -58,7 +51,7 @@
   F('NBCAR', 'LEN', 'texte', '',
     'Nombre de caractères d’un texte (espaces compris).',
     'NBCAR(texte)', [['texte', 'Texte.']],
-    [['=NBCAR("Bonjour")', 'Longueur.', 7], ['=NBCAR(A2)<>9', 'Contrôle qu’un SIREN fait bien 9 caractères.']],
+    [['=NBCAR("Bonjour")', 'Longueur.', 7], ['=NBCAR(A2)<>5', 'Signale un code postal qui n’a pas 5 caractères.']],
     [], 'longueur nombre caracteres taille texte compter lettres', 'GAUCHE SUPPRESPACE');
 
   F('TROUVE', 'FIND', 'texte', '',
@@ -82,28 +75,15 @@
     'SUBSTITUE(texte; ancien_texte; nouveau_texte; [no_position])',
     [['texte', 'Texte source.'], ['ancien_texte', 'À remplacer.'], ['nouveau_texte', 'Remplacement.'], ['no_position', 'Seulement cette occurrence.']],
     [['=SUBSTITUE("1.234,56";".";"")', 'Supprime les points de milliers.', '1234,56'],
-     ['=SUBSTITUE(A2;CAR(160);" ")', 'Remplace les espaces insécables (exports web/bancaires).']],
-    [], 'remplacer texte caractere supprimer enlever caractere', 'REMPLACER SUPPRESPACE');
-
-  F('REMPLACER', 'REPLACE', 'texte', '',
-    'Remplace des caractères à une POSITION donnée.',
-    'REMPLACER(ancien_texte; no_départ; no_car; nouveau_texte)',
-    [['ancien_texte', 'Texte source.'], ['no_départ', 'Position.'], ['no_car', 'Nombre de caractères remplacés.'], ['nouveau_texte', 'Texte inséré.']],
-    [['=REMPLACER("FR76 1234";1;2;"BE")', 'Remplace les 2 premiers caractères.', 'BE76 1234']],
-    [], 'remplacer position inserer', 'SUBSTITUE');
+     ['=SUBSTITUE(A2;"-";"/")', 'Remplace tous les tirets par des barres obliques.']],
+    [], 'remplacer texte caractere supprimer enlever caractere', 'SUPPRESPACE');
 
   F('SUPPRESPACE', 'TRIM', 'texte', '',
     'Supprime les espaces en début/fin et réduit les espaces multiples à un seul.',
     'SUPPRESPACE(texte)', [['texte', 'Texte à nettoyer.']],
     [['=SUPPRESPACE("  Dupont   SARL ")', 'Nettoyage.', 'Dupont SARL']],
     ['N’enlève PAS l’espace insécable CAR(160) : =SUPPRESPACE(SUBSTITUE(A2;CAR(160);" ")).'],
-    'espaces supprimer nettoyer enlever espaces trop espaces', 'EPURAGE SUBSTITUE');
-
-  F('EPURAGE', 'CLEAN', 'texte', '',
-    'Supprime les caractères non imprimables (sauts de ligne, codes de contrôle d’un import).',
-    'EPURAGE(texte)', [['texte', 'Texte.']],
-    [['=SUPPRESPACE(EPURAGE(A2))', 'Nettoyage complet d’un libellé importé.']],
-    [], 'nettoyer caracteres invisibles saut de ligne import', 'SUPPRESPACE');
+    'espaces supprimer nettoyer enlever espaces trop espaces', 'SUBSTITUE');
 
   F('MAJUSCULE', 'UPPER', 'texte', '',
     'Convertit en MAJUSCULES.',
@@ -134,7 +114,7 @@
     ['Les codes de format sont LOCALISÉS : "aaaa"/"jj" en français, "yyyy"/"dd" en anglais. Un classeur partagé entre Excel FR et EN peut afficher n’importe quoi.',
      'Le résultat est du texte : il ne s’additionne plus.'],
     'format texte date en lettres mois en lettres nom du jour zeros devant formater montant',
-    'CTXT DEVISE CNUM');
+    'CNUM');
 
   F('CNUM', 'VALUE', 'texte', '',
     'Convertit un texte qui ressemble à un nombre en vrai nombre (selon les paramètres régionaux).',
@@ -142,92 +122,9 @@
     [['=CNUM("1234")', 'Texte → nombre.', 1234],
      ['=CNUM(SUBSTITUE(A2;" ";""))', 'Montant importé avec espaces de milliers.']],
     ['Astuce : --A2 ou A2*1 convertit aussi un texte en nombre.'],
-    'convertir texte en nombre nombre stocke en texte transformer chiffre', 'VALEURNOMBRE TEXTE');
+    'convertir texte en nombre nombre stocke en texte transformer chiffre', 'TEXTE');
 
-  F('VALEURNOMBRE', 'NUMBERVALUE', 'texte', '2013',
-    'Convertit un texte en nombre en précisant les séparateurs décimal et de milliers (indépendant des réglages Windows). Parfait pour les exports anglo-saxons.',
-    'VALEURNOMBRE(texte; [séparateur_décimal]; [séparateur_groupe])',
-    [['texte', 'Texte.'], ['séparateur_décimal', 'Ex. "." pour un format US.'], ['séparateur_groupe', 'Ex. "," pour un format US.']],
-    [['=VALEURNOMBRE("1,234.56";".";",")', 'Format US → nombre.', 1234.56],
-     ['=VALEURNOMBRE("12,5%";",")', 'Gère aussi les pourcentages.', 0.125]],
-    [], 'convertir texte nombre format americain point virgule decimal import csv', 'CNUM SUBSTITUE');
-
-  F('REPT', 'REPT', 'texte', '',
-    'Répète un texte N fois (barres de progression, remplissage).',
-    'REPT(texte; nombre_fois)', [['texte', 'Texte.'], ['nombre_fois', 'Répétitions.']],
-    [['=REPT("*";5)', 'Répétition.', '*****'], ['=GAUCHE(A2&REPT("0";8);8)', 'Complète un compte à 8 chiffres (6071 → 60710000).']],
-    [], 'repeter completer zeros barre', 'TEXTE GAUCHE');
-
-  F('EXACT', 'EXACT', 'texte', '',
-    'Compare deux textes en respectant la casse.',
-    'EXACT(texte1; texte2)', [['texte1', 'Texte 1.'], ['texte2', 'Texte 2.']],
-    [['=EXACT("abc";"ABC")', 'Casse différente.', false]],
-    [], 'comparer identique egal casse', 'TROUVE');
-
-  F('CAR', 'CHAR', 'texte', '',
-    'Caractère correspondant à un code (CAR(10) = saut de ligne, CAR(160) = espace insécable).',
-    'CAR(nombre)', [['nombre', 'Code 1 à 255.']],
-    [['=CAR(65)', 'Code 65.', 'A'], ['=A2&CAR(10)&B2', 'Saut de ligne dans une cellule (activer « Renvoyer à la ligne »).']],
-    [], 'caractere code saut de ligne retour ligne', 'CODE UNICAR');
-
-  F('CODE', 'CODE', 'texte', '',
-    'Code du premier caractère d’un texte (repérer un caractère invisible).',
-    'CODE(texte)', [['texte', 'Texte.']],
-    [['=CODE("A")', 'Code.', 65], ['=CODE(STXT(A2;5;1))', 'Identifie un caractère bizarre en position 5.']],
-    [], 'code caractere ascii invisible', 'CAR UNICODE');
-
-  F('UNICAR', 'UNICHAR', 'texte', '2013',
-    'Caractère Unicode à partir de son code (symboles, flèches, ✓).',
-    'UNICAR(nombre)', [['nombre', 'Point de code Unicode.']],
-    [['=UNICAR(8364)', 'Symbole euro.', '€'], ['=SI(A2;UNICAR(10003);UNICAR(10007))', 'Coche ✓ ou croix ✗.']],
-    [], 'symbole unicode coche fleche euro', 'UNICODE CAR');
-
-  F('UNICODE', 'UNICODE', 'texte', '2013',
-    'Point de code Unicode du premier caractère.',
-    'UNICODE(texte)', [['texte', 'Texte.']],
-    [['=UNICODE("€")', 'Code de €.', 8364]],
-    [], 'code unicode', 'UNICAR CODE');
-
-  F('CTXT', 'FIXED', 'texte', '',
-    'Convertit un nombre en texte avec un nombre fixe de décimales.',
-    'CTXT(nombre; [décimales]; [no_séparateur])',
-    [['nombre', 'Valeur.'], ['décimales', '2 par défaut.'], ['no_séparateur', 'VRAI = sans séparateur de milliers.']],
-    [['=CTXT(1234,567;2;VRAI)', 'Texte avec 2 décimales sans séparateur de milliers.']],
-    [], 'nombre en texte decimales fixe', 'TEXTE DEVISE');
-
-  F('DEVISE', 'DOLLAR', 'texte', '',
-    'Convertit un nombre en texte au format monétaire (€ en version française).',
-    'DEVISE(nombre; [décimales])', [['nombre', 'Montant.'], ['décimales', '2 par défaut.']],
-    [['="Reste dû : "&DEVISE(B2)', 'Libellé avec montant formaté en euros.']],
-    [], 'monetaire euro format montant texte', 'TEXTE CTXT');
-
-  F('TEXTE.AVANT', 'TEXTBEFORE', 'texte', '2024',
-    'Renvoie le texte situé AVANT un délimiteur.',
-    'TEXTE.AVANT(texte; délimiteur; [no_instance]; [mode_correspondance]; [correspondance_fin]; [si_non_trouvé])',
-    [['texte', 'Texte source.'], ['délimiteur', 'Séparateur.'], ['no_instance', 'Quelle occurrence (négatif = depuis la fin).'],
-     ['mode_correspondance', '1 = ignorer la casse.'], ['correspondance_fin', '1 = la fin du texte compte comme délimiteur.'], ['si_non_trouvé', 'Valeur si absent.']],
-    [['=TEXTE.AVANT("Dupont Jean";" ")', 'Nom avant l’espace.', 'Dupont'],
-     ['=TEXTE.AVANT(A2;" - ";-1)', 'Tout sauf le dernier segment.']],
-    [], 'avant separateur extraire debut premier mot nom prenom', 'TEXTE.APRES FRACTIONNER.TEXTE GAUCHE');
-
-  F('TEXTE.APRES', 'TEXTAFTER', 'texte', '2024',
-    'Renvoie le texte situé APRÈS un délimiteur.',
-    'TEXTE.APRES(texte; délimiteur; [no_instance]; [mode_correspondance]; [correspondance_fin]; [si_non_trouvé])',
-    [['texte', 'Texte source.'], ['délimiteur', 'Séparateur.'], ['no_instance', 'Occurrence (négatif = depuis la fin).'],
-     ['mode_correspondance', '1 = ignorer la casse.'], ['correspondance_fin', '1 = fin comme délimiteur.'], ['si_non_trouvé', 'Valeur si absent.']],
-    [['=TEXTE.APRES("VIR SEPA FA-2026-0042";"FA-")', 'N° de facture dans un libellé bancaire.', '2026-0042'],
-     ['=TEXTE.APRES(A2;"@")', 'Domaine d’une adresse e-mail.']],
-    [], 'apres separateur extraire fin numero facture libelle', 'TEXTE.AVANT FRACTIONNER.TEXTE');
-
-  F('FRACTIONNER.TEXTE', 'TEXTSPLIT', 'texte', '2024',
-    'Découpe un texte en plusieurs cellules selon un séparateur (« Convertir » en formule).',
-    'FRACTIONNER.TEXTE(texte; délimiteur_col; [délimiteur_ligne]; [ignorer_vide]; [mode_correspondance]; [remplir_avec])',
-    [['texte', 'Texte source.'], ['délimiteur_col', 'Séparateur de colonnes.'], ['délimiteur_ligne', 'Séparateur de lignes.'],
-     ['ignorer_vide', 'VRAI = ignorer les vides.'], ['mode_correspondance', '1 = ignorer la casse.'], ['remplir_avec', 'Valeur de remplissage.']],
-    [['=FRACTIONNER.TEXTE(A2;";")', 'Découpe une ligne CSV collée dans une cellule.']],
-    [], 'decouper separer diviser colonnes csv convertir split', 'TEXTE.AVANT JOINDRE.TEXTE');
-
-  /* =========================== DATES & HEURES ========================== */
+  /* ========================== DATES & HEURES ========================== */
   F('AUJOURDHUI', 'TODAY', 'date', '',
     'Date du jour (mise à jour à chaque ouverture).',
     'AUJOURDHUI()', [],
@@ -273,19 +170,13 @@
     'Heure (0-23) d’une valeur horaire.',
     'HEURE(numéro_de_série)', [['numéro_de_série', 'Heure ou date-heure.']],
     [['=HEURE(TEMPS(14;45;0))', 'Heure.', 14]],
-    [], 'heure extraire', 'MINUTE SECONDE TEMPS');
+    [], 'heure extraire', 'MINUTE TEMPS');
 
   F('MINUTE', 'MINUTE', 'date', '',
     'Minutes (0-59) d’une valeur horaire.',
     'MINUTE(numéro_de_série)', [['numéro_de_série', 'Heure.']],
     [['=MINUTE(TEMPS(14;45;0))', 'Minutes.', 45]],
-    [], 'minutes extraire', 'HEURE SECONDE');
-
-  F('SECONDE', 'SECOND', 'date', '',
-    'Secondes (0-59) d’une valeur horaire.',
-    'SECONDE(numéro_de_série)', [['numéro_de_série', 'Heure.']],
-    [['=SECONDE(TEMPS(14;45;30))', 'Secondes.', 30]],
-    [], 'secondes extraire secondes', 'HEURE MINUTE');
+    [], 'minutes extraire', 'HEURE');
 
   F('TEMPS', 'TIME', 'date', '',
     'Construit une heure à partir d’heures, minutes, secondes.',
@@ -302,20 +193,6 @@
      ['=JOURSEM(A2;2)>5', 'VRAI si week-end.']],
     ['Mets toujours 2 en France, sinon dimanche = 1.'],
     'jour de la semaine lundi week end samedi dimanche', 'TEXTE NB.JOURS.OUVRES');
-
-  F('NO.SEMAINE.ISO', 'ISOWEEKNUM', 'date', '2013',
-    'Numéro de semaine ISO (norme française/européenne : semaine 1 = celle du premier jeudi).',
-    'NO.SEMAINE.ISO(date)', [['date', 'Date.']],
-    [['=NO.SEMAINE.ISO(DATE(2026;1;1))', 'Semaine ISO du 1er janvier 2026.', 1]],
-    ['NO.SEMAINE() sans argument suit la norme américaine : en France, utilise NO.SEMAINE.ISO.'],
-    'numero semaine semaine iso planning', 'NO.SEMAINE JOURSEM');
-
-  F('NO.SEMAINE', 'WEEKNUM', 'date', '',
-    'Numéro de semaine selon un système paramétrable (21 = ISO).',
-    'NO.SEMAINE(numéro_de_série; [type_retour])',
-    [['numéro_de_série', 'Date.'], ['type_retour', '21 = ISO (équivaut à NO.SEMAINE.ISO) ; 2 = semaine commençant lundi.']],
-    [['=NO.SEMAINE(A2;21)', 'Semaine ISO.']],
-    [], 'numero semaine', 'NO.SEMAINE.ISO');
 
   F('FIN.MOIS', 'EOMONTH', 'date', '',
     'Dernier jour du mois, N mois avant ou après une date. Incontournable pour les échéances « fin de mois ».',
@@ -341,29 +218,7 @@
     [['date_début', 'Début (inclus).'], ['date_fin', 'Fin (incluse).'], ['jours_fériés', 'Plage des dates fériées à exclure.']],
     [['=NB.JOURS.OUVRES(DATE(2026;11;2);DATE(2026;11;6))', 'Du lundi au vendredi.', 5],
      ['=NB.JOURS.OUVRES(FIN.MOIS(A2;-1)+1;FIN.MOIS(A2;0);Fériés)', 'Jours ouvrés du mois de A2.']],
-    [], 'jours ouvres travailles ouvrables entre deux dates hors week end feries', 'NB.JOURS.OUVRES.INTL SERIE.JOUR.OUVRE');
-
-  F('NB.JOURS.OUVRES.INTL', 'NETWORKDAYS.INTL', 'date', '2010',
-    'Comme NB.JOURS.OUVRES mais avec un week-end personnalisé (ex. jours ouvrables du lundi au samedi).',
-    'NB.JOURS.OUVRES.INTL(date_début; date_fin; [week-end]; [jours_fériés])',
-    [['date_début', 'Début.'], ['date_fin', 'Fin.'], ['week-end', '1 = sam+dim ; 11 = dimanche seul ; ou chaîne "0000011" (lun→dim, 1 = repos).'], ['jours_fériés', 'Dates à exclure.']],
-    [['=NB.JOURS.OUVRES.INTL(DATE(2026;11;2);DATE(2026;11;8);11)', 'Jours ouvrables (repos le dimanche seulement).', 6]],
-    [], 'jours ouvrables lundi samedi week end personnalise', 'NB.JOURS.OUVRES');
-
-  F('SERIE.JOUR.OUVRE', 'WORKDAY', 'date', '',
-    'Date située N jours ouvrés après (ou avant) une date.',
-    'SERIE.JOUR.OUVRE(date_début; nb_jours; [jours_fériés])',
-    [['date_début', 'Départ.'], ['nb_jours', 'Jours ouvrés à ajouter (négatif = avant).'], ['jours_fériés', 'Dates fériées.']],
-    [['=SERIE.JOUR.OUVRE(DATE(2026;11;6);1)', 'Vendredi + 1 jour ouvré = lundi.', 'd:2026-11-09'],
-     ['=SERIE.JOUR.OUVRE(FIN.MOIS(A2;0)+1;-1;Fériés)', 'Dernier jour ouvré du mois.']],
-    [], 'ajouter jours ouvres date livraison delai ouvre dernier jour ouvre', 'NB.JOURS.OUVRES SERIE.JOUR.OUVRE.INTL');
-
-  F('SERIE.JOUR.OUVRE.INTL', 'WORKDAY.INTL', 'date', '2010',
-    'SERIE.JOUR.OUVRE avec un week-end personnalisé.',
-    'SERIE.JOUR.OUVRE.INTL(date_début; nb_jours; [week-end]; [jours_fériés])',
-    [['date_début', 'Départ.'], ['nb_jours', 'Jours à ajouter.'], ['week-end', 'Code ou chaîne "0000011".'], ['jours_fériés', 'Dates fériées.']],
-    [['=SERIE.JOUR.OUVRE.INTL(A2;10;11)', '10 jours ouvrables (lundi-samedi).']],
-    [], 'ajouter jours ouvrables', 'SERIE.JOUR.OUVRE');
+    [], 'jours ouvres travailles ouvrables entre deux dates hors week end feries', '');
 
   F('DATEDIF', 'DATEDIF', 'date', '',
     'Écart entre deux dates en années, mois ou jours complets. Fonction « cachée » (pas d’assistant) mais fiable pour l’âge et l’ancienneté.',
@@ -373,41 +228,5 @@
     [['=DATEDIF(DATE(2000;5;20);DATE(2026;11;2);"y")', 'Années complètes.', 26],
      ['=DATEDIF(A2;AUJOURDHUI();"y")&" ans "&DATEDIF(A2;AUJOURDHUI();"ym")&" mois"', 'Ancienneté en clair.']],
     ['Évite l’unité "md", connue pour donner des résultats faux.'],
-    'age anciennete difference entre deux dates annees mois ecart duree', 'JOURS FRACTION.ANNEE');
-
-  F('JOURS', 'DAYS', 'date', '2013',
-    'Nombre de jours entre deux dates (fin - début).',
-    'JOURS(date_fin; date_début)', [['date_fin', 'Date de fin (EN PREMIER).'], ['date_début', 'Date de début.']],
-    [['=JOURS(DATE(2026;12;31);DATE(2026;1;1))', 'Jours d’écart.', 364]],
-    ['Une simple soustraction =B2-A2 donne le même résultat.'],
-    'nombre de jours entre deux dates ecart', 'DATEDIF JOURS360');
-
-  F('JOURS360', 'DAYS360', 'date', '',
-    'Jours entre deux dates sur une base de 360 jours (12 mois de 30 jours), usage bancaire et comptable.',
-    'JOURS360(date_début; date_fin; [méthode])',
-    [['date_début', 'Début.'], ['date_fin', 'Fin.'], ['méthode', 'VRAI = méthode européenne (à utiliser en France) ; FAUX = américaine.']],
-    [['=JOURS360(DATE(2026;1;1);DATE(2026;12;31);VRAI)', 'Méthode européenne.', 359],
-     ['=Capital*Taux*JOURS360(A2;B2;VRAI)/360', 'Intérêts courus sur une base 30/360.']],
-    [], 'base 360 jours interets prorata temporis bancaire', 'FRACTION.ANNEE AMORLINC');
-
-  F('FRACTION.ANNEE', 'YEARFRAC', 'date', '',
-    'Fraction d’année entre deux dates selon une base de calcul (prorata temporis).',
-    'FRACTION.ANNEE(date_début; date_fin; [base])',
-    [['date_début', 'Début.'], ['date_fin', 'Fin.'], ['base', '0 = 30/360 US ; 1 = réel/réel ; 2 = réel/360 ; 3 = réel/365 ; 4 = 30/360 européen.']],
-    [['=FRACTION.ANNEE(DATE(2026;1;1);DATE(2026;7;1);3)', '181 jours / 365.', 0.4958904109589041],
-     ['=Montant*FRACTION.ANNEE(DateDébut;Clôture;1)', 'Prorata d’une charge sur l’exercice.']],
-    [], 'prorata temporis fraction annee proportion periode', 'JOURS360 DATEDIF');
-
-  F('DATEVAL', 'DATEVALUE', 'date', '',
-    'Convertit une date écrite en texte en vraie date.',
-    'DATEVAL(date_texte)', [['date_texte', 'Ex. "15/03/2026".']],
-    [['=DATEVAL("15/03/2026")', 'Texte → date (selon les paramètres régionaux).']],
-    ['Si le format n’est pas reconnu (#VALEUR!), reconstruis avec DATE(DROITE…;STXT…;GAUCHE…).'],
-    'convertir texte en date date texte import', 'DATE TEMPSVAL');
-
-  F('TEMPSVAL', 'TIMEVALUE', 'date', '',
-    'Convertit une heure écrite en texte en valeur horaire.',
-    'TEMPSVAL(heure_texte)', [['heure_texte', 'Ex. "08:30".']],
-    [['=TEMPSVAL("12:00")', 'Midi = 0,5.', 0.5]],
-    [], 'convertir texte heure', 'DATEVAL TEMPS');
+    'age anciennete difference entre deux dates annees mois ecart duree', '');
 })(window.XL);

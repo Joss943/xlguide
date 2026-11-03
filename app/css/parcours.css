@@ -18,10 +18,7 @@
    Pastille .lvl + modificateur ; les liens de la colonne latérale (.lvl-link) réutilisent le modificateur sans la pastille. */
 .lvl { display: inline-block; font-size: 12px; font-weight: 600; line-height: 1.6; padding: 1px 9px; border-radius: 999px; white-space: nowrap; }
 .lvl.lvl-base { background: var(--accent-soft); color: var(--accent-ink); }
-.lvl.lvl-approfondir { background: color-mix(in srgb, var(--a0) 14%, transparent); color: var(--a0); }
-.lvl.lvl-expert { background: color-mix(in srgb, var(--a2) 15%, transparent); color: var(--a2); }
-.lvl.lvl-ref { background: var(--panel-2); color: var(--muted); border: 1px solid var(--line); }
-.lvl.lvl-case { background: var(--warn-soft); color: var(--warn); }
+.lvl.lvl-intermediaire { background: color-mix(in srgb, var(--a0) 14%, transparent); color: var(--a0); }
 a.lvl:hover { text-decoration: none; filter: brightness(.96); }
 
 /* -------------------------------- accueil -------------------------------- */
@@ -54,8 +51,7 @@ a.lvl:hover { text-decoration: none; filter: brightness(.96); }
 .lvl-link.on { background: var(--panel); border-color: var(--line); box-shadow: var(--shadow); }
 .lvl-link .n { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; font-size: 12.5px; font-weight: 700; flex: none; }
 .lvl-link.lvl-base .n { background: var(--accent-soft); color: var(--accent-ink); }
-.lvl-link.lvl-approfondir .n { background: color-mix(in srgb, var(--a0) 14%, transparent); color: var(--a0); }
-.lvl-link.lvl-expert .n { background: color-mix(in srgb, var(--a2) 15%, transparent); color: var(--a2); }
+.lvl-link.lvl-intermediaire .n { background: color-mix(in srgb, var(--a0) 14%, transparent); color: var(--a0); }
 .lvl-link b { display: block; font-size: 14px; }
 .lvl-link small { display: block; color: var(--muted); font-size: 12px; }
 
@@ -72,6 +68,8 @@ a.lvl:hover { text-decoration: none; filter: brightness(.96); }
 .group { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
 .group h3 { margin: 4px 4px 0; font-size: 12px; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
 .group h3 small { text-transform: none; letter-spacing: 0; font-weight: 400; margin-left: 4px; }
+.group h4.theme { display: flex; align-items: center; gap: 6px; margin: 8px 4px 0; font-size: 13px; color: var(--text); }
+.group h4.theme .ic { width: 15px; height: 15px; color: var(--accent); }
 .item-h .step + .nm { flex: 1; min-width: 0; }
 .step { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 12px; font-weight: 700; flex: none; align-self: flex-start; margin-top: 1px; }
 .kind { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
@@ -102,6 +100,10 @@ details.more h4 { font-size: 13px; margin: 14px 0 8px; color: var(--muted); }
 .points { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
 .points li { position: relative; padding-left: 20px; }
 .points li::before { content: ""; position: absolute; left: 4px; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.steps-list { margin: 0; padding: 0; list-style: none; counter-reset: step; display: flex; flex-direction: column; gap: 8px; }
+.steps-list li { counter-increment: step; position: relative; padding: 9px 12px 9px 44px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel-2); }
+.steps-list li::before { content: counter(step); position: absolute; left: 12px; top: 9px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 700; }
 .steps-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 28px; }
 .steps-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--text); }
 .steps-nav a:hover { text-decoration: none; border-color: var(--accent); }
@@ -127,6 +129,7 @@ details.more h4 { font-size: 13px; margin: 14px 0 8px; color: var(--muted); }
 .sheet-f .addr { font: 600 12px var(--mono); padding: 2px 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--muted); }
 .sheet-f .formula { min-width: 0; }
 .sheet-f small { flex-basis: 100%; color: var(--muted); font-size: 12px; }
+.sheet-sel small { flex-basis: auto; }
 .sheet-calc { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
 .sheet-calc li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 9px 12px; border-top: 1px solid var(--line); background: var(--code-bg); }
 .sheet-calc li:first-child { border-top: 0; }

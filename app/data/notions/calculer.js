@@ -2,6 +2,12 @@
 (function (XL) {
   'use strict';
   var N = XL.N;
+  var PRODUITS = {
+    cols: ['Code', 'Produit', 'Prix'],
+    rows: [['P01', 'Stylo', 1.5], ['P02', 'Cahier', 3.2], ['P03', 'Classeur', 5.9], ['P04', 'Agenda', 12]],
+    fmt: [null, null, '0.00']
+  };
+  function produits(calc) { return { cols: PRODUITS.cols, rows: PRODUITS.rows, fmt: PRODUITS.fmt, calc: calc }; }
 
   /* ------------------------------- LES BASES ------------------------------- */
   N({
@@ -140,9 +146,9 @@
     kw: 'si condition decider test logique vrai faux alors sinon comparaison'
   });
 
-  /* ------------------------------ APPROFONDIR ------------------------------ */
+  /* ------------------------------- INTERMÉDIAIRE ------------------------------- */
   N({
-    activity: 'calculer', level: 'approfondir', title: 'Additionner et compter selon des conditions',
+    activity: 'calculer', level: 'intermediaire', title: 'Additionner et compter selon des conditions',
     intro: 'SOMME.SI et NB.SI n’additionnent ou ne comptent que les lignes qui répondent à un critère ; leurs versions .ENS acceptent plusieurs critères.',
     points: [
       'Critère texte : "Nord". Critère numérique : ">1000", "<>0".',
@@ -169,7 +175,7 @@
   });
 
   N({
-    activity: 'calculer', level: 'approfondir', title: 'Combiner des conditions : ET, OU, SI.CONDITIONS',
+    activity: 'calculer', level: 'intermediaire', title: 'Combiner des conditions : ET, OU, SI.CONDITIONS',
     intro: 'ET exige que toutes les conditions soient vraies, OU qu’au moins une le soit ; SI.CONDITIONS enchaîne plusieurs cas sans imbriquer de SI.',
     points: [
       '=SI(ET(B2>=1000;C2="Oui");…) : les deux conditions doivent être remplies.',
@@ -189,7 +195,7 @@
   });
 
   N({
-    activity: 'calculer', level: 'approfondir', title: 'Arrondir juste : format ou ARRONDI ?',
+    activity: 'calculer', level: 'intermediaire', title: 'Arrondir juste : format ou ARRONDI ?',
     intro: 'Le nombre de décimales affichées ne change pas la valeur : les totaux peuvent sembler faux. ARRONDI modifie réellement la valeur.',
     points: [
       'Un montant affiché 1,24 peut valoir 1,236 : c’est la valeur complète qui est additionnée.',
@@ -212,42 +218,177 @@
     kw: 'arrondi arrondir format decimales ecart centime total faux affichage valeur reelle'
   });
 
-  /* -------------------------------- EXPERT -------------------------------- */
   N({
-    activity: 'calculer', level: 'expert', title: 'Calculer sur des plages entières avec SOMMEPROD',
-    intro: 'SOMMEPROD multiplie des colonnes ligne à ligne puis additionne. Avec des conditions entre parenthèses, elle prend le relais quand SOMME.SI.ENS ne suffit plus.',
+    activity: 'calculer', level: 'intermediaire', title: 'Chercher une valeur avec RECHERCHEV',
+    intro: 'RECHERCHEV cherche une valeur dans la première colonne d’un tableau et renvoie l’information située plus à droite sur la même ligne.',
     points: [
-      '=SOMMEPROD(B2:B4;C2:C4) : somme des quantités × prix.',
-      'Une condition comme (A2:A4="X") vaut 1 ou 0 : la multiplier revient à filtrer.',
-      'Multiplier des conditions = ET ; les additionner = OU.',
-      'Elle accepte des fonctions appliquées aux plages (GAUCHE, MOIS…), ce que SOMME.SI ne permet pas.'
+      '=RECHERCHEV(valeur cherchée ; tableau ; n° de la colonne à renvoyer ; FAUX).',
+      'Mets toujours FAUX en dernier argument pour une correspondance exacte.',
+      'Bloque le tableau avec des $ ($A$2:$C$50) avant de recopier la formule.',
+      'Limite : la valeur cherchée doit se trouver dans la PREMIÈRE colonne du tableau.'
     ],
-    sample: {
-      cols: ['Produit', 'Quantité', 'Prix'],
-      rows: [['A-101', 3, 10], ['B-205', 2, 25], ['A-330', 5, 4]],
-      calc: [
-        ['Montant total', '=SOMMEPROD(B2:B4;C2:C4)', 100],
-        ['Produits commençant par A', '=SOMMEPROD((GAUCHE(A2:A4;1)="A")*B2:B4*C2:C4)', 50]
-      ]
-    },
-    examples: [['=SOMMEPROD((MOIS(A2:A100)=3)*C2:C100)', 'Total des ventes de mars, toutes années confondues.']],
-    tips: ['Évite les colonnes entières (A:A) dans SOMMEPROD : le calcul devient très lent.'],
-    kw: 'sommeprod somme produit plages entieres conditions complexes ou quantite prix'
+    sample: produits([
+      ['Prix du code P03', '=RECHERCHEV("P03";A2:C5;3;FAUX)', 5.9, '0.00'],
+      ['Produit du code P02', '=RECHERCHEV("P02";A2:C5;2;FAUX)', 'Cahier']
+    ]),
+    examples: [['=RECHERCHEV(A2;Produits!$A$2:$C$500;3;FAUX)', 'Va chercher le prix dans la feuille « Produits ».']],
+    tips: ['#N/A signifie « introuvable » : vérifie les espaces en trop et que la valeur est du même type des deux côtés (texte ou nombre).'],
+    kw: 'recherchev chercher valeur tableau aller chercher information autre feuille correspondance vlookup'
   });
 
   N({
-    activity: 'calculer', level: 'expert', title: 'Nommer ses calculs : LET et LAMBDA',
-    intro: 'À partir d’Excel 2021, LET donne un nom aux étapes d’une formule ; LAMBDA (Excel 2024 et Microsoft 365) permet de créer ses propres fonctions.',
+    activity: 'calculer', level: 'intermediaire', title: 'RECHERCHEX, la recherche moderne',
+    intro: 'Dans Excel 2021 et plus, RECHERCHEX remplace RECHERCHEV : on désigne la colonne où chercher et celle à renvoyer, dans n’importe quel ordre.',
     points: [
-      '=LET(nom; valeur; calcul) : chaque étape n’est calculée qu’une fois et la formule se lit comme une phrase.',
-      'Une LAMBDA s’enregistre dans Formules > Gestionnaire de noms, puis s’utilise comme une fonction native.',
-      'Pour tester une LAMBDA dans une cellule, ajoute les valeurs entre parenthèses à la fin.'
+      '=RECHERCHEX(valeur cherchée ; colonne où chercher ; colonne à renvoyer ; "message si introuvable").',
+      'Elle fonctionne aussi vers la gauche, et insérer une colonne ne casse pas la formule.',
+      'La correspondance est exacte par défaut.'
     ],
-    examples: [
-      ['=LET(ht;B2;tva;20%;ht*(1+tva))', 'Prix TTC avec des étapes nommées.'],
-      ['=LAMBDA(ht;taux;ht*(1+taux))(100;20%)', 'LAMBDA testée directement.', 120]
+    sample: produits([
+      ['Code du produit « Classeur »', '=RECHERCHEX("Classeur";B2:B5;A2:A5;"Introuvable")', 'P03'],
+      ['Code du produit « Gomme »', '=RECHERCHEX("Gomme";B2:B5;A2:A5;"Introuvable")', 'Introuvable']
+    ]),
+    tips: ['Si Excel affiche #NOM?, RECHERCHEX n’existe pas dans ta version : utilise RECHERCHEV.'],
+    kw: 'recherchex xlookup recherche moderne gauche droite introuvable'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Gérer l’introuvable : #N/A et SIERREUR',
+    intro: 'Quand une recherche ne trouve rien, Excel affiche #N/A. SIERREUR remplace l’erreur par un message ou une valeur de ton choix.',
+    points: [
+      '=SIERREUR(formule ; valeur si erreur).',
+      'SI.NON.DISP ne remplace que #N/A et laisse voir les autres erreurs : plus sûr pour contrôler un fichier.',
+      'Avant de masquer une erreur, comprends-la : un #N/A révèle parfois une donnée mal saisie.'
     ],
-    tips: ['Si Excel affiche #NOM?, ces fonctions n’existent pas dans ta version.'],
-    kw: 'let lambda nommer variables fonction personnalisee creer sa fonction'
+    sample: produits([
+      ['Prix du code P09 (absent)', '=SIERREUR(RECHERCHEV("P09";A2:C5;3;FAUX);"Introuvable")', 'Introuvable'],
+      ['Prix du code P01', '=SIERREUR(RECHERCHEV("P01";A2:C5;3;FAUX);"Introuvable")', 1.5, '0.00']
+    ]),
+    kw: 'erreur na #n/a sierreur introuvable masquer erreur si non disp'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Barèmes et tranches',
+    intro: 'Pour appliquer un taux selon des tranches (commissions, remises), on cherche le seuil immédiatement inférieur dans une table triée.',
+    points: [
+      'La table contient le seuil bas de chaque tranche, triée par ordre croissant.',
+      '=RECHERCHEV(montant ; table ; 2 ; VRAI) : VRAI = correspondance approchée.',
+      'Avec RECHERCHEX : mode de correspondance -1 (exacte ou inférieure).'
+    ],
+    sample: {
+      cols: ['Seuil', 'Taux'],
+      rows: [[0, 0], [1000, 0.02], [5000, 0.05], [10000, 0.08]],
+      fmt: [null, '%'],
+      calc: [['Taux pour 7 200 €', '=RECHERCHEV(7200;A2:B5;2;VRAI)', 0.05, '%'], ['Taux pour 999 €', '=RECHERCHEV(999;A2:B5;2;VRAI)', 0, '%']]
+    },
+    kw: 'bareme tranches seuil commission taux par tranche approchee recherchev vrai'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Calculer avec les dates',
+    intro: 'Les dates étant des nombres, on les additionne et on les soustrait directement ; quelques fonctions les construisent et les découpent.',
+    points: [
+      'Écart en jours : =B2-A2. Date + 30 jours : =A2+30.',
+      '=AUJOURDHUI() renvoie la date du jour (mise à jour à chaque ouverture du fichier).',
+      '=DATE(2026;3;15) construit une date ; ANNEE, MOIS et JOUR la découpent.',
+      'Si le résultat s’affiche comme un grand nombre (46096), applique un format Date.'
+    ],
+    sample: {
+      cols: ['Début', 'Fin'],
+      rows: [['d:2026-01-01', 'd:2026-01-31'], ['d:2026-02-10', 'd:2026-03-10'], ['d:2026-11-02', 'd:2026-12-25']],
+      fill: { header: 'Jours d’écart', formula: '=B2-A2', results: [30, 28, 53] }
+    },
+    examples: [['=AUJOURDHUI()-A2', 'Nombre de jours écoulés depuis la date en A2.'], ['=ANNEE(A2)', 'Année de la date.']],
+    kw: 'dates calculer difference entre deux dates ajouter jours aujourdhui date nombre de jours'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Échéances, fins de mois et jours ouvrés',
+    intro: 'FIN.MOIS, MOIS.DECALER et NB.JOURS.OUVRES couvrent la plupart des calculs d’échéances et de délais.',
+    points: [
+      '=FIN.MOIS(A2;0) : dernier jour du mois de A2 ; =FIN.MOIS(A2;-1)+1 : premier jour.',
+      '=MOIS.DECALER(A2;3) : même jour, 3 mois plus tard.',
+      '=NB.JOURS.OUVRES(début;fin;fériés) : jours du lundi au vendredi, jours fériés exclus.',
+      '=JOURSEM(A2;2) : 1 = lundi … 7 = dimanche.'
+    ],
+    sample: {
+      cols: ['Date de facture'],
+      rows: [['d:2026-01-15'], ['d:2026-02-20'], ['d:2026-03-31']],
+      fill: { header: 'Échéance 30 jours fin de mois', formula: '=FIN.MOIS(A2+30;0)', results: ['d:2026-02-28', 'd:2026-03-31', 'd:2026-04-30'] }
+    },
+    examples: [['=NB.JOURS.OUVRES(A2;B2;Fériés)', 'Jours ouvrés entre deux dates.'], ['=MOIS.DECALER(A2;12)', 'Date anniversaire.']],
+    kw: 'echeance fin de mois jours ouvres delai date limite mois decaler joursem'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Calculer avec les heures',
+    intro: 'Pour Excel, une heure est une fraction de journée : 12:00 vaut 0,5. On peut donc soustraire des heures, à condition de bien les afficher.',
+    points: [
+      'Durée : =B2-A2 (format hh:mm). Pour un total de plus de 24 h : format [h]:mm.',
+      'En heures décimales : =(B2-A2)*24 (7:30 devient 7,5).',
+      'Si la fin est après minuit : =MOD(B2-A2;1).',
+      '=TEMPS(8;30;0) construit une heure.'
+    ],
+    sample: {
+      cols: ['Arrivée', 'Départ'],
+      rows: [['t:08:30', 't:17:00'], ['t:09:15', 't:18:45'], ['t:22:00', 't:06:00']],
+      fill: { header: 'Heures (décimal)', formula: '=MOD(B2-A2;1)*24', results: [8.5, 9.5, 8], fmt: '0.00' }
+    },
+    kw: 'heures duree temps de travail hh mm decimal minuit calculer heures'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Assembler et découper du texte',
+    intro: '& colle des morceaux de texte ; GAUCHE, DROITE et STXT en extraient une partie ; NBCAR compte les caractères.',
+    points: [
+      '=A2&" "&B2 colle le prénom, une espace et le nom.',
+      '=GAUCHE(A2;2) prend les 2 premiers caractères, =DROITE(A2;3) les 3 derniers.',
+      '=STXT(A2;4;4) prend 4 caractères à partir du 4e.',
+      'Le résultat est du texte : pour obtenir un nombre, convertis-le avec CNUM.'
+    ],
+    sample: {
+      cols: ['Référence'],
+      rows: [['FR-2026-001'], ['BE-2025-042'], ['DE-2026-117']],
+      fill: { header: 'Année', formula: '=STXT(A2;4;4)', results: ['2026', '2025', '2026'] },
+      calc: [['Pays de la 1re référence', '=GAUCHE(A2;2)', 'FR'], ['Numéro de la 1re référence', '=DROITE(A2;3)', '001'], ['Longueur', '=NBCAR(A2)', 11]]
+    },
+    examples: [['=A2&" "&B2', 'Prénom + espace + nom.'], ['=CONCATENER("FA-";A2)', 'Même principe avec la fonction CONCATENER.']],
+    kw: 'assembler concatener coller texte decouper extraire gauche droite stxt nbcar caracteres'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Nettoyer du texte',
+    intro: 'Les données saisies à la main ou importées contiennent souvent des espaces en trop et des majuscules incohérentes.',
+    points: [
+      'SUPPRESPACE enlève les espaces au début, à la fin et les espaces doublés.',
+      'MAJUSCULE, MINUSCULE et NOMPROPRE uniformisent la casse.',
+      'SUBSTITUE remplace un caractère par un autre partout (par exemple l’espace insécable CAR(160) des exports web).',
+      'Une fois le résultat correct : copie, puis Collage spécial > Valeurs pour remplacer les données d’origine.'
+    ],
+    sample: {
+      cols: ['Saisie brute'],
+      rows: [['  jean   DUPONT '], ['MARIE  martin'], [' paul durand']],
+      fill: { header: 'Nettoyé', formula: '=NOMPROPRE(SUPPRESPACE(A2))', results: ['Jean Dupont', 'Marie Martin', 'Paul Durand'] }
+    },
+    kw: 'nettoyer texte espaces en trop majuscules minuscules nompropre supprespace propre'
+  });
+
+  N({
+    activity: 'calculer', level: 'intermediaire', title: 'Mettre en forme avec TEXTE',
+    intro: 'TEXTE transforme un nombre ou une date en texte formaté, pour l’intégrer dans une phrase ou un code.',
+    points: [
+      '=TEXTE(A2;"0000") complète avec des zéros : 42 devient 0042.',
+      '=TEXTE(A2;"jj/mm/aaaa") ou "mmmm aaaa" pour les dates (codes français : j, m, a).',
+      '=TEXTE(B2;"# ##0,00 €") pour insérer un montant dans un libellé.',
+      'Le résultat est du texte : il ne s’additionne plus.'
+    ],
+    sample: {
+      cols: ['N°'],
+      rows: [[7], [42], [315]],
+      fill: { header: 'Code facture', formula: '="FA-"&TEXTE(A2;"0000")', results: ['FA-0007', 'FA-0042', 'FA-0315'] }
+    },
+    examples: [['="Échéance : "&TEXTE(B2;"jj/mm/aaaa")', 'Une date dans une phrase.']],
+    tips: ['Les codes de format dépendent de la langue d’Excel : « aaaa » en français, « yyyy » en anglais.'],
+    kw: 'texte format nombre zeros devant date en texte libelle mettre en forme'
   });
 })(window.XL);

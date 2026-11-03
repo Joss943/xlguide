@@ -10,20 +10,12 @@ const path = require('path');
 const SRC = path.join(__dirname, '..', 'node_modules', '@tabler', 'icons', 'icons');
 const ICONS = [
   // interface
-  'search', 'moon', 'sun', 'star', 'filled:star', 'copy', 'arrow-left', 'bulb', 'alert-triangle', 'alert-circle', 'download',
-  'brand-github', 'keyboard', 'arrows-left-right', 'home', 'math-function', 'book', 'clipboard-list', 'x', 'check',
-  'external-link', 'refresh', 'world', 'package', 'terminal-2', 'shield-check', 'bolt', 'language', 'tag', 'chevron-right',
-  // catégories de fonctions
-  'arrows-split-2', 'table', 'calculator', 'chart-bar', 'typography', 'calendar', 'coin-euro', 'info-circle', 'database',
-  'binary', 'list-search',
-  // recettes compta
-  'receipt-tax', 'building-bank', 'building-factory-2', 'file-invoice', 'credit-card', 'checklist', 'chart-line',
-  'file-import', 'calendar-event', 'clock-hour-4',
-  // volet informatique
-  'network', 'server', 'server-2', 'device-desktop', 'devices-pc', 'users', 'user-check', 'activity-heartbeat',
-  'git-compare', 'router', 'device-floppy', 'id-badge-2', 'topology-star-3', 'cpu',
-  // systèmes
-  'brand-windows', 'brand-ubuntu', 'brand-debian', 'brand-redhat', 'brand-apple'
+  'search', 'moon', 'sun', 'star', 'filled:star', 'copy', 'arrow-left', 'chevron-right', 'download', 'home', 'bolt', 'book',
+  'keyboard', 'alert-circle', 'arrows-left-right', 'math-function', 'language', 'world', 'info-circle',
+  // activités et thèmes de fonctions
+  'pencil', 'calculator', 'filter', 'chart-bar', 'arrows-split-2', 'table', 'typography', 'calendar', 'checklist',
+  // site : installation
+  'brand-github', 'brand-windows', 'brand-ubuntu', 'brand-debian', 'brand-redhat', 'terminal-2', 'package', 'shield-check'
 ];
 
 const out = {};

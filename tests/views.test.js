@@ -13,7 +13,7 @@ module.exports = function (XL) {
     return { m, s: Object.assign({ favs: [], ver: '365', q: '', type: '', cat: '' }, s), cfg: XL.config, uid: () => ++n };
   }
 
-  const LIST_ROUTES = new Set(['', 'outils', 'fn', 'rx', 'it', 'err', 'tr', 'kb', 'fav']);
+  const LIST_ROUTES = new Set(['', 'outils', 'fn', 'err', 'tr', 'kb', 'fav']);
   const routeParts = (href) => decodeURIComponent(href.replace(/&amp;/g, '&').replace(/^#\/?/, '')).split('/');
   /** Élément visé par un lien de fiche (#/f/…, #/r/…, #/n/…, #/e/…), sinon null. */
   function target(href) {
@@ -68,17 +68,13 @@ module.exports = function (XL) {
   }));
   inspectPage('index A→Z', V.functionIndex(ctx()));
   XL.categories.forEach((c) => inspectPage('index · ' + c.id, V.functionIndex(ctx({ cat: c.id }))));
-  ['compta', 'it'].forEach((d) => {
-    inspectPage('cas pratiques ' + d, V.cases(ctx(), d));
-    XL.recipeCategories.filter((c) => c.domain === d).forEach((c) => inspectPage('cas pratiques ' + d + ' · ' + c.id, V.cases(ctx({ cat: c.id }), d)));
-  });
   inspectPage('erreurs', V.errors(ctx()));
   inspectPage('favoris (vide)', V.favorites(ctx()));
   const someFavs = ['f:SOMME', 'r:' + XL.recipes[0].id, 'n:' + XL.notions[0].id, 'e:0', 'f:FONCTION.DISPARUE'];
   const favPage = V.favorites(ctx({ favs: someFavs }));
   inspectPage('favoris', favPage);
   check(favPage.items.length === 4, 'favoris : une clé inconnue doit être ignorée sans erreur');
-  ['somme', 'référence absolue', 'doublons', 'adresse ip', 'zzqxw', '=SI('].forEach((q) => {
+  ['somme', 'référence absolue', 'doublons', 'figer', 'graphique', 'zzqxw', '=SI('].forEach((q) => {
     ['', 'nt', 'fn', 'rx', 'err'].forEach((type) => inspectPage('recherche « ' + q + ' » [' + type + ']', V.search(ctx({ q, type }))));
   });
 

@@ -48,14 +48,12 @@
   S('f:SOUS.TOTAL', on(VENTES, { calc: [['Total des lignes visibles', '=SOUS.TOTAL(109;C2:C6)', 5570]],
     note: 'Sans filtre, le résultat égale la somme ; avec un filtre sur « Nord », il ne reste que 2 630.' }));
 
-  /* -------------------------- Rechercher & croiser -------------------------- */
+  /* --------------------------- Calculer : recherche --------------------------- */
   S('f:RECHERCHEV', on(PRODUITS, { calc: [['Prix du produit P03', '=RECHERCHEV("P03";A2:C5;3;FAUX)', 5.9, '0.00']] }));
   S('f:RECHERCHEX', on(PRODUITS, { calc: [['Code de « Cahier »', '=RECHERCHEX("Cahier";B2:B5;A2:A5;"Introuvable")', 'P02']] }));
   S('f:SIERREUR', on(PRODUITS, { calc: [['Prix du code P09 (inexistant)', '=SIERREUR(RECHERCHEV("P09";A2:C5;3;FAUX);"Introuvable")', 'Introuvable']] }));
-  S('f:INDEX', on(PRODUITS, { calc: [['3e produit de la liste', '=INDEX(B2:B5;3)', 'Classeur']] }));
-  S('f:EQUIV', on(PRODUITS, { calc: [['Position de « Agenda »', '=EQUIV("Agenda";B2:B5;0)', 4]] }));
 
-  /* ------------------------------ Texte & dates ------------------------------ */
+  /* ------------------------ Calculer : texte et dates ------------------------ */
   S('f:CONCATENER', { cols: ['Prénom', 'Nom'], rows: [['Jean', 'Dupont'], ['Marie', 'Martin']],
     fill: { header: 'Nom complet', formula: '=CONCATENER(A2;" ";B2)', results: ['Jean Dupont', 'Marie Martin'] } });
   S('f:GAUCHE', on(REFS, { fill: { header: 'Pays', formula: '=GAUCHE(A2;2)', results: ['FR', 'BE', 'DE'] } }));
@@ -104,14 +102,10 @@
     note: 'Ici chaque produit a son propre taux (C2, C3…). Avec un taux unique, place-le dans une seule cellule et bloque-la avec $ : voir la méthode ci-dessous.' });
   S('r:Passer du TTC au HT', { cols: ['Prix TTC', 'Taux TVA'], rows: [[120, 0.2], [52.75, 0.055]],
     fmt: ['0.00', '%'], fill: { header: 'Prix HT', formula: '=ARRONDI(A2/(1+B2);2)', results: [100, 50], fmt: '0.00' } });
-  S('r:Variation N / N-1 en %', { cols: ['Poste', 'N-1', 'N'], rows: [['Ventes', 100000, 120000], ['Achats', 40000, 38000], ['Frais', 0, 500]],
+  S('r:Variation N / N-1 en %', { cols: ['Poste', '2025', '2026'], rows: [['Ventes', 100000, 120000], ['Achats', 40000, 38000], ['Frais', 0, 500]],
     fill: { header: 'Variation', formula: '=SIERREUR((C2-B2)/ABS(B2);"")', results: [0.2, -0.05, ''], fmt: '%' } });
-  S('r:Taux de marge et taux de marque', { cols: ['Prix d’achat', 'Prix de vente'], rows: [[100, 150], [80, 100]],
-    fill: { header: 'Taux de marque', formula: '=(B2-A2)/B2', results: [1 / 3, 0.2], fmt: '%' } });
-  S('r:Remises en cascade', { cols: ['Prix', 'Remise 1', 'Remise 2'], rows: [[100, 0.1, 0.05], [250, 0.2, 0.1]],
-    fmt: ['0.00', '%', '%'], fill: { header: 'Prix net', formula: '=A2*(1-B2)*(1-C2)', results: [85.5, 180], fmt: '0.00' } });
-  S('r:Solde progressif d’un compte', { cols: ['Opération', 'Crédit', 'Débit'],
-    rows: [['Solde initial', 1000, 0], ['Virement client', 500, 0], ['Loyer', 0, 800], ['Facture', 0, 120]],
+  S('r:Solde progressif d’un compte', { cols: ['Opération', 'Entrée', 'Sortie'],
+    rows: [['Solde initial', 1000, 0], ['Salaire', 500, 0], ['Loyer', 0, 800], ['Courses', 0, 120]],
     fill: { header: 'Solde', formula: '=SOMME($B$2:B2)-SOMME($C$2:C2)', results: [1000, 1500, 700, 580] } });
   S('r:Convertir une date texte (AAAAMMJJ, JJ.MM.AAAA…)', { cols: ['Date (texte)'], rows: [['20260131'], ['20261102']],
     fill: { header: 'Date', formula: '=DATE(GAUCHE(A2;4);STXT(A2;5;2);DROITE(A2;2))', results: ['d:2026-01-31', 'd:2026-11-02'] } });
