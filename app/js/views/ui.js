@@ -198,8 +198,17 @@
     }).join('') + '</div>';
   };
 
+  /* ------------------------------- progression ------------------------------- */
+  /** Barre d'avancement (élément <progress> natif : pas de style en ligne, lisible par les lecteurs d'écran). */
+  ui.progress = function (st, label) {
+    return '<div class="prog-line"><progress class="prog" value="' + st.done + '" max="' + st.total + '" aria-label="' + esc(label) + '">' +
+      st.done + ' / ' + st.total + '</progress><span class="prog-n">' + st.done + ' / ' + st.total + '</span></div>';
+  };
+  ui.minutes = function (n) { return '<span class="mins">' + ic('clock') + '≈ ' + n + ' min</span>'; };
+
   /**
-   * Carte de liste. opts : { ver, fav, step, showType, showPlace }
+   * Carte de liste. opts : { ver, fav, step, showType, showPlace, done, minutes }
+   * (done et minutes ne concernent que les notions)
    */
   ui.card = function (m, item, opts) {
     opts = opts || {};
@@ -210,8 +219,11 @@
     var meta = [];
     if (opts.showType) meta.push('<span class="kind kind-' + type + '">' + esc(m.typeLabel(type)) + '</span>');
     if (opts.showPlace) { var pl = m.placeLabel(item); if (pl) meta.push('<span class="where">' + esc(pl) + '</span>'); }
-    return '<a class="item item-' + type + (na ? ' item-na' : '') + '" href="' + m.hrefOf(item) + '" data-key="' + esc(item.key) + '">' +
-      '<div class="item-h">' + (opts.step ? '<span class="step">' + opts.step + '</span>' : '') +
+    if (opts.minutes) meta.push(ui.minutes(opts.minutes));
+    if (opts.done) meta.push('<span class="done-tag">' + ic('check') + 'Terminée</span>');
+    var step = opts.step ? '<span class="step" aria-hidden="true">' + (opts.done ? ic('check') : opts.step) + '</span>' : '';
+    return '<a class="item item-' + type + (na ? ' item-na' : '') + (opts.done ? ' done' : '') + '" href="' + m.hrefOf(item) + '" data-key="' + esc(item.key) + '">' +
+      '<div class="item-h">' + step +
       '<span class="nm' + (type === 'fn' || type === 'err' ? ' mono' : '') + '">' + esc(title) + '</span>' +
       (type === 'fn' ? '<span class="en mono">' + esc(item.en) + '</span>' + ui.versionBadge(m, item, opts.ver) : '') +
       (opts.fav ? '<span class="star" aria-label="favori">' + ic('star-filled') + '</span>' : '') + '</div>' +
@@ -219,7 +231,7 @@
   };
 
   ui.sideFooter = function (cfg) {
-    return '<div class="side-foot"><p class="muted small"><kbd>/</kbd> chercher · <kbd>↑</kbd><kbd>↓</kbd> parcourir · <kbd>Échap</kbd> effacer</p>' +
+    return '<div class="side-foot"><p class="muted small"><kbd>/</kbd> chercher · <kbd>↑</kbd><kbd>↓</kbd> parcourir · <kbd>←</kbd><kbd>→</kbd> notions · <kbd>Échap</kbd> fermer</p>' +
       '<p class="muted small">XLGuide v' + esc(cfg.version) + ' · <a href="' + esc(cfg.repoUrl) + '" target="_blank" rel="noopener">GitHub</a> · ' +
       '<a href="' + esc(cfg.repoUrl) + '/releases/latest" target="_blank" rel="noopener">Mises à jour</a><br>' +
       'Icônes : <a href="https://tabler.io/icons" target="_blank" rel="noopener">Tabler Icons</a> (MIT)</p></div>';

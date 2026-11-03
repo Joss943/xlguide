@@ -10,7 +10,7 @@ module.exports = function (XL) {
   const V = XL.views;
   function ctx(s) {
     let n = 0;
-    return { m, s: Object.assign({ favs: [], ver: '365', q: '', type: '', cat: '' }, s), cfg: XL.config, uid: () => ++n };
+    return { m, s: Object.assign({ favs: [], ver: '365', q: '', type: '', cat: '', done: [], last: '', focus: false }, s), cfg: XL.config, uid: () => ++n };
   }
 
   const LIST_ROUTES = new Set(['', 'outils', 'fn', 'err', 'tr', 'kb', 'fav']);
@@ -37,6 +37,8 @@ module.exports = function (XL) {
     const text = html.replace(/<[^>]*>/g, ' ');
     check(!/\bundefined\b|\bNaN\b|\[object Object\]/.test(text) && !/="undefined"|="null"/.test(html), where + ' : valeur indéfinie affichée');
     check(!/\sstyle=|\son[a-z]+=|javascript:/i.test(html), where + ' : style ou script en ligne (bloqué par la CSP)');
+    for (const a of html.matchAll(/data-go="([^"]*)"/g)) check(validHref(a[1]), where + ' : destination invalide ' + a[1]);
+    for (const a of html.matchAll(/data-(?:done|undone)="([^"]*)"/g)) check(/^n:/.test(a[1]) && !!m.resolve(a[1]), where + ' : notion inconnue ' + a[1]);
     for (const a of html.matchAll(/href="([^"]*)"/g)) {
       const href = a[1];
       if (href.startsWith('#')) check(validHref(href), where + ' : lien interne invalide ' + href);
@@ -56,12 +58,18 @@ module.exports = function (XL) {
   }
 
   section('Pages');
+  const allNotions = XL.progress.notionsOf(m), someDone = allNotions.slice(0, 5).map((n) => n.key), allDone = allNotions.map((n) => n.key);
   inspect('accueil', V.home(ctx()));
+  inspect('accueil (en cours)', V.home(ctx({ done: someDone, last: allNotions[7].key })));
+  inspect('accueil (parcours terminé)', V.home(ctx({ done: allDone })));
+  check(/Commencer/.test(V.home(ctx())) && /Continuer/.test(V.home(ctx({ done: someDone }))) && /Parcours terminé/.test(V.home(ctx({ done: allDone }))),
+    'accueil : bouton Commencer, puis Continuer, puis parcours terminé');
   inspect('outils', V.toolsHub(ctx()));
   inspect('traducteur', V.translator(ctx()));
   inspect('raccourcis', V.shortcuts(ctx()));
   inspect('raccourcis filtrés', V.shortcuts(ctx({ q: 'copier' })));
   m.activities.forEach((a) => m.levels.forEach((l) => {
+    inspectPage(a.id + '/' + l.id + ' (tout terminé)', V.activity(ctx({ done: allDone }), a.id, l.id));
     const p = V.activity(ctx(), a.id, l.id), pl = m.place(a.id, l.id);
     inspectPage(a.id + '/' + l.id, p);
     check(p.items.length === pl.notions.length + pl.functions.length + pl.recipes.length, a.id + '/' + l.id + ' : nombre d’éléments incohérent');
@@ -86,7 +94,14 @@ module.exports = function (XL) {
     const t = target(m.hrefOf(item));
     check(!!t && t.item === item, item.key + ' : le lien de la fiche ne mène pas à elle (' + m.hrefOf(item) + ')');
     inspect('fiche ' + item.key, V.sheet(ctx({ favs: [item.key] }), ref));
+    if (ref.type === 'nt') {
+      const done = V.sheet(ctx({ done: [item.key], focus: true }), ref);
+      inspect('fiche ' + item.key + ' (terminée, concentration)', done);
+      check(!/data-done=/.test(done) && /data-undone=/.test(done), item.key + ' : une notion terminée propose la suivante et « non terminée »');
+    }
   });
+  const last = allNotions[allNotions.length - 1];
+  check(/parcours terminé/.test(V.sheet(ctx(), m.resolve(last.key))), 'dernière notion : « J’ai compris, parcours terminé »');
   XL.functions.filter((f) => f.since).forEach((f) => inspect('fiche ' + f.key + ' (Excel 2010)', V.sheet(ctx({ ver: '2010' }), m.resolve(f.key))));
   inspect('fiche vide', V.emptySheet(ctx()));
   inspect('fiche vide (départ)', V.emptySheet(ctx(), XL.notions[0]));

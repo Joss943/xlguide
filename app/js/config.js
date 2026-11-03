@@ -7,7 +7,7 @@
   'use strict';
   var XL = (g.XL = g.XL || {});
   XL.config = {
-    version: '1.3.0',
+    version: '1.4.0',
     repoUrl: 'https://github.com/Joss943/xlguide',
     siteUrl: 'https://joss943.github.io/xlguide/'
   };

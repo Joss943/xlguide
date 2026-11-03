@@ -9,7 +9,10 @@
   var views = (XL.views = XL.views || {});
 
   function topBar(ctx, item) {
-    return '<div class="d-top"><button class="back" data-back title="Retour">' + ic('arrow-left') + '</button>' + ui.crumbs(ctx.m, item) +
+    var focus = !!ctx.s.focus;
+    return '<div class="d-top"><button class="back" data-back title="Retour à la liste">' + ic('arrow-left') + '</button>' + ui.crumbs(ctx.m, item) +
+      '<button class="icon-btn focus-btn' + (focus ? ' on' : '') + '" data-focus aria-pressed="' + focus + '" title="' +
+      (focus ? 'Quitter le mode concentration' : 'Mode concentration : afficher seulement cette fiche') + '">' + ic(focus ? 'minimize' : 'maximize') + '</button>' +
       '<button class="fav-btn' + (ctx.s.favs.indexOf(item.key) >= 0 ? ' on' : '') + '" data-fav="' + esc(item.key) + '" title="Ajouter aux favoris">' + ic('star') + '</button></div>';
   }
   function section(title, body, cls) {
@@ -92,27 +95,48 @@
   }
 
   /* -------------------------------- notion -------------------------------- */
+  /** Étapes à cocher au fur et à mesure (cases natives : rien à mémoriser, accessibles au clavier). */
+  function stepsList(steps) {
+    return '<ol class="steps-list">' + steps.map(function (st) {
+      return '<li><label><input type="checkbox"><span>' + esc(st) + '</span></label></li>';
+    }).join('') + '</ol><p class="steps-hint">Coche chaque étape une fois faite dans Excel.</p>';
+  }
+
+  /** Fin de notion : une seule action principale, puis la notion précédente ou « passer ». */
+  function ntFooter(ctx, n, done) {
+    var m = ctx.m, P = XL.progress, next = P.after(m, n), prev = P.before(m, n);
+    var nextHref = next ? m.hrefOf(next) : '#/';
+    var newPlace = next && (next.activity !== n.activity || next.level !== n.level);
+    var main = done ?
+      '<a class="btn btn-accent btn-big" href="' + nextHref + '" data-nav-next>' + (next ? 'Notion suivante' : 'Retour à l’accueil') + ic('arrow-right') + '</a>' :
+      '<button class="btn btn-accent btn-big" data-done="' + esc(n.key) + '" data-go="' + nextHref + '">' + ic('check') +
+        (next ? 'J’ai compris, notion suivante' : 'J’ai compris, parcours terminé') + '</button>';
+    return '<footer class="next-step">' +
+      ui.progress(P.stats(m, ctx.s.done, n.activity, n.level), 'Notions terminées dans ce niveau') +
+      main +
+      (next ? '<p class="next-what">Ensuite : <b>' + esc(next.title) + '</b>' + (newPlace ? ' <span class="muted">(' + esc(m.placeLabel(next)) + ')</span>' : '') + '</p>' : '') +
+      '<div class="next-links">' +
+      (prev ? '<a href="' + m.hrefOf(prev) + '" data-nav-prev>' + ic('arrow-left') + 'Notion précédente</a>' : '<span></span>') +
+      (done ? '<button class="link-btn" data-undone="' + esc(n.key) + '">Marquer comme non terminée</button>' :
+        (next ? '<a href="' + nextHref + '" data-nav-next>Passer sans valider' + ic('chevron-right') + '</a>' : '')) +
+      '</div></footer>';
+  }
+
   function ntSheet(ctx, n) {
-    var m = ctx.m, nb = m.neighbors(n), lvl = m.levelById[n.level];
-    var nextLevel = m.levels[m.levels.indexOf(lvl) + 1];
-    var nav = '<nav class="steps-nav">' +
-      (nb.prev ? '<a class="prev" href="' + m.hrefOf(nb.prev) + '">' + ic('arrow-left') + '<span><small>Notion précédente</small>' + esc(nb.prev.title) + '</span></a>' : '<span></span>') +
-      (nb.next ? '<a class="next" href="' + m.hrefOf(nb.next) + '"><span><small>Notion suivante</small>' + esc(nb.next.title) + '</span>' + ic('chevron-right') + '</a>' :
-        (nextLevel ? '<a class="next" href="#/a/' + n.activity + '/' + nextLevel.id + '"><span><small>Niveau suivant</small>' + esc(nextLevel.label) + '</span>' + ic('chevron-right') + '</a>' : '<span></span>')) +
-      '</nav>';
+    var m = ctx.m, nb = m.neighbors(n), done = ctx.s.done.indexOf(n.key) >= 0;
     return topBar(ctx, n) +
       '<h2 class="d-title">' + esc(n.title) + '</h2>' +
-      '<div class="d-sub">' + ui.levelBadge(m, n) + '<span>Notion ' + n.step + ' sur ' + nb.total + '</span></div>' +
+      '<div class="d-sub">' + ui.levelBadge(m, n) + '<span>Notion ' + n.step + ' sur ' + nb.total + '</span>' +
+      ui.minutes(XL.progress.minutes(n)) + (done ? '<span class="done-tag">' + ic('check') + 'Terminée</span>' : '') + '</div>' +
       '<p class="d-desc">' + esc(n.intro) + '</p>' +
       (n.sample ? section('Exemple', ui.sampleSheet(n.sample), 'essential') : '') +
-      (n.steps.length ? section('Comment faire', '<ol class="steps-list">' + n.steps.map(function (st) { return '<li>' + esc(st) + '</li>'; }).join('') + '</ol>',
-        n.sample ? '' : 'essential') : '') +
+      (n.steps.length ? section('Comment faire', stepsList(n.steps), n.sample ? '' : 'essential') : '') +
       section('À retenir', '<ul class="points">' + n.points.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('') + '</ul>',
         n.sample || n.steps.length ? '' : 'essential') +
       (n.examples.length ? section(n.sample ? 'D’autres formules' : 'Exemples', examples(ctx, n.examples)) : '') +
       (n.tips.length ? section('Bon à savoir', ui.tips(n.tips)) : '') +
       (n.fns.length ? section('Fonctions de cette notion', ui.fnChips(m, n.fns, ctx.s.ver)) : '') +
-      nav;
+      ntFooter(ctx, n, done);
   }
 
   /* -------------------------------- erreur -------------------------------- */
@@ -130,10 +154,12 @@
     return errSheet(ctx, ref.item);
   };
 
-  /** Panneau vide ; « first » (facultatif) = premier élément de la liste, proposé comme point de départ. */
+  /** Panneau vide ; « first » (facultatif) = prochaine notion du niveau, proposée comme point de départ. */
   views.emptySheet = function (ctx, first) {
-    var start = first ? '<a class="btn" href="' + ctx.m.hrefOf(first) + '">Commencer : ' +
-      esc(first.title || first.fr) + ic('chevron-right') + '</a>' : '';
+    var st = first && first.place ? XL.progress.stats(ctx.m, ctx.s.done, first.place.activity, first.place.level) : null;
+    var verb = !st || !st.done ? 'Commencer' : st.done === st.total ? 'Revoir' : 'Continuer';
+    var start = first ? '<a class="btn btn-accent btn-big" href="' + ctx.m.hrefOf(first) + '">' + ic('player-play') + verb + ' : ' +
+      esc(first.title || first.fr) + '</a>' : '';
     return '<div class="d-empty">' + ic('math-function') + '<p>Choisis une notion, une fonction ou une méthode pour l’afficher ici.</p>' + start + '</div>';
   };
 })(typeof window !== 'undefined' ? window : globalThis);

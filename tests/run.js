@@ -7,6 +7,7 @@ const summary = [
   require('./data.test')(XL),
   require('./formula.test')(XL),
   require('./search.test')(XL),
+  require('./progress.test')(XL),
   require('./views.test')(XL),
   require('./files.test')(XL)
 ].filter(Boolean);

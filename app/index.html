@@ -6,7 +6,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="description" content="XLGuide : apprendre à utiliser Excel en français, des bases au niveau intermédiaire. Saisir et mettre en forme, calculer, organiser et analyser, présenter, avec des exemples vérifiés.">
   <meta name="theme-color" content="#1a7f4b">
-  <title>XLGuide — Formules Excel en français</title>
+  <title>XLGuide — Apprendre à utiliser Excel</title>
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/app.css">
@@ -38,6 +38,9 @@
           <option value="2010">2010</option>
         </select>
       </label>
+      <button id="big" class="icon-btn" title="Texte plus grand" aria-label="Texte plus grand" aria-pressed="false">
+        <i data-ic="text-size"></i>
+      </button>
       <button id="theme" class="icon-btn" title="Thème clair / sombre" aria-label="Changer de thème">
         <i data-ic="moon"></i>
       </button>
@@ -74,6 +77,7 @@
   <script src="js/search.js"></script>
   <script src="js/core/store.js"></script>
   <script src="js/core/model.js"></script>
+  <script src="js/core/progress.js"></script>
   <script src="js/views/ui.js"></script>
   <script src="js/views/home.js"></script>
   <script src="js/views/lists.js"></script>

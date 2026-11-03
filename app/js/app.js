@@ -19,7 +19,10 @@
     view: 'home', act: '', level: 'base', cat: '', type: '',
     q: '', sel: null, active: -1,
     ver: XL.store.get('ver', '365'),
-    favs: XL.store.get('favs', [])
+    favs: XL.store.get('favs', []),
+    done: XL.store.get('done', []),   // notions terminées ('n:…')
+    last: XL.store.get('last', ''),   // dernière notion ouverte (bouton « Continuer »)
+    focus: XL.store.get('focus', false) // mode concentration : la fiche seule, centrée
   };
   var els = {}, lastPage = '', lastSig = '', shownSel = null, listItems = [], uid = 0;
 
@@ -76,7 +79,7 @@
 
   function render(force) {
     var page = [state.view, state.act, state.level, state.cat, state.type, state.q.trim()].join('|');
-    var sig = page + '|' + state.ver + '|' + state.favs.join(',');
+    var sig = page + '|' + state.ver + '|' + state.favs.join(',') + '|' + state.done.join(',');
     if (!force && sig === lastSig) { renderDetail(); return; }
     var samePage = page === lastPage, top = els.list.scrollTop;
     lastPage = page; lastSig = sig;
@@ -99,17 +102,63 @@
     var keep = state.sel === shownSel, top = els.detail.scrollTop;
     shownSel = state.sel;
     els.layout.classList.toggle('has-detail', !!ref && !full);
+    els.layout.classList.toggle('focus', !!ref && !full && state.focus);
     if (full) {
       els.detail.innerHTML = '';
     } else if (!ref) {
-      els.detail.innerHTML = XL.views.emptySheet(ctx(), state.view === 'activity' && !searching() ? listItems[0] : null);
+      var first = state.view === 'activity' && !searching() ? XL.progress.firstTodo(model, state.done, state.act, state.level) : null;
+      els.detail.innerHTML = XL.views.emptySheet(ctx(), first);
     } else {
+      rememberVisit(ref);
       uid = 0;
       els.detail.innerHTML = XL.views.sheet(ctx(), ref);
       els.detail.scrollTop = keep ? top : 0;
     }
-    document.title = ref && !full ? (ref.item.title || ref.item.fr) + ' — XLGuide' : 'XLGuide — Formules Excel en français';
-    els.list.querySelectorAll('.item').forEach(function (el) { el.classList.toggle('sel', el.getAttribute('data-key') === state.sel); });
+    document.title = ref && !full ? (ref.item.title || ref.item.fr) + ' — XLGuide' : 'XLGuide — Apprendre à utiliser Excel';
+    els.list.querySelectorAll('.item').forEach(function (el) {
+      var on = el.getAttribute('data-key') === state.sel;
+      el.classList.toggle('sel', on);
+      var fold = on && el.closest('details');
+      if (fold) fold.open = true; // élément sélectionné dans un groupe replié : on l'ouvre
+    });
+  }
+
+  /* ------------------------------- progression ------------------------------- */
+  function rememberVisit(ref) {
+    if (ref.type !== 'nt' || state.last === ref.item.key) return;
+    state.last = ref.item.key;
+    XL.store.set('last', state.last);
+  }
+  function setDone(key, value) {
+    var i = state.done.indexOf(key);
+    if (value && i < 0) state.done.push(key);
+    if (!value && i >= 0) state.done.splice(i, 1);
+    XL.store.set('done', state.done);
+  }
+  /** « J'ai compris » : la notion est terminée, petit retour sur l'avancement, puis la suivante. */
+  function completeNotion(key, go) {
+    setDone(key, true);
+    var n = model.resolve(key).item, st = XL.progress.stats(model, state.done, n.activity, n.level);
+    toast(st.done === st.total ? 'Niveau « ' + model.levelById[n.level].label + ' » terminé ✓' :
+      'Notion terminée ✓ · ' + st.done + ' / ' + st.total + ' dans ce niveau');
+    if (go && go !== location.hash) location.hash = go; else render();
+  }
+  /** Remise à zéro en deux clics (pas de boîte de dialogue). */
+  function resetProgress(button) {
+    if (button.getAttribute('data-reset') !== 'confirm') {
+      button.setAttribute('data-reset', 'confirm');
+      button.textContent = 'Confirmer : tout remettre à zéro';
+      return;
+    }
+    state.done = []; state.last = '';
+    XL.store.set('done', []); XL.store.set('last', '');
+    toast('Progression remise à zéro');
+    render(true);
+  }
+  function toggleFocus() {
+    state.focus = !state.focus;
+    XL.store.set('focus', state.focus);
+    renderDetail();
   }
 
   /** Onglets : accueil, les 4 activités (depuis le modèle), outils, favoris. */
@@ -219,7 +268,8 @@
 
   /* -------------------------------- événements -------------------------------- */
   function moveActive(step) {
-    var items = els.list.querySelectorAll('.item');
+    // seulement les cartes visibles (pas celles des groupes repliés)
+    var items = Array.prototype.filter.call(els.list.querySelectorAll('.item'), function (el) { return el.offsetParent !== null; });
     if (!items.length) return;
     state.active = Math.max(0, Math.min(items.length - 1, state.active + step));
     items.forEach(function (el, i) { el.classList.toggle('kb-active', i === state.active); });
@@ -241,6 +291,12 @@
     }
     if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && (!typing || e.target === els.q)) {
       e.preventDefault(); moveActive(e.key === 'ArrowDown' ? 1 : -1);
+      return;
+    }
+    // ← → : notion précédente / suivante quand une notion est ouverte
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !typing && !e.altKey && !e.ctrlKey && !e.metaKey) {
+      var link = els.detail.querySelector(e.key === 'ArrowRight' ? '[data-nav-next]' : '[data-nav-prev]');
+      if (link) { e.preventDefault(); location.hash = link.getAttribute('href'); }
     }
   }
 
@@ -254,9 +310,13 @@
   }
 
   function onClick(e) {
-    var t = e.target.closest('[data-copy],[data-fav],[data-cat],[data-type],[data-q],[data-toggle-en],[data-back]');
+    var t = e.target.closest('[data-copy],[data-fav],[data-cat],[data-type],[data-q],[data-toggle-en],[data-back],[data-done],[data-undone],[data-focus],[data-reset]');
     if (!t) return;
-    if (t.hasAttribute('data-copy')) { e.preventDefault(); copy(t.getAttribute('data-copy')); }
+    if (t.hasAttribute('data-done')) { e.preventDefault(); completeNotion(t.getAttribute('data-done'), t.getAttribute('data-go')); }
+    else if (t.hasAttribute('data-undone')) { e.preventDefault(); setDone(t.getAttribute('data-undone'), false); render(); }
+    else if (t.hasAttribute('data-focus')) { e.preventDefault(); toggleFocus(); }
+    else if (t.hasAttribute('data-reset')) { e.preventDefault(); resetProgress(t); }
+    else if (t.hasAttribute('data-copy')) { e.preventDefault(); copy(t.getAttribute('data-copy')); }
     else if (t.hasAttribute('data-fav')) { e.preventDefault(); toggleFav(t.getAttribute('data-fav')); }
     else if (t.hasAttribute('data-back')) { e.preventDefault(); closeSheet(); }
     else if (t.hasAttribute('data-toggle-en')) {
@@ -286,7 +346,19 @@
     return cur === 'dark' || (cur === 'auto' && !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
   }
   function bindSettings() {
-    var ver = $('#ver'), theme = $('#theme');
+    var ver = $('#ver'), theme = $('#theme'), big = $('#big');
+    function applyBig(on) {
+      document.documentElement.classList.toggle('big', on);
+      big.setAttribute('aria-pressed', String(on));
+      big.classList.toggle('on', on);
+    }
+    applyBig(XL.store.get('big', false));
+    big.addEventListener('click', function () {
+      var on = !document.documentElement.classList.contains('big');
+      XL.store.set('big', on);
+      applyBig(on);
+      toast(on ? 'Texte agrandi' : 'Texte normal');
+    });
     ver.value = state.ver;
     ver.addEventListener('change', function () { state.ver = ver.value; XL.store.set('ver', state.ver); render(true); toast('Version : Excel ' + state.ver); });
     document.documentElement.setAttribute('data-theme', XL.store.get('theme', 'auto'));

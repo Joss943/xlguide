@@ -12,8 +12,10 @@ const ICONS = [
   // interface
   'search', 'moon', 'sun', 'star', 'filled:star', 'copy', 'arrow-left', 'chevron-right', 'download', 'home', 'bolt', 'book',
   'keyboard', 'alert-circle', 'arrows-left-right', 'math-function', 'language', 'world', 'info-circle',
+  // progression, concentration, lisibilité
+  'check', 'clock', 'player-play', 'arrow-right', 'maximize', 'minimize', 'text-size',
   // activités et thèmes de fonctions
-  'pencil', 'calculator', 'filter', 'chart-bar', 'arrows-split-2', 'table', 'typography', 'calendar', 'checklist',
+  'pencil', 'calculator', 'filter', 'chart-bar', 'arrows-split-2', 'table', 'typography', 'calendar',
   // site : installation
   'brand-github', 'brand-windows', 'brand-ubuntu', 'brand-debian', 'brand-redhat', 'terminal-2', 'package', 'shield-check'
 ];

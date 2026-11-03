@@ -12,14 +12,20 @@
   function isFav(ctx, item) { return ctx.s.favs.indexOf(item.key) >= 0; }
   function cards(ctx, items, opts) {
     return items.map(function (it, i) {
+      var notion = ctx.m.typeOf(it) === 'nt';
       return ui.card(ctx.m, it, {
         ver: ctx.s.ver, fav: isFav(ctx, it), step: opts && opts.numbered ? i + 1 : 0,
-        showType: opts && opts.showType, showPlace: opts && opts.showPlace
+        showType: opts && opts.showType, showPlace: opts && opts.showPlace,
+        done: notion && ctx.s.done.indexOf(it.key) >= 0, minutes: notion ? XL.progress.minutes(it) : 0
       });
     }).join('');
   }
   function group(title, hint, body) {
     return body ? '<section class="group"><h3>' + title + (hint ? ' <small>' + hint + '</small>' : '') + '</h3>' + body + '</section>' : '';
+  }
+  /** Groupe replié par défaut : le niveau montre d'abord les notions, le reste à la demande. */
+  function fold(title, count, body) {
+    return body ? '<details class="fold"><summary><b>' + title + '</b> <small>' + count + '</small></summary><div class="fold-body">' + body + '</div></details>' : '';
   }
   function empty(text) { return '<p class="empty">' + text + '</p>'; }
   /** Fonctions regroupées par thème (ordre des catégories de XL.categories). */
@@ -35,12 +41,10 @@
     return '<div class="side-h">' + ic(act.icon) + esc(act.label) + '</div>' +
       '<p class="side-desc">' + esc(act.desc) + '</p>' +
       '<nav class="levels" aria-label="Niveaux">' + m.levels.map(function (l) {
-        var p = m.place(act.id, l.id);
-        var detail = [p.notions.length && p.notions.length + ' notion' + (p.notions.length > 1 ? 's' : ''),
-          p.recipes.length && p.recipes.length + ' méthode' + (p.recipes.length > 1 ? 's' : ''),
-          p.functions.length && p.functions.length + ' fonction' + (p.functions.length > 1 ? 's' : '')].filter(Boolean).join(' · ');
-        return '<a class="lvl-link lvl-' + l.id + (l.id === levelId ? ' on' : '') + '" href="#/a/' + act.id + '/' + l.id + '">' +
-          '<span class="n">' + l.step + '</span><span><b>' + esc(l.label) + '</b><small>' + detail + '</small></span></a>';
+        var st = XL.progress.stats(m, ctx.s.done, act.id, l.id), complete = st.total && st.done === st.total;
+        return '<a class="lvl-link lvl-' + l.id + (l.id === levelId ? ' on' : '') + (complete ? ' complete' : '') + '" href="#/a/' + act.id + '/' + l.id + '">' +
+          '<span class="n">' + (complete ? ic('check') : l.step) + '</span><span><b>' + esc(l.label) + '</b>' +
+          '<small>' + st.done + ' / ' + st.total + ' notions terminées</small></span></a>';
       }).join('') + '</nav>' +
       '<div class="side-h">Autres activités</div>' + m.activities.filter(function (a) { return a.id !== act.id; }).map(function (a) {
         return '<a class="cat" href="#/a/' + a.id + '">' + ic(a.icon) + '<span>' + esc(a.label) + '</span></a>';
@@ -61,10 +65,11 @@
     }).join('') : cards(ctx, p.functions);
     var list = '<header class="list-head"><div class="eyebrow">' + ic(act.icon) + esc(act.label) + '</div>' +
       '<h2><span class="lvl lvl-' + lvl.id + '">' + lvl.step + ' · ' + esc(lvl.label) + '</span></h2>' +
-      '<p>' + esc(act.levels[levelId]) + '</p>' + seg + '</header>' +
+      '<p>' + esc(act.levels[levelId]) + '</p>' + seg +
+      ui.progress(XL.progress.stats(m, ctx.s.done, actId, levelId), 'Notions terminées dans ce niveau') + '</header>' +
       group('Notions', 'à lire dans l’ordre', cards(ctx, p.notions, { numbered: true })) +
-      group('Méthodes', 'des cas concrets', cards(ctx, p.recipes)) +
-      group('Fonctions', themes.length > 1 ? 'par thème' : '', functions) +
+      fold('Méthodes', p.recipes.length + ' cas concrets', cards(ctx, p.recipes)) +
+      fold('Fonctions', p.functions.length + (themes.length > 1 ? ', rangées par thème' : ''), functions) +
       (next ? '<a class="next-level" href="#/a/' + actId + '/' + next.id + '">Niveau suivant : <b>' + esc(next.label) + '</b>' + ic('chevron-right') + '</a>' : '');
     var ordered = [].concat.apply(p.notions.concat(p.recipes), themes.map(function (gr) { return gr.items; }));
     return { side: activitySide(ctx, act, levelId), list: list, items: ordered };
