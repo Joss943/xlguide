@@ -4,9 +4,9 @@
 
 # XLGuide
 
-**Apprendre Excel en français, des bases aux formules avancées.**
+**Apprendre à utiliser Excel en français, des bases à l’intermédiaire.**
 
-Application gratuite pour **Windows** et **Linux** (et version web) : quatre activités en trois niveaux, des notions courtes illustrées par un mini-tableau, et une recherche en langage naturel quand tu cherches une formule précise.
+Application gratuite pour **Windows** et **Linux** (et version web) : quatre activités en deux niveaux, des notions courtes avec les étapes à suivre et un mini-tableau d’exemple, et une recherche en langage naturel quand tu cherches quelque chose de précis.
 
 [![CI](https://github.com/Joss943/xlguide/actions/workflows/ci.yml/badge.svg)](https://github.com/Joss943/xlguide/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/Joss943/xlguide?label=version&color=1a7f4b)](https://github.com/Joss943/xlguide/releases/latest)
@@ -14,7 +14,7 @@ Application gratuite pour **Windows** et **Linux** (et version web) : quatre act
 
 [**⬇ Télécharger**](https://joss943.github.io/xlguide/#telecharger) · [**🌐 Version web**](https://joss943.github.io/xlguide/app/) · [Site](https://joss943.github.io/xlguide/)
 
-<img src="site/screenshot.png" alt="Capture d’écran de XLGuide : activité Calculer, niveau Approfondir, fiche SOMME.SI" width="900">
+<img src="site/screenshot.png" alt="Capture d’écran de XLGuide : notion Figer les volets" width="900">
 
 </div>
 
@@ -22,23 +22,22 @@ Application gratuite pour **Windows** et **Linux** (et version web) : quatre act
 
 ## Ce que fait XLGuide
 
-**Un parcours en 4 activités**, chacune en 3 niveaux (**Les bases → Approfondir → Expert**) :
+**Un parcours en 4 activités**, chacune en 2 niveaux (**Les bases → Intermédiaire**) :
 
-| Activité | Les bases | Pour aller plus loin |
+| Activité | Les bases | Intermédiaire |
 |---|---|---|
-| **1 · Calculer** | écrire et recopier une formule, bloquer une cellule avec `$`, pourcentages, `SOMME`, `SI` | `SOMME.SI.ENS`, `SI.CONDITIONS`, arrondis, `SOMMEPROD`, `LET` / `LAMBDA` |
-| **2 · Rechercher & croiser** | `RECHERCHEV`, `RECHERCHEX`, gérer `#N/A` | `INDEX` + `EQUIV`, comparer deux listes, doublons, barèmes, `DECALER` |
-| **3 · Texte & dates** | le type d’une cellule, assembler / découper / nettoyer, calculer avec les dates | texte importé, `TEXTE`, échéances et jours ouvrés, heures, `FRACTIONNER.TEXTE` |
-| **4 · Analyser & présenter** | tableaux, tri et filtre, mise en forme conditionnelle, classements | TCD, synthèses par formule, `FILTRE` / `TRIER` / `UNIQUE`, statistiques, tendances |
+| **1 · Saisir & mettre en forme** | se repérer, saisir, sélectionner, lignes et colonnes, poignée de recopie, formats de nombres et de dates | type des données, mise en forme, figer les volets, listes déroulantes, formats personnalisés, collage spécial |
+| **2 · Calculer** | écrire et recopier une formule, `$`, pourcentages, `SOMME`, `MOYENNE`, `SI` | `SOMME.SI.ENS`, `SI.CONDITIONS`, arrondis, `RECHERCHEV` / `RECHERCHEX`, `#N/A`, dates, heures, texte |
+| **3 · Organiser & analyser** | tableau structuré, trier et filtrer, rechercher et remplacer, doublons | mise en forme conditionnelle, classements, comparer deux listes, Convertir, TCD, `FILTRE` / `TRIER` / `UNIQUE` |
+| **4 · Présenter** | créer et modifier un graphique, mettre en page et imprimer | choisir le bon graphique, graphique combiné, sparklines, imprimer un grand tableau |
 
-- **40 notions** à lire dans l’ordre, chacune avec un **mini-tableau** : l’argument de la formule et les cellules qu’il vise ont la même couleur, la colonne calculée montre la formule recopiée ligne par ligne.
-- **Fiches claires** : l’essentiel d’abord (exemple + piège à éviter), puis la syntaxe argument par argument ; le reste est replié dans « Aller plus loin ».
-- **Recherche en langage naturel** : « additionner avec une condition », « bloquer une cellule », « comparer deux listes »… Tolère accents oubliés, pluriels et fautes de frappe ; accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`).
-- **Outils** : traducteur de formules FR ⇄ EN, erreurs (`#N/A`, `#VALEUR!`…), raccourcis clavier, index des 222 fonctions, compatibilité de version (2010 → 365).
-- **Cas pratiques métier**, hors du parcours : 73 en **comptabilité** (TVA, emprunts, amortissements, rapprochement bancaire, FEC…) et 55 en **informatique** (IPv4, Active Directory, parc, supervision, comparaison de bases utilisateurs et matériel).
+- **49 notions** à lire dans l’ordre : les étapes à suivre dans Excel, ce qu’il faut retenir, et un **mini-tableau** où la plage à sélectionner, ou les cellules visées par la formule, sont en couleur.
+- **69 fonctions** de la base à l’intermédiaire, chacune rangée dans son activité ; fiches claires : l’essentiel d’abord, puis la syntaxe argument par argument, le reste replié.
+- **Recherche en langage naturel** : « figer la première ligne », « liste déroulante », « additionner avec une condition »… Tolère accents oubliés, pluriels et fautes de frappe ; accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`).
+- **Outils** : traducteur de formules FR ⇄ EN (il reconnaît aussi les fonctions sans fiche), erreurs (`#N/A`, `#VALEUR!`…), raccourcis clavier (AZERTY), index des fonctions, compatibilité de version (2010 → 365).
 - **Hors-ligne, privé** : aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation au clavier.
 
-**Fiabilité :** chaque résultat affiché (exemples et mini-tableaux, plus de 400 aujourd’hui) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
+**Fiabilité :** chaque résultat affiché (exemples et mini-tableaux, plus de 250 aujourd’hui) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
 
 ## Installation
 
@@ -87,7 +86,7 @@ Désinstaller : `curl -fsSL https://joss943.github.io/xlguide/install.sh | bash 
 | <kbd>Entrée</kbd> | Ouvrir le premier résultat |
 | <kbd>Échap</kbd> | Effacer la recherche / fermer la fiche |
 
-- Débutant : **Calculer › Les bases**, notions 1, 2, 3… dans l’ordre.
+- Débutant : **Saisir & mettre en forme › Les bases**, notions 1, 2, 3… dans l’ordre, puis **Calculer › Les bases**.
 - Clique sur le nom d’une fonction **dans une formule** pour ouvrir sa fiche.
 - Colle une formule commençant par `=` dans **Outils › Traducteur**.
 - ★ ajoute une fiche à tes favoris (stockés localement).
@@ -116,8 +115,8 @@ npm run verify:formulas
 
 ```
 app/                 Application (HTML/CSS/JS sans dépendance) — partagée par le bureau et le web
-  data/              Contenu : fonctions, recettes, erreurs, raccourcis
-    parcours.js      Les 4 activités, les 3 niveaux et le placement des fonctions et méthodes
+  data/              Contenu : fonctions, méthodes, erreurs, raccourcis
+    parcours.js      Les 4 activités, les 2 niveaux et la place de chaque fonction et méthode
     notions/         Les notions du parcours, un fichier par activité
     samples.js       Mini-tableaux des fiches fonctions et méthodes
   js/config.js       Version et liens publics (lus aussi par Electron)
@@ -129,7 +128,7 @@ app/                 Application (HTML/CSS/JS sans dépendance) — partagée pa
   css/               app.css (socle) et parcours.css (niveaux, fiches, mini-tableaux)
 electron/            Enveloppe bureau (fenêtre sécurisée : sandbox, isolation de contexte)
 site/                Site GitHub Pages + scripts d'installation install.sh / install.ps1
-scripts/             Génération des icônes, des recettes informatique et du site
+scripts/             Génération des icônes et du site
 tests/               Tests Node + vérification des résultats via LibreOffice
 .github/workflows/   CI, compilation Windows/Linux et release, déploiement du site
 ```
@@ -147,39 +146,37 @@ F('SOMME.SI', 'SUMIF', 'math', '',                       // nom FR, nom EN, cat�
    ['=SOMME(10;20;30)', 'Exemple vérifié automatiquement.', 60]],   // 3e valeur = résultat attendu
   ['Astuce…'],
   'mots clés pour la recherche',
-  'SOMME.SI.ENS SOMMEPROD');                            // voir aussi
+  'SOMME.SI.ENS NB.SI');                                // voir aussi
 ```
 
 Une notion du parcours (`app/data/notions/*.js`) :
 
 ```js
 N({
-  activity: 'calculer', level: 'base',                 // calculer | rechercher | texte | analyser ; base | approfondir | expert
-  title: 'Calculer des pourcentages',
-  intro: 'Un pourcentage est un nombre comme un autre…',
+  activity: 'saisir', level: 'intermediaire',           // saisir | calculer | organiser | presenter ; base | intermediaire
+  title: 'Figer les volets',
+  intro: 'Dans un long tableau, figer la ligne d’en-têtes la garde à l’écran…',
+  steps: ['Affichage > Figer les volets > Figer la ligne supérieure…'],   // « Comment faire »
   points: ['…', '…'],                                   // « À retenir »
-  examples: [['=B2*(1+$E$1)', 'Hausse de 5 %.']],       // 3e valeur facultative = résultat attendu
-  tips: ['…'], kw: 'pourcentage taux part',
-  sample: { cols: ['Région', 'Ventes'], rows: [['Nord', 300], ['Sud', 500]],
-            fill: { header: 'Part', formula: '=B2/SOMME($B$2:$B$3)', results: [0.375, 0.625], fmt: '%' } }
+  examples: [['=B2*(1+$E$1)', 'Hausse de 5 %.']],       // facultatif ; 3e valeur = résultat attendu
+  tips: ['…'], kw: 'figer volets en tetes',
+  sample: { cols: ['Date', 'Client'], rows: [['d:2026-01-05', 'Martin']], select: 'B2' }   // ou fill / calc pour une formule
 });
 ```
 
-Pour placer une fonction ou une méthode dans un niveau : `XL.place(activité, niveau, ['f:NOM', 'r:Titre exact'])` dans `parcours.js` ; un mini-tableau pour une fiche existante : `XL.S('f:NOM', { … })` dans `samples.js`. Les résultats des mini-tableaux sont vérifiés par LibreOffice comme les exemples.
+Chaque fonction et chaque méthode doit avoir sa place dans le parcours : `XL.place(activité, niveau, ['f:NOM', 'r:Titre exact'])` dans `parcours.js` (vérifié par `npm test`). Un mini-tableau pour une fiche : `XL.S('f:NOM', { … })` dans `samples.js` ; ses résultats sont vérifiés par LibreOffice comme les exemples. Pour changer les icônes : modifier la liste de `scripts/build-icons.js` puis `npm run icons`.
 
-Les recettes du volet informatique sont générées par `scripts/gen-recipes-it.py` (`npm run gen:it`) : les longues formules (IP, accents…) y sont construites automatiquement. Pour changer les icônes : modifier la liste de `scripts/build-icons.js` puis `npm run icons`.
-
-`npm test` signale les erreurs (fonction inconnue dans un exemple, parenthèses, séparateur anglais, aller-retour de traduction, mini-tableau incohérent, lien interne cassé, HTML mal formé…).
+`npm test` signale les erreurs (fonction sans fiche dans un exemple, parenthèses, séparateur anglais, aller-retour de traduction, mini-tableau incohérent, lien interne cassé, HTML mal formé…).
 
 ### Publier une version
 
 ```bash
-npm version patch --no-git-tag-version   # 1.2.0 → 1.2.1 dans package.json
+npm version patch --no-git-tag-version   # 1.3.0 → 1.3.1 dans package.json
 # reporter la version dans app/js/config.js et le cache de app/sw.js — npm test le vérifie
-git commit -am "Version 1.2.1" && git push
+git commit -am "Version 1.3.1" && git push
 ```
 
-Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.2.1` ; les boutons du site pointent toujours vers la dernière version.
+Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.3.1` ; les boutons du site pointent toujours vers la dernière version.
 
 ## Licence et crédits
 

@@ -1,5 +1,28 @@
 # Journal des modifications
 
+## 1.3.0 — Centré sur l’utilisation d’Excel
+
+### Nouveau
+- **4 activités d’utilisation d’Excel** : Saisir & mettre en forme · Calculer · Organiser & analyser · Présenter, chacune en **2 niveaux** : Les bases → Intermédiaire.
+- **19 nouvelles notions sur le logiciel lui-même** : se repérer, saisir, sélectionner, poignée de recopie, formats, figer les volets, listes déroulantes, formats personnalisés, collage spécial, rechercher-remplacer, graphiques (création, choix, combiné, sparklines), mise en page et impression.
+- Rubrique **« Comment faire »** dans les notions : les étapes à suivre dans Excel, numérotées.
+- Mini-tableaux avec **plage à sélectionner** en couleur, pour les manipulations sans formule.
+- Dans un niveau, les fonctions sont **regroupées par thème** (conditions, recherche, dates, texte…).
+
+### Retiré
+- Le volet **administration système et réseau** (55 cas : IP, Active Directory, comparaison de bases) et son générateur.
+- Les cas pratiques **comptables spécialisés** (amortissements, FEC, rapprochement bancaire…) ; les méthodes générales (TVA, pourcentages, dates, heures, texte) restent dans les activités.
+- Les fonctions au-delà du niveau intermédiaire (finance, statistiques avancées, ingénierie, tableaux dynamiques 2024…) : 69 fonctions gardées sur 222. Le traducteur FR ⇄ EN reconnaît toujours tous les noms.
+- Le niveau Expert et la page Cas pratiques.
+
+### Compatibilité
+- Les liens de la 1.2.0 (#/a/rechercher/…, #/a/analyser/…, niveaux Approfondir et Expert) mènent à la nouvelle activité correspondante.
+- Les favoris vers un contenu retiré sont ignorés sans erreur ; les autres restent valables.
+
+### Vérifications
+- `npm test` vérifie que chaque fonction et chaque méthode a sa place dans le parcours et qu’aucun exemple n’utilise une fonction sans fiche.
+- 269 résultats recalculés par LibreOffice Calc, 0 écart.
+
 ## 1.2.0 — Parcours d’apprentissage
 
 L’application est réorganisée autour de l’usage d’Excel ; les contenus métier passent dans Outils.
