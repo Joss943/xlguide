@@ -1,7 +1,7 @@
 {
   "name": "xlguide",
   "productName": "XLGuide",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Apprendre à utiliser Excel en français : saisir, calculer, organiser, présenter, des bases au niveau expert.",
   "main": "electron/main.js",
   "homepage": "https://joss943.github.io/xlguide/",

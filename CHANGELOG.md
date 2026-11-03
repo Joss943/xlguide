@@ -1,5 +1,38 @@
 # Journal des modifications
 
+## 1.5.1 — Sécurité
+
+### Application de bureau
+- La fenêtre n’affiche que XLGuide : navigation vers une autre page ou un autre fichier local, nouvelles fenêtres, `<webview>` et téléchargements sont bloqués.
+- Un lien ne s’ouvre dans le navigateur que s’il mène, en HTTPS, à GitHub, au site d’installation ou à tabler.io.
+- Toutes les autorisations (caméra, micro, position, notifications…) sont refusées, sauf la copie dans le presse-papiers.
+- Aucune connexion réseau au démarrage : le correcteur orthographique de Chromium, qui téléchargeait un dictionnaire, est coupé.
+- L’exécutable ne peut plus servir à lancer du code Node.js (`ELECTRON_RUN_AS_NODE`, `NODE_OPTIONS`, `--inspect`) et ne charge que le code de son archive (fusibles Electron).
+- Outils de développement désactivés dans la version installée.
+
+### Version web et site
+- Règles de sécurité du contenu (CSP) resserrées : chaque type de ressource limité au site lui-même, aucun formulaire, aucune balise `<base>`, aucune adresse d’origine transmise.
+- Le site d’installation a ses propres règles CSP ; les informations de la dernière version (API GitHub) sont vérifiées puis insérées comme du texte.
+- Progression, favoris et réglages sont validés à la lecture : une valeur corrompue ou démesurée est ignorée au lieu de bloquer l’application. Une adresse mal formée ramène à l’accueil.
+- Le cache hors-ligne n’enregistre que les réponses valides du site lui-même.
+
+### Installation
+- `install.sh` et `install.ps1` comparent l’empreinte SHA-256 de chaque fichier téléchargé à `SHA256SUMS.txt` et s’arrêtent si elle diffère.
+- Les commandes manuelles du site et du README font la même vérification.
+- Chaque fichier publié reçoit une attestation de provenance, vérifiable avec `gh attestation verify`.
+
+### Publication
+- Actions GitHub épinglées par empreinte de commit, droits minimaux par tâche, identifiants Git non conservés après le clonage.
+- Dependabot surveille les dépendances npm et les actions GitHub.
+- `SECURITY.md` : signaler une faille, protections en place, limites connues.
+
+### Compatibilité
+- Contenu et interface inchangés ; progression, favoris et réglages sont conservés.
+
+### Vérifications
+- `npm test` contrôle aussi ces protections (configuration Electron, CSP, validation des données, scripts d’installation, workflows) ; chaque régression introduite volontairement fait échouer la suite.
+- La CI exécute `install.sh` et `install.ps1` avec des téléchargements simulés (PowerShell 7 et Windows PowerShell 5.1) : un fichier modifié ou absent de `SHA256SUMS.txt` doit être refusé. ShellCheck analyse `install.sh`.
+
 ## 1.5.0 — Niveau Expert et nouvelle interface
 
 ### Nouveau

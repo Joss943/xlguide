@@ -34,6 +34,8 @@ module.exports = function (XL) {
   section('Versions et liens');
   check(sw.includes("'xlguide-v" + pkg.version + "'"), 'version du cache sw.js ≠ package.json (' + pkg.version + ')');
   check(XL.config.version === pkg.version, 'js/config.js : version ≠ package.json');
+  const lock = require(path.join(ROOT, 'package-lock.json'));
+  check(lock.version === pkg.version && lock.packages[''].version === pkg.version, 'package-lock.json : version ≠ package.json (npm install --package-lock-only)');
   check(XL.config.siteUrl === pkg.homepage, 'js/config.js : siteUrl ≠ homepage de package.json');
   check(XL.config.repoUrl + '.git' === pkg.repository.url, 'js/config.js : repoUrl ≠ repository de package.json');
   const main = read('electron/main.js');

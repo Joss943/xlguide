@@ -196,7 +196,7 @@ Chaque fonction et chaque méthode doit avoir sa place dans le parcours : `XL.pl
 ### Publier une version
 
 ```bash
-npm version patch --no-git-tag-version   # 1.4.0 → 1.4.1 dans package.json
+npm version patch --no-git-tag-version   # 1.4.0 → 1.4.1 dans package.json et package-lock.json
 # reporter la version dans app/js/config.js et le cache de app/sw.js — npm test le vérifie
 git commit -am "Version 1.4.1" && git push
 ```
