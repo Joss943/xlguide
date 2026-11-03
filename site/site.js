@@ -39,15 +39,20 @@
     });
   });
 
-  // Affiche la dernière version publiée (sans bloquer si l'API GitHub est indisponible)
+  // Affiche la dernière version publiée (sans bloquer si l'API GitHub est indisponible).
+  // La réponse est une donnée externe : formats vérifiés, puis insertion en texte (jamais en HTML).
+  var RELEASES = 'https://github.com/Joss943/xlguide/releases/';
   if (window.fetch) {
     fetch('https://api.github.com/repos/Joss943/xlguide/releases/latest', { headers: { Accept: 'application/vnd.github+json' } })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (rel) {
-        if (!rel || !rel.tag_name) return;
-        var d = new Date(rel.published_at);
-        document.getElementById('relInfo').innerHTML = 'Dernière version : <a href="' + rel.html_url + '">' + rel.tag_name.replace(/[<>&"]/g, '') +
-          '</a>, publiée le ' + d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) + '.';
+        if (!rel || !/^v\d+\.\d+\.\d+$/.test(rel.tag_name) || typeof rel.html_url !== 'string' || rel.html_url.indexOf(RELEASES) !== 0) return;
+        var d = new Date(rel.published_at), info = document.getElementById('relInfo'), a = document.createElement('a');
+        a.href = rel.html_url;
+        a.textContent = rel.tag_name;
+        info.textContent = 'Dernière version : ';
+        info.appendChild(a);
+        if (!isNaN(d)) info.appendChild(document.createTextNode(', publiée le ' + d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) + '.'));
       })
       .catch(function () {});
   }

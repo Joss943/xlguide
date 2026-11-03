@@ -1,9 +1,25 @@
-/* XLGuide — processus principal Electron (Windows & Linux) */
+/* XLGuide — processus principal Electron (Windows & Linux)
+ *
+ * Sécurité (liste de contrôle Electron) :
+ *  - rendu isolé, sans Node, en bac à sable (contextIsolation, sandbox, nodeIntegration false) ;
+ *  - aucune navigation hors de app/index.html, aucune nouvelle fenêtre, aucune <webview> ;
+ *  - liens externes ouverts dans le navigateur seulement en https et vers une liste fermée de sites ;
+ *  - permissions web refusées, sauf l'écriture dans le presse-papiers (boutons « Copier ») ;
+ *  - téléchargements bloqués, correcteur orthographique coupé (aucune connexion au démarrage).
+ *  Les fusibles Electron sont réglés dans package.json (build.electronFuses).
+ */
 'use strict';
-const { app, BrowserWindow, Menu, shell, nativeTheme } = require('electron');
+const { app, BrowserWindow, Menu, shell, nativeTheme, session } = require('electron');
 const path = require('path');
+const { pathToFileURL } = require('url');
 // Liens publics : même source que l'interface (vérifiée contre package.json par npm test).
 const { repoUrl: REPO, siteUrl: SITE } = require('../app/js/config.js');
+
+const INDEX = path.join(__dirname, '..', 'app', 'index.html');
+const INDEX_URL = pathToFileURL(INDEX).href;
+// Sites que l'application peut ouvrir dans le navigateur : dépôt, site, crédits des icônes.
+const EXTERNAL_HOSTS = new Set([new URL(REPO).host, new URL(SITE).host, 'tabler.io']);
+const ALLOWED_PERMISSIONS = new Set(['clipboard-sanitized-write']);
 let win = null;
 
 if (!app.requestSingleInstanceLock()) {
@@ -16,9 +32,54 @@ if (!app.requestSingleInstanceLock()) {
   });
 }
 
-function openExternal(url) {
-  if (/^https:\/\//i.test(url)) shell.openExternal(url);
+/** Page de l'application elle-même (le #fragment, qui porte la route, est ignoré). */
+function isAppUrl(url) {
+  try {
+    const u = new URL(url);
+    u.hash = '';
+    return u.href === INDEX_URL;
+  } catch (e) {
+    return false;
+  }
 }
+
+/** Ouvre un lien dans le navigateur par défaut, seulement s'il est sûr (https, site connu, sans identifiants). */
+function openExternal(url) {
+  let u;
+  try { u = new URL(url); } catch (e) { return false; }
+  if (u.protocol !== 'https:' || !EXTERNAL_HOSTS.has(u.host) || u.username || u.password) return false;
+  shell.openExternal(u.href).catch(() => { /* aucun navigateur disponible */ });
+  return true;
+}
+
+/** Règles appliquées à tout contenu web créé par l'application. */
+function lockWebContents(contents) {
+  contents.setWindowOpenHandler(({ url }) => { openExternal(url); return { action: 'deny' }; });
+  const stayInApp = (event, url) => {
+    const target = (event && event.url) || url;
+    if (isAppUrl(target)) return;
+    event.preventDefault();
+    openExternal(target);
+  };
+  contents.on('will-navigate', stayInApp);
+  contents.on('will-frame-navigate', (event, url) => { if (!isAppUrl((event && event.url) || url)) event.preventDefault(); });
+  contents.on('will-redirect', (event, url) => { if (!isAppUrl((event && event.url) || url)) event.preventDefault(); });
+  contents.on('will-attach-webview', (event) => event.preventDefault());
+}
+
+/** Permissions web : tout est refusé, sauf l'écriture dans le presse-papiers. Aucune connexion réseau implicite. */
+function lockSession(ses) {
+  // Sans liste de langues, le correcteur orthographique ne télécharge pas de dictionnaire chez Google
+  // au démarrage (constaté dans le journal réseau d'Electron 45) ; il est de toute façon inutile ici.
+  ses.setSpellCheckerLanguages([]);
+  ses.setSpellCheckerEnabled(false);
+  ses.setPermissionRequestHandler((contents, permission, callback) => callback(ALLOWED_PERMISSIONS.has(permission)));
+  ses.setPermissionCheckHandler((contents, permission) => ALLOWED_PERMISSIONS.has(permission));
+  ses.setDevicePermissionHandler(() => false);
+  ses.on('will-download', (event) => event.preventDefault());
+}
+
+app.on('web-contents-created', (event, contents) => lockWebContents(contents));
 
 function createWindow() {
   win = new BrowserWindow({
@@ -35,19 +96,20 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      nodeIntegrationInSubFrames: false,
       sandbox: true,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
+      webviewTag: false,
+      navigateOnDragDrop: false,
+      safeDialogs: true,
+      devTools: !app.isPackaged,
       spellcheck: false
     }
   });
 
   win.once('ready-to-show', () => win.show());
-  win.loadFile(path.join(__dirname, '..', 'app', 'index.html'));
-
-  // Liens externes => navigateur par défaut ; aucune navigation hors de l'application.
-  win.webContents.setWindowOpenHandler(({ url }) => { openExternal(url); return { action: 'deny' }; });
-  win.webContents.on('will-navigate', (event, url) => {
-    if (!url.startsWith('file://')) { event.preventDefault(); openExternal(url); }
-  });
+  win.loadFile(INDEX);
   win.on('closed', () => { win = null; });
 }
 
@@ -93,9 +155,13 @@ app.setAboutPanelOptions({
 });
 
 app.whenReady().then(() => {
+  lockSession(session.defaultSession);
   buildMenu();
   createWindow();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
+
+// Exposé pour les tests (tests/security.test.js), sans effet dans l'application.
+module.exports = { isAppUrl, openExternal, EXTERNAL_HOSTS, ALLOWED_PERMISSIONS };

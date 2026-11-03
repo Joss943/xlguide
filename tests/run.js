@@ -1,4 +1,4 @@
-/* XLGuide — tests : node tests/run.js (aucune dépendance, aucun navigateur). */
+/* XLGuide — tests : node tests/run.js (aucune dépendance, aucun navigateur ; Electron est simulé). */
 'use strict';
 const { counts } = require('./lib');
 const XL = require('./load')();
@@ -9,7 +9,8 @@ const summary = [
   require('./search.test')(XL),
   require('./progress.test')(XL),
   require('./views.test')(XL),
-  require('./files.test')(XL)
+  require('./files.test')(XL),
+  require('./security.test')(XL)
 ].filter(Boolean);
 
 console.log('\n' + summary.join('\n'));

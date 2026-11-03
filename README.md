@@ -56,23 +56,34 @@ irm https://joss943.github.io/xlguide/install.ps1 | iex
 
 ### Linux (x86_64)
 
-Une commande qui détecte ta distribution et installe le bon paquet :
+Une commande qui détecte ta distribution, vérifie la somme SHA-256 du paquet, puis l’installe :
 
 ```bash
 curl -fsSL https://joss943.github.io/xlguide/install.sh | bash
 ```
 
-Ou manuellement :
+Ou manuellement, avec vérification de la somme SHA-256 avant l’installation :
 
 | Distribution | Commande |
 |---|---|
-| **Ubuntu / Debian / Mint / Pop!_OS** | `wget -qO /tmp/xlguide.deb https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb && sudo apt install -y /tmp/xlguide.deb` |
-| **Fedora / RHEL / Rocky / Alma** | `sudo dnf install -y https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm` |
-| **openSUSE** | `sudo zypper install --allow-unsigned-rpm ./xlguide-x86_64.rpm` |
-| **Arch / Manjaro / EndeavourOS** | `curl -fLo /tmp/xlguide.pacman https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman && sudo pacman -U --noconfirm /tmp/xlguide.pacman` |
-| **Autres** | [AppImage](https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage) : `chmod +x XLGuide-x86_64.AppImage && ./XLGuide-x86_64.AppImage` (nécessite FUSE 2) |
+| **Ubuntu / Debian / Mint / Pop!_OS** | `cd "$(mktemp -d)" && wget -q https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt && sha256sum -c --ignore-missing SHA256SUMS.txt && sudo apt install -y ./xlguide-amd64.deb` |
+| **Fedora / RHEL / Rocky / Alma** | `cd "$(mktemp -d)" && curl -fL --remote-name-all https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt && sha256sum -c --ignore-missing SHA256SUMS.txt && sudo dnf install -y ./xlguide-x86_64.rpm` |
+| **openSUSE** | même téléchargement, puis `sudo zypper install --allow-unsigned-rpm ./xlguide-x86_64.rpm` |
+| **Arch / Manjaro / EndeavourOS** | `cd "$(mktemp -d)" && curl -fL --remote-name-all https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt && sha256sum -c --ignore-missing SHA256SUMS.txt && sudo pacman -U --noconfirm ./xlguide-x86_64.pacman` |
+| **Autres** | [AppImage](https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage) : `curl -fL --remote-name-all https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt && sha256sum -c --ignore-missing SHA256SUMS.txt && chmod +x XLGuide-x86_64.AppImage && ./XLGuide-x86_64.AppImage` (nécessite FUSE 2) |
 
 Désinstaller : `curl -fsSL https://joss943.github.io/xlguide/install.sh | bash -s -- --uninstall`
+
+### Vérifier un téléchargement
+
+Chaque version publie `SHA256SUMS.txt` et une **attestation de provenance** signée (Sigstore) qui relie chaque fichier à la compilation automatique de ce dépôt :
+
+```bash
+sha256sum -c --ignore-missing SHA256SUMS.txt                       # Linux
+gh attestation verify XLGuide-Setup.exe --repo Joss943/xlguide     # provenance (GitHub CLI)
+```
+
+Sous Windows : `(Get-FileHash .\XLGuide-Setup.exe).Hash` doit être égal à la ligne `XLGuide-Setup.exe` de `SHA256SUMS.txt`. Voir aussi [SECURITY.md](SECURITY.md).
 
 ### Sans installation
 
@@ -105,7 +116,7 @@ Prérequis : Node.js 20+.
 git clone https://github.com/Joss943/xlguide && cd xlguide
 npm ci
 npm start                 # lance l'application de bureau
-npm test                  # contenu, traducteur, recherche, rendu de toutes les pages et fiches
+npm test                  # contenu, traducteur, recherche, rendu des pages et fiches, sécurité
 npm run dist:linux        # paquets deb, rpm, pacman, AppImage dans dist/
 npm run dist:win          # installateur Windows (sous Windows)
 npm run site:build        # génère le site GitHub Pages dans _site/
@@ -115,6 +126,13 @@ Vérifier les résultats des exemples avec LibreOffice (`soffice` + `python3-ope
 
 ```bash
 npm run verify:formulas
+```
+
+Vérifier les scripts d'installation (somme SHA-256, téléchargements simulés, sans réseau ni installation) :
+
+```bash
+bash tests/install-sh.test.sh
+pwsh -NoProfile -File tests/install-ps1.test.ps1
 ```
 
 ### Structure

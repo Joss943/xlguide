@@ -3,13 +3,18 @@ name: Release
 # Publication automatique : dès que la version de package.json change sur main
 # (ex. « npm version patch --no-git-tag-version » puis push), les installateurs
 # Windows et Linux sont compilés et la release GitHub vX.Y.Z est créée.
+#
+# Sécurité de la chaîne : jeton en lecture seule partout, sauf pour le job de publication ;
+# la compilation (npm ci exécute du code de dépendances) n'a jamais de droit d'écriture ;
+# actions épinglées par empreinte de commit ; sommes SHA-256 et attestation de provenance
+# signée (Sigstore) publiées avec chaque release.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release
@@ -26,12 +31,16 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       publish: ${{ steps.v.outputs.publish }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
       - id: v
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="$(node -p "require('./package.json').version")"
+          # La version sert dans des noms de fichiers et des commandes : format strict X.Y.Z
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version invalide : $VERSION"; exit 1; }
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           if gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "La release v$VERSION existe déjà : rien à publier."
@@ -46,8 +55,10 @@ jobs:
     if: needs.check.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - run: node tests/run.js
@@ -57,8 +68,10 @@ jobs:
     needs: tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
@@ -66,7 +79,7 @@ jobs:
         run: sudo apt-get update -q && sudo apt-get install -y -q rpm libarchive-tools
       - run: npm ci
       - run: npx electron-builder --linux --x64 --publish never
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: linux
           if-no-files-found: error
@@ -81,14 +94,16 @@ jobs:
     needs: tests
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: npm
       - run: npm ci
       - run: npx electron-builder --win --x64 --publish never
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windows
           if-no-files-found: error
@@ -98,13 +113,21 @@ jobs:
     name: Publication de la release
     needs: [check, linux, windows]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write      # créer la release
+      id-token: write      # certificat Sigstore de l'attestation
+      attestations: write  # enregistrer l'attestation
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           path: out
           merge-multiple: true
       - name: Sommes de contrôle
         run: cd out && sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+      - name: Attestation de provenance (vérifiable avec « gh attestation verify »)
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        with:
+          subject-path: 'out/*'
       - name: Créer la release GitHub
         env:
           GH_TOKEN: ${{ github.token }}
@@ -121,7 +144,11 @@ jobs:
           | **Arch / Manjaro** | \`xlguide-x86_64.pacman\` | \`sudo pacman -U xlguide-x86_64.pacman\` |
           | **Autres Linux** | \`XLGuide-x86_64.AppImage\` | \`chmod +x XLGuide-x86_64.AppImage && ./XLGuide-x86_64.AppImage\` |
 
-          Linux en une commande : \`curl -fsSL https://joss943.github.io/xlguide/install.sh | bash\`
+          Linux en une commande : \`curl -fsSL https://joss943.github.io/xlguide/install.sh | bash\` (vérifie la somme SHA-256 avant d'installer)
+
+          ### Vérifier un fichier
+          - Somme : \`sha256sum -c --ignore-missing SHA256SUMS.txt\` (Windows : \`Get-FileHash .\\XLGuide-Setup.exe\`)
+          - Provenance : \`gh attestation verify <fichier> --repo Joss943/xlguide\`
 
           Version web (sans installation) : https://joss943.github.io/xlguide/app/
           NOTES

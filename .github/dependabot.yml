@@ -1,0 +1,19 @@
+# Mises à jour proposées automatiquement (une demande de fusion par lot, chaque semaine).
+# Electron en premier : ses versions corrigent régulièrement des failles de Chromium.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      outils:
+        patterns: ['*']
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ['*']

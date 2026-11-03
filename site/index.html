@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://api.github.com; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
   <title>XLGuide — Apprendre à utiliser Excel, des bases à l’expert</title>
   <meta name="description" content="Application gratuite pour Windows, Linux et le web : apprendre à utiliser Excel en français. Saisir et mettre en forme, calculer, organiser et analyser, présenter, en trois niveaux, avec des exemples vérifiés.">
   <meta property="og:title" content="XLGuide — Apprendre à utiliser Excel">
@@ -92,7 +93,7 @@
 
     <section id="telecharger" class="download">
       <h2>Télécharger XLGuide</h2>
-      <p class="sub">Choisis ton système. Les fichiers viennent directement des <a href="https://github.com/Joss943/xlguide/releases/latest">versions publiées sur GitHub</a>, compilées automatiquement à partir du code source.</p>
+      <p class="sub">Choisis ton système. Les fichiers viennent directement des <a href="https://github.com/Joss943/xlguide/releases/latest">versions publiées sur GitHub</a>, compilées automatiquement à partir du code source. Chaque version publie leurs sommes SHA-256 (<code>SHA256SUMS.txt</code>) et une attestation de provenance : <code>gh attestation verify XLGuide-Setup.exe --repo Joss943/xlguide</code> prouve que le fichier a été produit par la compilation automatique du dépôt.</p>
 
       <div class="dl-grid">
         <article class="dl-card" id="win">
@@ -104,13 +105,14 @@
             <li>XLGuide apparaît dans le menu Démarrer et sur le Bureau.</li>
           </ol>
           <details><summary>Installer en une ligne (PowerShell)</summary>
+            <p class="small">Le script vérifie la somme SHA-256 de l’installateur avant de le lancer.</p>
             <div class="cmd"><code>irm https://joss943.github.io/xlguide/install.ps1 | iex</code><button data-copy>Copier</button></div>
           </details>
         </article>
 
         <article class="dl-card" id="linux">
           <header><i data-ic="terminal-2"></i><h3>Linux</h3><span class="tag">x86_64</span></header>
-          <p class="lead-cmd">Le plus simple : une commande qui détecte ta distribution et installe le bon paquet.</p>
+          <p class="lead-cmd">Le plus simple : une commande qui détecte ta distribution, vérifie la somme SHA-256 du paquet, puis l’installe.</p>
           <div class="cmd big"><code>curl -fsSL https://joss943.github.io/xlguide/install.sh | bash</code><button data-copy>Copier</button></div>
 
           <div class="distros" role="group" aria-label="Distribution">
@@ -122,22 +124,22 @@
 
           <div class="dpanel" data-p="deb">
             <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb"><i data-ic="download"></i><span><b>Télécharger le paquet .deb</b><small>xlguide-amd64.deb</small></span></a>
-            <div class="cmd"><code>wget -qO /tmp/xlguide.deb https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb &amp;&amp; sudo apt install -y /tmp/xlguide.deb</code><button data-copy>Copier</button></div>
+            <div class="cmd"><code>cd "$(mktemp -d)" &amp;&amp; wget -q https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt &amp;&amp; sha256sum -c --ignore-missing SHA256SUMS.txt &amp;&amp; sudo apt install -y ./xlguide-amd64.deb</code><button data-copy>Copier</button></div>
             <p class="small">Désinstaller : <code>sudo apt remove xlguide</code></p>
           </div>
           <div class="dpanel" data-p="rpm" hidden>
             <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm"><i data-ic="download"></i><span><b>Télécharger le paquet .rpm</b><small>xlguide-x86_64.rpm</small></span></a>
-            <div class="cmd"><code>sudo dnf install -y https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm</code><button data-copy>Copier</button></div>
-            <p class="small">openSUSE : <code>sudo zypper install --allow-unsigned-rpm ./xlguide-x86_64.rpm</code>. Désinstaller : <code>sudo dnf remove xlguide</code></p>
+            <div class="cmd"><code>cd "$(mktemp -d)" &amp;&amp; curl -fL --remote-name-all https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt &amp;&amp; sha256sum -c --ignore-missing SHA256SUMS.txt &amp;&amp; sudo dnf install -y ./xlguide-x86_64.rpm</code><button data-copy>Copier</button></div>
+            <p class="small">openSUSE : remplace la fin par <code>sudo zypper install --allow-unsigned-rpm ./xlguide-x86_64.rpm</code>. Désinstaller : <code>sudo dnf remove xlguide</code></p>
           </div>
           <div class="dpanel" data-p="arch" hidden>
             <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman"><i data-ic="download"></i><span><b>Télécharger le paquet pacman</b><small>xlguide-x86_64.pacman</small></span></a>
-            <div class="cmd"><code>curl -fLo /tmp/xlguide.pacman https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman &amp;&amp; sudo pacman -U --noconfirm /tmp/xlguide.pacman</code><button data-copy>Copier</button></div>
+            <div class="cmd"><code>cd "$(mktemp -d)" &amp;&amp; curl -fL --remote-name-all https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt &amp;&amp; sha256sum -c --ignore-missing SHA256SUMS.txt &amp;&amp; sudo pacman -U --noconfirm ./xlguide-x86_64.pacman</code><button data-copy>Copier</button></div>
             <p class="small">Désinstaller : <code>sudo pacman -R xlguide</code></p>
           </div>
           <div class="dpanel" data-p="appimage" hidden>
             <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage"><i data-ic="download"></i><span><b>Télécharger l’AppImage</b><small>Fonctionne sur la plupart des distributions</small></span></a>
-            <div class="cmd"><code>chmod +x XLGuide-x86_64.AppImage &amp;&amp; ./XLGuide-x86_64.AppImage</code><button data-copy>Copier</button></div>
+            <div class="cmd"><code>curl -fL --remote-name-all https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage https://github.com/Joss943/xlguide/releases/latest/download/SHA256SUMS.txt &amp;&amp; sha256sum -c --ignore-missing SHA256SUMS.txt &amp;&amp; chmod +x XLGuide-x86_64.AppImage &amp;&amp; ./XLGuide-x86_64.AppImage</code><button data-copy>Copier</button></div>
             <p class="small">Nécessite FUSE 2 (<code>libfuse2</code> sur Ubuntu). Le script d’installation crée aussi le raccourci dans le menu des applications.</p>
           </div>
         </article>

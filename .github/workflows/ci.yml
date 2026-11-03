@@ -1,5 +1,7 @@
 name: CI
 
+# Actions épinglées par empreinte de commit (et non par étiquette, qui peut être déplacée) ;
+# Dependabot (.github/dependabot.yml) propose leurs mises à jour.
 on:
   push:
     branches: [main]
@@ -10,22 +12,44 @@ permissions:
 
 jobs:
   tests:
-    name: Tests (données, traducteur, recherche)
+    name: Tests (données, traducteur, recherche, sécurité)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - run: node tests/run.js
-      - run: bash -n site/install.sh
+      # Vérification SHA-256 des scripts d'installation, sans réseau : tests/install-*.test.*
+      - name: Scripts d'installation (shellcheck, vérification SHA-256)
+        shell: bash
+        run: |
+          bash -n site/install.sh
+          shellcheck site/install.sh tests/install-sh.test.sh
+          bash tests/install-sh.test.sh
+          pwsh -NoProfile -File tests/install-ps1.test.ps1
+
+  installer-windows:
+    name: Script d'installation Windows (PowerShell 5.1)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      # Windows PowerShell 5.1 : celle qu'ouvre Windows 10/11 par défaut pour « irm … | iex »
+      - shell: cmd
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File tests/install-ps1.test.ps1
 
   formulas:
     name: Résultats recalculés par LibreOffice
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - name: Installer LibreOffice Calc

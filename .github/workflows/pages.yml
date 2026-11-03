@@ -1,13 +1,14 @@
 name: Site GitHub Pages
 
 # Construit le site (page d'accueil + application web) et le publie sur la branche gh-pages.
+# Aucune dépendance npm installée ici : seuls Node et les fichiers du dépôt servent à la construction.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: pages
@@ -16,12 +17,22 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # pousser la branche gh-pages
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
       - run: node tests/run.js
+      - name: Scripts d'installation publiés (shellcheck, vérification SHA-256)
+        shell: bash
+        run: |
+          shellcheck site/install.sh
+          bash tests/install-sh.test.sh
+          pwsh -NoProfile -File tests/install-ps1.test.ps1
       - run: node scripts/build-site.js
       - name: Publier sur la branche gh-pages
         env:

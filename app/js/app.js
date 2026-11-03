@@ -15,14 +15,15 @@
   var model = XL.buildModel();
   var TOOL_VIEWS = ['tools', 'index', 'errors', 'tr', 'kb'];
 
+  var S = XL.store;
   var state = {
     view: 'home', act: '', level: 'base', cat: '', type: '',
     q: '', sel: null, active: -1,
-    ver: XL.store.get('ver', '365'),
-    favs: XL.store.get('favs', []),
-    done: XL.store.get('done', []),   // notions terminées ('n:…')
-    last: XL.store.get('last', ''),   // dernière notion ouverte (bouton « Continuer »)
-    focus: XL.store.get('focus', false) // mode concentration : la fiche seule, centrée
+    ver: S.get('ver', '365', S.isText),         // contrôlée contre la liste des versions dans bindSettings
+    favs: S.get('favs', [], S.isKeyList),
+    done: S.get('done', [], S.isKeyList),       // notions terminées ('n:…')
+    last: S.get('last', '', S.isText),          // dernière notion ouverte (bouton « Continuer »)
+    focus: S.get('focus', false, S.isBool)      // mode concentration : la fiche seule, centrée
   };
   var els = {}, lastPage = '', lastSig = '', shownSel = null, listItems = [], uid = 0;
 
@@ -204,8 +205,14 @@
     else setView(ref.type === 'err' ? 'errors' : 'index');
   }
 
+  /** Adresse décodée ; une séquence %… mal formée (lien abîmé) mène à l'accueil au lieu de bloquer l'application. */
+  function hashPath() {
+    var raw = location.hash.replace(/^#\/?/, '');
+    try { return decodeURIComponent(raw); } catch (e) { return ''; }
+  }
+
   function route() {
-    var parts = decodeURIComponent(location.hash.replace(/^#\/?/, '')).split('/');
+    var parts = hashPath().split('/');
     var p0 = parts[0], rest = parts.slice(1).join('/');
     var ref = /^[frne]$/.test(p0) ? model.resolve(p0 + ':' + rest) : null;
     if (ref) { openSheet(ref); render(); return; }
@@ -245,7 +252,8 @@
   function bindTranslator() {
     var fr = $('#trFr'), en = $('#trEn'), warn = $('#trWarn'), fns = $('#trFns'), dir = $('#trDir');
     function run(from) {
-      var r = XL.formula.translate(from === 'fr' ? fr.value : en.value, from === 'fr' ? 'fr2en' : 'en2fr');
+      var src = (from === 'fr' ? fr.value : en.value).slice(0, 8192); // longueur maximale d'une formule Excel
+      var r = XL.formula.translate(src, from === 'fr' ? 'fr2en' : 'en2fr');
       (from === 'fr' ? en : fr).value = r.result;
       dir.innerHTML = ic(from === 'fr' ? 'chevron-right' : 'arrow-left');
       warn.innerHTML = XL.ui.tips(r.warnings, true);
@@ -263,7 +271,7 @@
     els.list.querySelectorAll('[data-sample]').forEach(function (b) {
       b.addEventListener('click', function () { load(b.getAttribute('data-sample')); });
     });
-    var q = state.q.trim(), saved = XL.store.get('tr', '');
+    var q = state.q.trim(), saved = S.get('tr', '', S.isText);
     if (q.charAt(0) === '=') load(q); else if (saved) { fr.value = saved; run('fr'); }
     if (document.activeElement !== els.q) fr.focus(); // ne pas voler le focus de la barre de recherche
   }
@@ -354,16 +362,18 @@
       big.setAttribute('aria-pressed', String(on));
       big.classList.toggle('on', on);
     }
-    applyBig(XL.store.get('big', false));
+    applyBig(S.get('big', false, S.isBool));
     big.addEventListener('click', function () {
       var on = !document.documentElement.classList.contains('big');
       XL.store.set('big', on);
       applyBig(on);
       toast(on ? 'Texte agrandi' : 'Texte normal');
     });
+    // Version enregistrée inconnue (ancienne ou corrompue) : retour à la version par défaut
+    if (!Array.prototype.some.call(ver.options, function (o) { return o.value === state.ver; })) state.ver = '365';
     ver.value = state.ver;
     ver.addEventListener('change', function () { state.ver = ver.value; XL.store.set('ver', state.ver); render(true); toast('Version : Excel ' + state.ver); });
-    document.documentElement.setAttribute('data-theme', XL.store.get('theme', 'auto'));
+    document.documentElement.setAttribute('data-theme', S.get('theme', 'auto', S.isOneOf(['auto', 'light', 'dark'])));
     theme.innerHTML = ic(isDark() ? 'sun' : 'moon');
     theme.addEventListener('click', function () {
       var next = isDark() ? 'light' : 'dark';
