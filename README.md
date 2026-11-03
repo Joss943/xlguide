@@ -4,15 +4,15 @@
 
 # XLGuide
 
-**Apprendre à utiliser Excel en français, des bases à l’intermédiaire.**
+**Apprendre à utiliser Excel en français, des bases à l’expert.**
 
-Application gratuite pour **Windows** et **Linux** (et version web) : quatre activités en deux niveaux, des notions courtes avec les étapes à suivre et un mini-tableau d’exemple, et une recherche en langage naturel quand tu cherches quelque chose de précis.
+Application gratuite pour **Windows** et **Linux** (et version web) : quatre activités en trois niveaux, des notions courtes avec les étapes à suivre et un mini-tableau d’exemple, et une recherche en langage naturel quand tu cherches quelque chose de précis.
 
 [![CI](https://github.com/Joss943/xlguide/actions/workflows/ci.yml/badge.svg)](https://github.com/Joss943/xlguide/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/Joss943/xlguide?label=version&color=1a7f4b)](https://github.com/Joss943/xlguide/releases/latest)
-[![Licence MIT](https://img.shields.io/badge/licence-MIT-1a7f4b)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/Joss943/xlguide?label=version&color=10703f)](https://github.com/Joss943/xlguide/releases/latest)
+[![Licence MIT](https://img.shields.io/badge/licence-MIT-10703f)](LICENSE)
 
-[**⬇ Télécharger**](https://joss943.github.io/xlguide/#telecharger) · [**🌐 Version web**](https://joss943.github.io/xlguide/app/) · [Site](https://joss943.github.io/xlguide/)
+**[Télécharger](https://joss943.github.io/xlguide/#telecharger)**, ouvrir la **[version web](https://joss943.github.io/xlguide/app/)** ou visiter le **[site](https://joss943.github.io/xlguide/)**.
 
 <img src="site/screenshot.png" alt="Capture d’écran de XLGuide : notion Figer les volets" width="900">
 
@@ -22,23 +22,23 @@ Application gratuite pour **Windows** et **Linux** (et version web) : quatre act
 
 ## Ce que fait XLGuide
 
-**Un parcours en 4 activités**, chacune en 2 niveaux (**Les bases → Intermédiaire**) :
+**Un parcours en 4 activités**, chacune en 3 niveaux (**Les bases → Intermédiaire → Expert**) :
 
-| Activité | Les bases | Intermédiaire |
-|---|---|---|
-| **1 · Saisir & mettre en forme** | se repérer, saisir, sélectionner, lignes et colonnes, poignée de recopie, formats de nombres et de dates | type des données, mise en forme, figer les volets, listes déroulantes, formats personnalisés, collage spécial |
-| **2 · Calculer** | écrire et recopier une formule, `$`, pourcentages, `SOMME`, `MOYENNE`, `SI` | `SOMME.SI.ENS`, `SI.CONDITIONS`, arrondis, `RECHERCHEV` / `RECHERCHEX`, `#N/A`, dates, heures, texte |
-| **3 · Organiser & analyser** | tableau structuré, trier et filtrer, rechercher et remplacer, doublons | mise en forme conditionnelle, classements, comparer deux listes, Convertir, TCD, `FILTRE` / `TRIER` / `UNIQUE` |
-| **4 · Présenter** | créer et modifier un graphique, mettre en page et imprimer | choisir le bon graphique, graphique combiné, sparklines, imprimer un grand tableau |
+| Activité | Les bases | Intermédiaire | Expert |
+|---|---|---|---|
+| **Saisir & mettre en forme** | se repérer, saisir, sélectionner, lignes et colonnes, poignée de recopie, formats de nombres et de dates | type des données, mise en forme, figer les volets, listes déroulantes, formats personnalisés, collage spécial | plages nommées, saisie contrôlée par une règle, listes en cascade, protection, texte importé converti en nombres |
+| **Calculer** | écrire et recopier une formule, `$`, pourcentages, `SOMME`, `MOYENNE`, `SI` | `SOMME.SI.ENS`, `SI.CONDITIONS`, arrondis, `RECHERCHEV` / `RECHERCHEX`, `#N/A`, dates, heures, texte | `INDEX` + `EQUIV`, plusieurs critères, `SOMMEPROD`, `TEXTE.AVANT` / `TEXTE.APRES`, `DECALER` / `INDIRECT`, `LET` / `LAMBDA` |
+| **Organiser & analyser** | tableau structuré, trier et filtrer, rechercher et remplacer, doublons | mise en forme conditionnelle, classements, comparer deux listes, Convertir, TCD, `FILTRE` / `TRIER` / `UNIQUE` | segments, chronologie et champs calculés, Power Query, statistiques, tendance, `PIVOTER.PAR` / `PRENDRE` / `ASSEMB.V` |
+| **Présenter** | créer et modifier un graphique, mettre en page et imprimer | choisir le bon graphique, graphique combiné, sparklines, imprimer un grand tableau | graphique croisé dynamique, graphiques spécialisés (cascade, entonnoir…), graphique piloté par une liste, tableau de bord |
 
-- **49 notions** à lire dans l’ordre : les étapes à suivre dans Excel, ce qu’il faut retenir, et un **mini-tableau** où la plage à sélectionner, ou les cellules visées par la formule, sont en couleur.
-- **69 fonctions** de la base à l’intermédiaire, chacune rangée dans son activité ; fiches claires : l’essentiel d’abord, puis la syntaxe argument par argument, le reste replié.
+- **69 notions** à lire dans l’ordre : les étapes à suivre dans Excel, ce qu’il faut retenir, et un **mini-tableau** où la plage à sélectionner, ou les cellules visées par la formule, sont en couleur.
+- **98 fonctions**, des bases à l’expert, chacune rangée dans son activité ; fiches claires : l’essentiel d’abord, puis la syntaxe argument par argument, le reste replié. Pas de spécialité métier (finance, ingénierie) : uniquement l’usage d’Excel.
 - **Recherche en langage naturel** : « figer la première ligne », « liste déroulante », « additionner avec une condition »… Tolère accents oubliés, pluriels et fautes de frappe ; accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`).
 - **Outils** : traducteur de formules FR ⇄ EN (il reconnaît aussi les fonctions sans fiche), erreurs (`#N/A`, `#VALEUR!`…), raccourcis clavier (AZERTY), index des fonctions, compatibilité de version (2010 → 365).
 - **Pensé pour le TDAH** : une seule action mise en avant (« Commencer », puis « Continuer » là où tu en étais), durée estimée de chaque notion, étapes à cocher, « J’ai compris, notion suivante », progression enregistrée, longues listes repliées, **mode concentration** (la fiche seule, centrée), flèches ← → entre les notions, texte agrandissable, animations coupées si le système le demande.
 - **Hors-ligne, privé** : aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation au clavier.
 
-**Fiabilité :** chaque résultat affiché (exemples et mini-tableaux, plus de 250 aujourd’hui) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
+**Fiabilité :** chaque résultat affiché (exemples et mini-tableaux, plus de 300 aujourd’hui) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
 
 ## Installation
 
@@ -93,6 +93,10 @@ Désinstaller : `curl -fsSL https://joss943.github.io/xlguide/install.sh | bash 
 - Colle une formule commençant par `=` dans **Outils › Traducteur**.
 - ★ ajoute une fiche à tes favoris (stockés localement).
 
+## Interface
+
+L’interface reprend la feuille de calcul : surfaces blanches, en-têtes gris, quadrillage fin à la place des cartes et des ombres, numéros de ligne pour l’ordre de lecture. Un seul motif fort, le **curseur de sélection d’Excel** (cadre vert et poignée de recopie), signale « tu es ici ». Chaque couleur a un seul sens : vert pour la sélection, la progression et l’action principale, jaune surligneur pour « À retenir », rouge pour les erreurs. La police **Atkinson Hyperlegible**, conçue pour la lecture facile, distingue nettement I, l et 1, O et 0.
+
 ## Développement
 
 Prérequis : Node.js 20+.
@@ -118,7 +122,7 @@ npm run verify:formulas
 ```
 app/                 Application (HTML/CSS/JS sans dépendance) — partagée par le bureau et le web
   data/              Contenu : fonctions, méthodes, erreurs, raccourcis
-    parcours.js      Les 4 activités, les 2 niveaux et la place de chaque fonction et méthode
+    parcours.js      Les 4 activités, les 3 niveaux et la place de chaque fonction et méthode
     notions/         Les notions du parcours, un fichier par activité
     samples.js       Mini-tableaux des fiches fonctions et méthodes
   js/config.js       Version et liens publics (lus aussi par Electron)
@@ -127,7 +131,8 @@ app/                 Application (HTML/CSS/JS sans dépendance) — partagée pa
   js/core/           Modèle (index du contenu, parcours), progression et stockage local
   js/views/          Vues : fonctions pures données → HTML (accueil, listes, fiches, outils)
   js/app.js          Contrôleur : routage, rendu, événements
-  css/               app.css (socle) et parcours.css (niveaux, fiches, mini-tableaux)
+  css/               app.css (socle) et parcours.css (niveaux, accueil, fiches, mini-tableaux)
+  fonts/             Polices Atkinson Hyperlegible Next et Mono (SIL OFL 1.1)
 electron/            Enveloppe bureau (fenêtre sécurisée : sandbox, isolation de contexte)
 site/                Site GitHub Pages + scripts d'installation install.sh / install.ps1
 scripts/             Génération des icônes et du site
@@ -155,7 +160,7 @@ Une notion du parcours (`app/data/notions/*.js`) :
 
 ```js
 N({
-  activity: 'saisir', level: 'intermediaire',           // saisir | calculer | organiser | presenter ; base | intermediaire
+  activity: 'saisir', level: 'intermediaire',           // saisir | calculer | organiser | presenter ; base | intermediaire | expert
   title: 'Figer les volets',
   intro: 'Dans un long tableau, figer la ligne d’en-têtes la garde à l’écran…',
   steps: ['Affichage > Figer les volets > Figer la ligne supérieure…'],   // « Comment faire »

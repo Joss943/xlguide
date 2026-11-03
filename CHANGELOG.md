@@ -1,5 +1,32 @@
 # Journal des modifications
 
+## 1.5.0 — Niveau Expert et nouvelle interface
+
+### Nouveau
+- **Niveau Expert** dans les quatre activités : 20 notions sur l’usage avancé d’Excel, sans spécialité métier.
+  - Saisir & mettre en forme : plages nommées, saisie contrôlée par une règle, listes déroulantes en cascade, protection d’une feuille, texte importé converti en nombres.
+  - Calculer : INDEX + EQUIV, recherche sur plusieurs critères, SOMMEPROD, extraction de texte, DECALER et INDIRECT, LET et LAMBDA.
+  - Organiser & analyser : segments, chronologie et champs calculés de TCD, Power Query, statistiques, tendance, tableaux construits par formule.
+  - Présenter : graphique croisé dynamique, graphiques spécialisés, graphique piloté par une liste déroulante, tableau de bord.
+- **29 fonctions** ajoutées au parcours (98 au total), dont INDEX, EQUIV, SOMMEPROD, LET, LAMBDA, TEXTE.AVANT, PIVOTER.PAR, LIREDONNEESTABCROISDYNAMIQUE ; 2 méthodes (cumul depuis le début de l’année, les 5 meilleurs par formule).
+- **Carte du parcours** à l’accueil : un tableau activités × niveaux, avec une barre de données par case et la case en cours signalée.
+
+### Interface
+- Nouvelle identité inspirée de la feuille de calcul : quadrillage et en-têtes gris à la place des cartes et des ombres, notions et étapes présentées en lignes numérotées, barre de formule sous les mini-tableaux.
+- Le curseur de sélection d’Excel (cadre vert et poignée) signale « tu es ici » ; la navigation active reprend l’en-tête surligné d’Excel.
+- Police **Atkinson Hyperlegible** (lecture facile), embarquée : aucune requête externe.
+- « À retenir » surligné en jaune ; jauge de trois cases pour le niveau ; textes plus directs (plus de flèches ni d’icônes décoratives).
+- Thème sombre en graphite, vert adouci.
+- Le site d’installation suit la même identité et montre le parcours complet.
+
+### Compatibilité
+- Les liens de la 1.2.0 vers le niveau Expert mènent de nouveau au niveau Expert.
+- Progression, favoris et réglages sont conservés.
+
+### Vérifications
+- `npm test` contrôle aussi que les polices appelées par les feuilles de style existent et sont disponibles hors-ligne.
+- 320 résultats recalculés par LibreOffice Calc, 0 écart (18 non testables avec la version de LibreOffice utilisée : LET, LAMBDA, TEXTE.AVANT…).
+
 ## 1.4.0 — Pensée pour le TDAH
 
 Expérience revue pour rester concentré ; le contenu (notions, fonctions, exemples) est inchangé.

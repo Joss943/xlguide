@@ -1,8 +1,8 @@
 {
   "name": "xlguide",
   "productName": "XLGuide",
-  "version": "1.4.0",
-  "description": "Apprendre à utiliser Excel en français : saisir, calculer, organiser, présenter, des bases au niveau intermédiaire.",
+  "version": "1.5.0",
+  "description": "Apprendre à utiliser Excel en français : saisir, calculer, organiser, présenter, des bases au niveau expert.",
   "main": "electron/main.js",
   "homepage": "https://joss943.github.io/xlguide/",
   "repository": {
@@ -54,8 +54,8 @@
       "icon": "build/icon.png",
       "maintainer": "Joss943 <Joss943@users.noreply.github.com>",
       "vendor": "Joss943",
-      "synopsis": "Apprendre à utiliser Excel en français, des bases à l’intermédiaire",
-      "description": "Apprendre à utiliser Excel en français : 4 activités en 2 niveaux, exemples vérifiés, traducteur FR/EN.",
+      "synopsis": "Apprendre à utiliser Excel en français, des bases à l’expert",
+      "description": "Apprendre à utiliser Excel en français : 4 activités en 3 niveaux, exemples vérifiés, traducteur FR/EN.",
       "desktop": {
         "entry": {
           "Name": "XLGuide",

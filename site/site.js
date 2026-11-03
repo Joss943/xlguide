@@ -47,7 +47,7 @@
         if (!rel || !rel.tag_name) return;
         var d = new Date(rel.published_at);
         document.getElementById('relInfo').innerHTML = 'Dernière version : <a href="' + rel.html_url + '">' + rel.tag_name.replace(/[<>&"]/g, '') +
-          '</a> · publiée le ' + d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+          '</a>, publiée le ' + d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) + '.';
       })
       .catch(function () {});
   }

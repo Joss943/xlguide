@@ -3,145 +3,167 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>XLGuide — Apprendre à utiliser Excel, des bases à l’intermédiaire</title>
-  <meta name="description" content="Application gratuite pour Windows, Linux et le web : apprendre à utiliser Excel en français. Saisir et mettre en forme, calculer, organiser et analyser, présenter, en deux niveaux, avec des exemples vérifiés.">
+  <title>XLGuide — Apprendre à utiliser Excel, des bases à l’expert</title>
+  <meta name="description" content="Application gratuite pour Windows, Linux et le web : apprendre à utiliser Excel en français. Saisir et mettre en forme, calculer, organiser et analyser, présenter, en trois niveaux, avec des exemples vérifiés.">
   <meta property="og:title" content="XLGuide — Apprendre à utiliser Excel">
-  <meta property="og:description" content="Saisir, calculer, organiser, présenter : un parcours clair, des bases à l’intermédiaire. Pour Windows, Linux et le web.">
+  <meta property="og:description" content="Saisir, calculer, organiser, présenter : un parcours clair, des bases à l’expert. Pour Windows, Linux et le web.">
   <meta property="og:image" content="https://joss943.github.io/xlguide/screenshot.png">
-  <meta name="theme-color" content="#1a7f4b">
+  <meta name="theme-color" content="#f1f3f1">
   <link rel="icon" href="app/icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="site.css">
 </head>
 <body>
   <header class="nav">
-    <a class="brand" href="#"><img src="app/icons/icon.svg" alt="" width="30" height="30"><span>XL<b>Guide</b></span></a>
-    <nav>
-      <a href="#fonctionnalites">Fonctionnalités</a>
+    <a class="brand" href="#"><img src="app/icons/icon.svg" alt="" width="28" height="28"><span>XLGuide</span></a>
+    <nav aria-label="Sections">
+      <a href="#parcours">Le parcours</a>
       <a href="#telecharger">Télécharger</a>
       <a href="app/">Version web</a>
-      <a href="https://github.com/Joss943/xlguide" class="gh" rel="noopener"><i data-ic="brand-github"></i>GitHub</a>
+      <a href="https://github.com/Joss943/xlguide" class="gh" rel="noopener"><i data-ic="brand-github"></i>Code source</a>
     </nav>
   </header>
 
-  <section class="hero">
-    <div class="hero-txt">
-      <span class="pill">Gratuit · Open source · Hors-ligne</span>
-      <h1>Apprendre à utiliser Excel,<br><em>des bases à l’intermédiaire.</em></h1>
-      <p>Quatre activités — saisir et mettre en forme, calculer, organiser et analyser, présenter — chacune en deux niveaux. Des notions courtes, à lire dans l’ordre, avec les étapes à suivre dans Excel et un mini-tableau d’exemple. Pensée pour les profils TDAH : une chose à la fois, un bouton « Continuer », ta progression enregistrée.</p>
-      <div class="cta">
-        <a class="btn btn-win" id="btnWin" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-Setup.exe">
-          <i data-ic="brand-windows"></i>
-          <span><b>Installer pour Windows</b><small>Windows 10 / 11 · 64 bits</small></span>
-        </a>
-        <a class="btn btn-linux" id="btnLinux" href="#linux">
-          <i data-ic="terminal-2"></i>
-          <span><b>Installer pour Linux</b><small>Ubuntu · Debian · Fedora · Arch</small></span>
-        </a>
-        <a class="btn btn-web" href="app/">
-          <i data-ic="world"></i>
-          <span><b>Ouvrir la version web</b><small>Sans installation</small></span>
-        </a>
+  <main>
+    <section class="hero">
+      <div class="hero-txt">
+        <h1>Apprendre à utiliser Excel, des bases à l’expert.</h1>
+        <p>Quatre activités, chacune en trois niveaux : saisir et mettre en forme, calculer, organiser et analyser, présenter. Des notions courtes, à lire dans l’ordre, avec les étapes à suivre dans Excel et un mini-tableau d’exemple.</p>
+        <p>Pensée pour les profils TDAH : une chose à la fois, un bouton «&nbsp;Continuer&nbsp;», ta progression enregistrée.</p>
+        <div class="cta">
+          <a class="btn" id="btnWin" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-Setup.exe">
+            <i data-ic="brand-windows"></i>
+            <span><b>Installer pour Windows</b><small>Windows 10 et 11, 64 bits</small></span>
+          </a>
+          <a class="btn" id="btnLinux" href="#linux">
+            <i data-ic="terminal-2"></i>
+            <span><b>Installer pour Linux</b><small>Ubuntu, Debian, Fedora, Arch</small></span>
+          </a>
+          <a class="btn" href="app/">
+            <i data-ic="world"></i>
+            <span><b>Ouvrir la version web</b><small>Sans installation</small></span>
+          </a>
+        </div>
+        <p class="meta">Gratuit, open source, fonctionne hors-ligne. <span id="relInfo">Dernière version : <a href="https://github.com/Joss943/xlguide/releases/latest">voir sur GitHub</a></span></p>
       </div>
-      <p class="meta" id="relInfo">Dernière version : <a href="https://github.com/Joss943/xlguide/releases/latest">voir sur GitHub</a></p>
-    </div>
-    <div class="hero-img">
-      <img src="screenshot.png" alt="Capture d’écran de XLGuide : activité Saisir &amp; mettre en forme, notion Figer les volets avec ses étapes" width="1400" height="875">
-    </div>
-  </section>
+      <figure class="hero-img">
+        <img src="screenshot.png" alt="Capture d’écran de XLGuide : la notion « Figer les volets », avec son exemple, ses étapes à cocher et la liste des notions du niveau" width="1400" height="875">
+      </figure>
+    </section>
 
-  <section class="numbers">
-    <div><b id="nAc">4</b><span>activités, chacune en deux niveaux</span></div>
-    <div><b id="nNt">49</b><span>notions, de « Se repérer dans Excel » au TCD</span></div>
-    <div><b id="nFn">69</b><span>fonctions, de la base à l’intermédiaire</span></div>
-    <div><b id="nEx">320</b><span>formules d’exemple</span></div>
-  </section>
+    <p class="facts">
+      <b id="nAc">4</b> activités en trois niveaux, <b id="nNt">69</b> notions courtes, <b id="nFn">98</b> fonctions expliquées et
+      <b id="nEx">427</b> formules d’exemple, dont chaque résultat est recalculé par LibreOffice.
+    </p>
 
-  <section id="fonctionnalites" class="features">
-    <h2>Un parcours clair, des bases à l’intermédiaire</h2>
-    <div class="fgrid">
-      <article><i data-ic="pencil"></i><h3>1 · Saisir &amp; mettre en forme</h3><p>Se repérer, saisir, recopier avec la poignée, formats de nombres et de dates, volets figés, listes déroulantes.</p></article>
-      <article><i data-ic="calculator"></i><h3>2 · Calculer</h3><p>Écrire et recopier une formule, bloquer une cellule avec $, SOMME, SI, puis SOMME.SI.ENS, RECHERCHEX, dates et texte.</p></article>
-      <article><i data-ic="filter"></i><h3>3 · Organiser &amp; analyser</h3><p>Tableaux, tri et filtres, doublons, mise en forme conditionnelle, tableau croisé dynamique.</p></article>
-      <article><i data-ic="chart-bar"></i><h3>4 · Présenter</h3><p>Créer et soigner un graphique, choisir le bon type, mettre en page et imprimer proprement.</p></article>
-      <article><i data-ic="maximize"></i><h3>Pensé pour rester concentré</h3><p>Une notion à la fois, des étapes à cocher, une durée estimée, ta progression enregistrée et un mode concentration sans distraction. Idéal avec un TDAH.</p></article>
-      <article><i data-ic="table"></i><h3>Des exemples qui se voient</h3><p>Un mini-tableau par notion : la plage à sélectionner, ou les cellules visées par la formule, en couleur. Résultats vérifiés par LibreOffice.</p></article>
-      <article><i data-ic="bolt"></i><h3>Outils du quotidien</h3><p>Recherche en langage naturel, traducteur de formules FR ⇄ EN, erreurs Excel, raccourcis clavier, index des fonctions.</p></article>
-      <article><i data-ic="shield-check"></i><h3>Hors-ligne et privé</h3><p>Aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation au clavier (<kbd>/</kbd>, <kbd>↑</kbd><kbd>↓</kbd>, <kbd>Entrée</kbd>).</p></article>
-    </div>
-  </section>
+    <section id="parcours" class="parcours">
+      <h2>Le parcours</h2>
+      <p class="sub">Chaque niveau se lit dans l’ordre, une notion après l’autre. Les fonctions et les méthodes de chaque niveau restent à portée de main.</p>
+      <div class="table-wrap">
+        <table class="map">
+          <thead><tr><th scope="col">Activité</th><th scope="col">Les bases</th><th scope="col">Intermédiaire</th><th scope="col">Expert</th></tr></thead>
+          <!-- parcours : rempli à partir des données par scripts/build-site.js -->
+          <tbody id="parcours-rows">
+            <tr><th scope="row">Saisir &amp; mettre en forme</th><td data-level="Les bases">Se repérer, saisir, recopier, formats</td><td data-level="Intermédiaire">Volets figés, listes déroulantes, collage spécial</td><td data-level="Expert">Plages nommées, saisie contrôlée, protection</td></tr>
+            <tr><th scope="row">Calculer</th><td data-level="Les bases">Formules, $, SOMME, SI</td><td data-level="Intermédiaire">SOMME.SI.ENS, RECHERCHEX, dates, texte</td><td data-level="Expert">INDEX + EQUIV, SOMMEPROD, LET et LAMBDA</td></tr>
+            <tr><th scope="row">Organiser &amp; analyser</th><td data-level="Les bases">Tableaux, tri, filtres, doublons</td><td data-level="Intermédiaire">Mise en forme conditionnelle, TCD</td><td data-level="Expert">Segments, Power Query, statistiques</td></tr>
+            <tr><th scope="row">Présenter</th><td data-level="Les bases">Créer un graphique, imprimer</td><td data-level="Intermédiaire">Bon graphique, sparklines</td><td data-level="Expert">Graphiques spécialisés, tableau de bord</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <section id="telecharger" class="download">
-    <h2>Télécharger XLGuide</h2>
-    <p class="sub">Choisis ton système. Les fichiers viennent directement des <a href="https://github.com/Joss943/xlguide/releases/latest">releases GitHub</a>, compilés automatiquement à partir du code source.</p>
+    <section class="focus">
+      <h2>Pensé pour rester concentré</h2>
+      <dl>
+        <dt>Une seule action à la fois</dt>
+        <dd>L’accueil propose « Commencer », puis « Continuer ». Chaque notion se termine par « J’ai compris, notion suivante ».</dd>
+        <dt>Des étapes à cocher</dt>
+        <dd>Les manipulations dans Excel se cochent au fur et à mesure ; la durée de chaque notion est indiquée.</dd>
+        <dt>Mode concentration</dt>
+        <dd>La fiche en cours, seule, au centre de l’écran. Le texte peut être agrandi et les animations sont coupées si ton système le demande.</dd>
+        <dt>Des exemples qui se voient</dt>
+        <dd>Un mini-tableau par notion : la plage à sélectionner, ou les cellules visées par la formule, en couleur.</dd>
+        <dt>Les outils du quotidien</dt>
+        <dd>Recherche en langage courant, traducteur de formules français ⇄ anglais, erreurs Excel, raccourcis clavier, index des fonctions.</dd>
+        <dt>Hors-ligne et privé</dt>
+        <dd>Aucun compte, aucune donnée envoyée. Favoris, mode sombre et navigation au clavier (<kbd>/</kbd>, <kbd>↑</kbd> <kbd>↓</kbd>, <kbd>Entrée</kbd>).</dd>
+      </dl>
+    </section>
 
-    <div class="dl-grid">
-      <article class="dl-card" id="win">
-        <header><i data-ic="brand-windows"></i><h3>Windows</h3><span class="tag">10 / 11 · x64</span></header>
-        <a class="btn btn-win wide" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-Setup.exe"><i data-ic="download"></i><span><b>Télécharger l’installateur</b><small>XLGuide-Setup.exe</small></span></a>
-        <ol>
-          <li>Lance <code>XLGuide-Setup.exe</code> et suis l’assistant (installation sans droits administrateur).</li>
-          <li>Si Windows affiche « Windows a protégé votre ordinateur » : <b>Informations complémentaires</b> → <b>Exécuter quand même</b>. L’application n’est pas signée par un certificat payant, c’est normal.</li>
-          <li>XLGuide apparaît dans le menu Démarrer et sur le Bureau.</li>
-        </ol>
-        <details><summary>Installer en une ligne (PowerShell)</summary>
-          <div class="cmd"><code>irm https://joss943.github.io/xlguide/install.ps1 | iex</code><button data-copy>Copier</button></div>
-        </details>
-      </article>
+    <section id="telecharger" class="download">
+      <h2>Télécharger XLGuide</h2>
+      <p class="sub">Choisis ton système. Les fichiers viennent directement des <a href="https://github.com/Joss943/xlguide/releases/latest">versions publiées sur GitHub</a>, compilées automatiquement à partir du code source.</p>
 
-      <article class="dl-card" id="linux">
-        <header><i data-ic="terminal-2"></i><h3>Linux</h3><span class="tag">x86_64</span></header>
-        <p class="lead-cmd">Le plus simple : une commande qui détecte ta distribution et installe le bon paquet.</p>
-        <div class="cmd big"><code>curl -fsSL https://joss943.github.io/xlguide/install.sh | bash</code><button data-copy>Copier</button></div>
+      <div class="dl-grid">
+        <article class="dl-card" id="win">
+          <header><i data-ic="brand-windows"></i><h3>Windows</h3><span class="tag">10 et 11, x64</span></header>
+          <a class="btn btn-main wide" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-Setup.exe"><i data-ic="download"></i><span><b>Télécharger l’installateur</b><small>XLGuide-Setup.exe</small></span></a>
+          <ol>
+            <li>Lance <code>XLGuide-Setup.exe</code> et suis l’assistant (installation sans droits administrateur).</li>
+            <li>Si Windows affiche « Windows a protégé votre ordinateur » : <b>Informations complémentaires</b>, puis <b>Exécuter quand même</b>. L’application n’est pas signée par un certificat payant, c’est normal.</li>
+            <li>XLGuide apparaît dans le menu Démarrer et sur le Bureau.</li>
+          </ol>
+          <details><summary>Installer en une ligne (PowerShell)</summary>
+            <div class="cmd"><code>irm https://joss943.github.io/xlguide/install.ps1 | iex</code><button data-copy>Copier</button></div>
+          </details>
+        </article>
 
-        <div class="distros" role="tablist">
-          <button class="on" data-d="deb"><i data-ic="brand-ubuntu"></i>Ubuntu / <i data-ic="brand-debian"></i>Debian / Mint</button>
-          <button data-d="rpm"><i data-ic="brand-redhat"></i>Fedora / RHEL / openSUSE</button>
-          <button data-d="arch"><i data-ic="terminal-2"></i>Arch / Manjaro</button>
-          <button data-d="appimage"><i data-ic="package"></i>Autres (AppImage)</button>
-        </div>
+        <article class="dl-card" id="linux">
+          <header><i data-ic="terminal-2"></i><h3>Linux</h3><span class="tag">x86_64</span></header>
+          <p class="lead-cmd">Le plus simple : une commande qui détecte ta distribution et installe le bon paquet.</p>
+          <div class="cmd big"><code>curl -fsSL https://joss943.github.io/xlguide/install.sh | bash</code><button data-copy>Copier</button></div>
 
-        <div class="dpanel" data-p="deb">
-          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb"><i data-ic="download"></i><span><b>Télécharger le paquet .deb</b><small>xlguide-amd64.deb</small></span></a>
-          <div class="cmd"><code>wget -qO /tmp/xlguide.deb https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb &amp;&amp; sudo apt install -y /tmp/xlguide.deb</code><button data-copy>Copier</button></div>
-          <p class="small">Désinstaller : <code>sudo apt remove xlguide</code></p>
-        </div>
-        <div class="dpanel" data-p="rpm" hidden>
-          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm"><i data-ic="download"></i><span><b>Télécharger le paquet .rpm</b><small>xlguide-x86_64.rpm</small></span></a>
-          <div class="cmd"><code>sudo dnf install -y https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm</code><button data-copy>Copier</button></div>
-          <p class="small">openSUSE : <code>sudo zypper install --allow-unsigned-rpm ./xlguide-x86_64.rpm</code> · Désinstaller : <code>sudo dnf remove xlguide</code></p>
-        </div>
-        <div class="dpanel" data-p="arch" hidden>
-          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman"><i data-ic="download"></i><span><b>Télécharger le paquet pacman</b><small>xlguide-x86_64.pacman</small></span></a>
-          <div class="cmd"><code>curl -fLo /tmp/xlguide.pacman https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman &amp;&amp; sudo pacman -U --noconfirm /tmp/xlguide.pacman</code><button data-copy>Copier</button></div>
-          <p class="small">Désinstaller : <code>sudo pacman -R xlguide</code></p>
-        </div>
-        <div class="dpanel" data-p="appimage" hidden>
-          <a class="btn btn-linux wide" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage"><i data-ic="download"></i><span><b>Télécharger l’AppImage</b><small>Fonctionne sur la plupart des distributions</small></span></a>
-          <div class="cmd"><code>chmod +x XLGuide-x86_64.AppImage &amp;&amp; ./XLGuide-x86_64.AppImage</code><button data-copy>Copier</button></div>
-          <p class="small">Nécessite FUSE 2 (<code>libfuse2</code> sur Ubuntu). Le script d’installation crée aussi le raccourci dans le menu des applications.</p>
-        </div>
-      </article>
-    </div>
-  </section>
+          <div class="distros" role="group" aria-label="Distribution">
+            <button class="on" data-d="deb"><i data-ic="brand-ubuntu"></i>Ubuntu, <i data-ic="brand-debian"></i>Debian, Mint</button>
+            <button data-d="rpm"><i data-ic="brand-redhat"></i>Fedora, RHEL, openSUSE</button>
+            <button data-d="arch"><i data-ic="terminal-2"></i>Arch, Manjaro</button>
+            <button data-d="appimage"><i data-ic="package"></i>Autres (AppImage)</button>
+          </div>
 
-  <section class="faq">
-    <h2>Questions fréquentes</h2>
-    <details><summary>C’est adapté si j’ai un TDAH ?</summary><p>Oui, c’est même l’objectif : l’accueil propose une seule action (« Commencer », puis « Continuer »), chaque notion indique sa durée et se termine par « J’ai compris, notion suivante », les étapes se cochent au fur et à mesure, les longues listes sont repliées, et le mode concentration n’affiche que la fiche en cours. Tu peux aussi agrandir le texte, et les animations sont coupées si ton système le demande.</p></details>
-    <details><summary>Je débute : par où commencer ?</summary><p>Ouvre <b>Saisir &amp; mettre en forme › Les bases</b> et lis les notions dans l’ordre (1, 2, 3…), puis continue avec <b>Calculer › Les bases</b>. Chaque notion tient en un écran, avec les étapes à reproduire dans Excel.</p></details>
-    <details><summary>C’est vraiment gratuit ?</summary><p>Oui, et open source (licence MIT). Le code est sur <a href="https://github.com/Joss943/xlguide">GitHub</a>.</p></details>
-    <details><summary>Excel ne tourne pas sous Linux, à quoi ça sert ?</summary><p>XLGuide sert à trouver et comprendre les formules : tu les utilises ensuite dans Excel (Windows, Mac ou Excel sur le web, qui fonctionne très bien depuis Linux). La grande majorité des formules marchent aussi dans LibreOffice Calc en français.</p></details>
-    <details><summary>Mes données sont-elles envoyées quelque part ?</summary><p>Non. L’application fonctionne entièrement en local, sans compte ni connexion. Les favoris sont stockés sur ton ordinateur.</p></details>
-    <details><summary>Comment mettre à jour ?</summary><p>Télécharge simplement la nouvelle version et installe-la par-dessus l’ancienne (ou relance la commande d’installation Linux). Le menu <b>Aide → Vérifier les mises à jour</b> de l’application ouvre la page des versions.</p></details>
-    <details><summary>Les résultats des exemples sont-ils fiables ?</summary><p>Chaque résultat affiché (exemples et mini-tableaux) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) à chaque modification du code : plus de 250 résultats sont ainsi contrôlés.</p></details>
-    <details><summary>Il manque une notion ou une fonction ?</summary><p>Ouvre une <a href="https://github.com/Joss943/xlguide/issues/new">issue sur GitHub</a> : le contenu tient dans de simples fichiers faciles à enrichir.</p></details>
-  </section>
+          <div class="dpanel" data-p="deb">
+            <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb"><i data-ic="download"></i><span><b>Télécharger le paquet .deb</b><small>xlguide-amd64.deb</small></span></a>
+            <div class="cmd"><code>wget -qO /tmp/xlguide.deb https://github.com/Joss943/xlguide/releases/latest/download/xlguide-amd64.deb &amp;&amp; sudo apt install -y /tmp/xlguide.deb</code><button data-copy>Copier</button></div>
+            <p class="small">Désinstaller : <code>sudo apt remove xlguide</code></p>
+          </div>
+          <div class="dpanel" data-p="rpm" hidden>
+            <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm"><i data-ic="download"></i><span><b>Télécharger le paquet .rpm</b><small>xlguide-x86_64.rpm</small></span></a>
+            <div class="cmd"><code>sudo dnf install -y https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.rpm</code><button data-copy>Copier</button></div>
+            <p class="small">openSUSE : <code>sudo zypper install --allow-unsigned-rpm ./xlguide-x86_64.rpm</code>. Désinstaller : <code>sudo dnf remove xlguide</code></p>
+          </div>
+          <div class="dpanel" data-p="arch" hidden>
+            <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman"><i data-ic="download"></i><span><b>Télécharger le paquet pacman</b><small>xlguide-x86_64.pacman</small></span></a>
+            <div class="cmd"><code>curl -fLo /tmp/xlguide.pacman https://github.com/Joss943/xlguide/releases/latest/download/xlguide-x86_64.pacman &amp;&amp; sudo pacman -U --noconfirm /tmp/xlguide.pacman</code><button data-copy>Copier</button></div>
+            <p class="small">Désinstaller : <code>sudo pacman -R xlguide</code></p>
+          </div>
+          <div class="dpanel" data-p="appimage" hidden>
+            <a class="btn wide" href="https://github.com/Joss943/xlguide/releases/latest/download/XLGuide-x86_64.AppImage"><i data-ic="download"></i><span><b>Télécharger l’AppImage</b><small>Fonctionne sur la plupart des distributions</small></span></a>
+            <div class="cmd"><code>chmod +x XLGuide-x86_64.AppImage &amp;&amp; ./XLGuide-x86_64.AppImage</code><button data-copy>Copier</button></div>
+            <p class="small">Nécessite FUSE 2 (<code>libfuse2</code> sur Ubuntu). Le script d’installation crée aussi le raccourci dans le menu des applications.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="faq">
+      <h2>Questions fréquentes</h2>
+      <details><summary>C’est adapté si j’ai un TDAH ?</summary><p>Oui, c’est même l’objectif : l’accueil propose une seule action (« Commencer », puis « Continuer »), chaque notion indique sa durée et se termine par « J’ai compris, notion suivante », les étapes se cochent au fur et à mesure, les longues listes sont repliées, et le mode concentration n’affiche que la fiche en cours. Tu peux aussi agrandir le texte, et les animations sont coupées si ton système le demande.</p></details>
+      <details><summary>Je débute : par où commencer ?</summary><p>Ouvre <b>Saisir &amp; mettre en forme › Les bases</b> et lis les notions dans l’ordre (1, 2, 3…), puis continue avec <b>Calculer › Les bases</b>. Chaque notion tient en un écran, avec les étapes à reproduire dans Excel.</p></details>
+      <details><summary>Que contient le niveau Expert ?</summary><p>L’usage avancé d’Excel, sans spécialité métier : plages nommées, listes en cascade, protection, INDEX + EQUIV, SOMMEPROD, LET et LAMBDA, Power Query, segments de TCD, graphiques spécialisés et tableau de bord.</p></details>
+      <details><summary>C’est vraiment gratuit ?</summary><p>Oui, et open source (licence MIT). Le code est sur <a href="https://github.com/Joss943/xlguide">GitHub</a>.</p></details>
+      <details><summary>Excel ne tourne pas sous Linux, à quoi ça sert ?</summary><p>XLGuide sert à trouver et comprendre les formules : tu les utilises ensuite dans Excel (Windows, Mac ou Excel sur le web, qui fonctionne très bien depuis Linux). La grande majorité des formules marchent aussi dans LibreOffice Calc en français.</p></details>
+      <details><summary>Mes données sont-elles envoyées quelque part ?</summary><p>Non. L’application fonctionne entièrement en local, sans compte ni connexion. Les favoris et la progression sont stockés sur ton ordinateur.</p></details>
+      <details><summary>Comment mettre à jour ?</summary><p>Télécharge simplement la nouvelle version et installe-la par-dessus l’ancienne (ou relance la commande d’installation Linux). Le menu <b>Aide › Vérifier les mises à jour</b> de l’application ouvre la page des versions.</p></details>
+      <details><summary>Les résultats des exemples sont-ils fiables ?</summary><p>Chaque résultat affiché (exemples et mini-tableaux) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) à chaque modification du code : plus de 300 résultats sont ainsi contrôlés.</p></details>
+      <details><summary>Il manque une notion ou une fonction ?</summary><p>Ouvre une <a href="https://github.com/Joss943/xlguide/issues/new">demande sur GitHub</a> : le contenu tient dans de simples fichiers faciles à enrichir.</p></details>
+    </section>
+  </main>
 
   <footer>
-    <p><img src="app/icons/icon.svg" alt="" width="20" height="20"> XLGuide · Licence MIT · <a href="https://github.com/Joss943/xlguide">Code source</a> · <a href="https://github.com/Joss943/xlguide/releases">Toutes les versions</a> · Icônes <a href="https://tabler.io/icons">Tabler Icons</a> (MIT)</p>
+    <p><img src="app/icons/icon.svg" alt="" width="20" height="20"> XLGuide, licence MIT. <a href="https://github.com/Joss943/xlguide">Code source</a>, <a href="https://github.com/Joss943/xlguide/releases">toutes les versions</a>. Icônes <a href="https://tabler.io/icons">Tabler Icons</a> (MIT), police Atkinson Hyperlegible (OFL).</p>
     <p class="small">Excel est une marque de Microsoft Corporation. XLGuide est un projet indépendant, non affilié à Microsoft.</p>
   </footer>
 
-  <div class="toast" id="toast">Copié ✓</div>
+  <div class="toast" id="toast" role="status">Commande copiée</div>
   <script src="app/js/icons.js"></script>
   <script src="site.js"></script>
 </body>

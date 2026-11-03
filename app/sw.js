@@ -1,5 +1,5 @@
 /* XLGuide — service worker : fonctionnement hors-ligne de la version web */
-var CACHE = 'xlguide-v1.4.0';
+var CACHE = 'xlguide-v1.5.0';
 // Doit lister tout ce que charge index.html, polices des feuilles de style comprises (vérifié par npm test).
 var FILES = ['./', 'index.html', 'css/app.css', 'css/parcours.css', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
   'fonts/atkinson-hyperlegible-next.woff2', 'fonts/atkinson-hyperlegible-mono.woff2',

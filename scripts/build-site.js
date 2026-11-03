@@ -14,8 +14,16 @@ const sampleFormulas = (s) => (s ? (s.fill ? 1 : 0) + (s.calc || []).length : 0)
 const nEx = XL.functions.reduce((n, f) => n + f.ex.length, 0) + XL.recipes.reduce((n, r) => n + r.steps.length, 0) +
   XL.notions.reduce((n, x) => n + x.examples.length + sampleFormulas(x.sample), 0) +
   Object.keys(XL.samples).reduce((n, k) => n + sampleFormulas(XL.samples[k]), 0);
+// Tableau du parcours : pour chaque activité et chaque niveau, les notions dans l'ordre de lecture
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const rows = XL.activities.map((a) => '<tr><th scope="row">' + esc(a.label) + '</th>' + XL.levelDefs.map((l) => {
+  const ns = XL.notions.filter((n) => n.activity === a.id && n.level === l.id);
+  return '<td data-level="' + esc(l.label) + '"><ol>' + ns.map((n) => '<li>' + esc(n.title) + '</li>').join('') + '</ol></td>';
+}).join('') + '</tr>').join('\n');
 let html = fs.readFileSync(path.join(out, 'index.html'), 'utf8');
-html = html.replace(/(<b id="nAc">)[^<]*/, '$1' + XL.activities.length)
+if (!/<tbody id="parcours-rows">[\s\S]*?<\/tbody>/.test(html)) throw new Error('site/index.html : tableau du parcours introuvable');
+html = html.replace(/(<tbody id="parcours-rows">)[\s\S]*?(<\/tbody>)/, '$1\n' + rows + '\n$2')
+  .replace(/(<b id="nAc">)[^<]*/, '$1' + XL.activities.length)
   .replace(/(<b id="nNt">)[^<]*/, '$1' + XL.notions.length)
   .replace(/(<b id="nFn">)[^<]*/, '$1' + XL.functions.length)
   .replace(/(<b id="nEx">)[^<]*/, '$1' + nEx)
