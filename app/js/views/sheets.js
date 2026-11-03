@@ -9,11 +9,12 @@
   var views = (XL.views = XL.views || {});
 
   function topBar(ctx, item) {
-    var focus = !!ctx.s.focus;
+    var focus = !!ctx.s.focus, fav = ctx.s.favs.indexOf(item.key) >= 0;
     return '<div class="d-top"><button class="back" data-back title="Retour à la liste">' + ic('arrow-left') + '</button>' + ui.crumbs(ctx.m, item) +
       '<button class="icon-btn focus-btn' + (focus ? ' on' : '') + '" data-focus aria-pressed="' + focus + '" title="' +
       (focus ? 'Quitter le mode concentration' : 'Mode concentration : afficher seulement cette fiche') + '">' + ic(focus ? 'minimize' : 'maximize') + '</button>' +
-      '<button class="fav-btn' + (ctx.s.favs.indexOf(item.key) >= 0 ? ' on' : '') + '" data-fav="' + esc(item.key) + '" title="Ajouter aux favoris">' + ic('star') + '</button></div>';
+      '<button class="fav-btn' + (fav ? ' on' : '') + '" data-fav="' + esc(item.key) + '" aria-pressed="' + fav + '" title="' +
+      (fav ? 'Retirer des favoris' : 'Ajouter aux favoris') + '">' + ic('star') + '</button></div>';
   }
   function section(title, body, cls) {
     return body ? '<section class="block' + (cls ? ' ' + cls : '') + '"><h3>' + title + '</h3>' + body + '</section>' : '';
@@ -74,7 +75,7 @@
       '<p class="d-desc">' + esc(f.desc) + '</p>' +
       section('L’essentiel', essential + (f.tips[0] ? ui.tips([f.tips[0]], true) : ''), 'essential') +
       section('Comprendre la syntaxe', '<div class="syntax mono">' + syntaxHTML(f) + '</div>' + argsTable(f)) +
-      more('Aller plus loin' + (parts.length ? ' <small>' + parts.join(' · ') + '</small>' : ''), moreBody);
+      more('Aller plus loin' + (parts.length ? ' <small>' + parts.join(', ') + '</small>' : ''), moreBody);
   }
 
   /* -------------------------------- méthode -------------------------------- */
@@ -107,18 +108,19 @@
     var m = ctx.m, P = XL.progress, next = P.after(m, n), prev = P.before(m, n);
     var nextHref = next ? m.hrefOf(next) : '#/';
     var newPlace = next && (next.activity !== n.activity || next.level !== n.level);
+    var st = P.stats(m, ctx.s.done, n.activity, n.level);
     var main = done ?
-      '<a class="btn btn-accent btn-big" href="' + nextHref + '" data-nav-next>' + (next ? 'Notion suivante' : 'Retour à l’accueil') + ic('arrow-right') + '</a>' :
-      '<button class="btn btn-accent btn-big" data-done="' + esc(n.key) + '" data-go="' + nextHref + '">' + ic('check') +
+      '<a class="btn btn-accent btn-big" href="' + nextHref + '" data-nav-next>' + (next ? 'Notion suivante' : 'Retour à l’accueil') + '</a>' :
+      '<button class="btn btn-accent btn-big" data-done="' + esc(n.key) + '" data-go="' + nextHref + '">' +
         (next ? 'J’ai compris, notion suivante' : 'J’ai compris, parcours terminé') + '</button>';
     return '<footer class="next-step">' +
-      ui.progress(P.stats(m, ctx.s.done, n.activity, n.level), 'Notions terminées dans ce niveau') +
+      ui.progress(st, 'Notions terminées dans ce niveau', ui.doneText(st) + ' dans ce niveau') +
       main +
       (next ? '<p class="next-what">Ensuite : <b>' + esc(next.title) + '</b>' + (newPlace ? ' <span class="muted">(' + esc(m.placeLabel(next)) + ')</span>' : '') + '</p>' : '') +
       '<div class="next-links">' +
-      (prev ? '<a href="' + m.hrefOf(prev) + '" data-nav-prev>' + ic('arrow-left') + 'Notion précédente</a>' : '<span></span>') +
+      (prev ? '<a href="' + m.hrefOf(prev) + '" data-nav-prev>Notion précédente</a>' : '<span></span>') +
       (done ? '<button class="link-btn" data-undone="' + esc(n.key) + '">Marquer comme non terminée</button>' :
-        (next ? '<a href="' + nextHref + '" data-nav-next>Passer sans valider' + ic('chevron-right') + '</a>' : '')) +
+        (next ? '<a href="' + nextHref + '" data-nav-next>Passer sans valider</a>' : '')) +
       '</div></footer>';
   }
 
@@ -127,7 +129,7 @@
     return topBar(ctx, n) +
       '<h2 class="d-title">' + esc(n.title) + '</h2>' +
       '<div class="d-sub">' + ui.levelBadge(m, n) + '<span>Notion ' + n.step + ' sur ' + nb.total + '</span>' +
-      ui.minutes(XL.progress.minutes(n)) + (done ? '<span class="done-tag">' + ic('check') + 'Terminée</span>' : '') + '</div>' +
+      ui.minutes(XL.progress.minutes(n)) + (done ? '<span class="done-tag">Terminée</span>' : '') + '</div>' +
       '<p class="d-desc">' + esc(n.intro) + '</p>' +
       (n.sample ? section('Exemple', ui.sampleSheet(n.sample), 'essential') : '') +
       (n.steps.length ? section('Comment faire', stepsList(n.steps), n.sample ? '' : 'essential') : '') +
@@ -158,8 +160,8 @@
   views.emptySheet = function (ctx, first) {
     var st = first && first.place ? XL.progress.stats(ctx.m, ctx.s.done, first.place.activity, first.place.level) : null;
     var verb = !st || !st.done ? 'Commencer' : st.done === st.total ? 'Revoir' : 'Continuer';
-    var start = first ? '<a class="btn btn-accent btn-big" href="' + ctx.m.hrefOf(first) + '">' + ic('player-play') + verb + ' : ' +
+    var start = first ? '<a class="btn btn-accent btn-big" href="' + ctx.m.hrefOf(first) + '">' + verb + ' : ' +
       esc(first.title || first.fr) + '</a>' : '';
-    return '<div class="d-empty">' + ic('math-function') + '<p>Choisis une notion, une fonction ou une méthode pour l’afficher ici.</p>' + start + '</div>';
+    return '<div class="d-empty"><p>Choisis une notion, une fonction ou une méthode dans la liste pour l’afficher ici.</p>' + start + '</div>';
   };
 })(typeof window !== 'undefined' ? window : globalThis);

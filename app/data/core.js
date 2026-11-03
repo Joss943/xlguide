@@ -22,16 +22,15 @@
   XL.shortcuts = XL.shortcuts || [];
   XL.extraNames = XL.extraNames || {};
 
-  // icon = nom d'icône Tabler Icons (voir scripts/build-icons.js)
   XL.categories = [
-    { id: 'logique', label: 'Logique', icon: 'arrows-split-2' },
-    { id: 'recherche', label: 'Recherche & références', icon: 'search' },
-    { id: 'tableaux', label: 'Tableaux dynamiques', icon: 'table' },
-    { id: 'math', label: 'Maths & arrondis', icon: 'calculator' },
-    { id: 'stats', label: 'Statistiques & comptage', icon: 'chart-bar' },
-    { id: 'texte', label: 'Texte', icon: 'typography' },
-    { id: 'date', label: 'Dates & heures', icon: 'calendar' },
-    { id: 'info', label: 'Information', icon: 'info-circle' }
+    { id: 'logique', label: 'Logique' },
+    { id: 'recherche', label: 'Recherche & références' },
+    { id: 'tableaux', label: 'Tableaux dynamiques' },
+    { id: 'math', label: 'Maths & arrondis' },
+    { id: 'stats', label: 'Statistiques & comptage' },
+    { id: 'texte', label: 'Texte' },
+    { id: 'date', label: 'Dates & heures' },
+    { id: 'info', label: 'Information' }
   ];
 
   XL.F = function (fr, en, cat, since, desc, syntax, args, ex, tips, kw, see) {

@@ -8,16 +8,14 @@ const fs = require('fs');
 const path = require('path');
 
 const SRC = path.join(__dirname, '..', 'node_modules', '@tabler', 'icons', 'icons');
+// Des mots plutôt que des icônes : seulement les boutons sans place pour un libellé et les repères qui portent un sens.
 const ICONS = [
-  // interface
-  'search', 'moon', 'sun', 'star', 'filled:star', 'copy', 'arrow-left', 'chevron-right', 'download', 'home', 'bolt', 'book',
-  'keyboard', 'alert-circle', 'arrows-left-right', 'math-function', 'language', 'world', 'info-circle',
-  // progression, concentration, lisibilité
-  'check', 'clock', 'player-play', 'arrow-right', 'maximize', 'minimize', 'text-size',
-  // activités et thèmes de fonctions
-  'pencil', 'calculator', 'filter', 'chart-bar', 'arrows-split-2', 'table', 'typography', 'calendar',
+  // interface : recherche, réglages, fiche, traducteur
+  'search', 'moon', 'sun', 'text-size', 'download', 'star', 'filled:star', 'arrow-left', 'chevron-right', 'arrows-left-right',
+  // progression et mode concentration
+  'check', 'maximize', 'minimize',
   // site : installation
-  'brand-github', 'brand-windows', 'brand-ubuntu', 'brand-debian', 'brand-redhat', 'terminal-2', 'package', 'shield-check'
+  'brand-github', 'brand-windows', 'brand-ubuntu', 'brand-debian', 'brand-redhat', 'terminal-2', 'package', 'world'
 ];
 
 const out = {};

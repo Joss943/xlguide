@@ -28,7 +28,7 @@ function createWindow() {
     minHeight: 500,
     title: 'XLGuide',
     icon: path.join(__dirname, '..', 'app', 'icons', 'icon-512.png'),
-    backgroundColor: nativeTheme.shouldUseDarkColors ? '#0e1311' : '#f4f6f5',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#1f2321' : '#ffffff',
     autoHideMenuBar: true,
     show: false,
     webPreferences: {

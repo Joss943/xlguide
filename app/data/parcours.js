@@ -14,7 +14,7 @@
 
   XL.activities = [
     {
-      id: 'saisir', label: 'Saisir & mettre en forme', icon: 'pencil',
+      id: 'saisir', label: 'Saisir & mettre en forme',
       desc: 'Se repérer, saisir et recopier des données, choisir le bon format, figer les en-têtes, créer des listes déroulantes, protéger une feuille.',
       levels: {
         base: 'Prendre Excel en main : se repérer, saisir, sélectionner, recopier avec la poignée et choisir le bon format.',
@@ -23,7 +23,7 @@
       }
     },
     {
-      id: 'calculer', label: 'Calculer', icon: 'calculator',
+      id: 'calculer', label: 'Calculer',
       desc: 'Écrire des formules, bloquer une cellule avec $, additionner selon des conditions, chercher une valeur, calculer avec les dates et le texte.',
       levels: {
         base: 'Les réflexes indispensables : écrire une formule, la recopier, bloquer une cellule avec $, les pourcentages, les fonctions de base et SI.',
@@ -32,7 +32,7 @@
       }
     },
     {
-      id: 'organiser', label: 'Organiser & analyser', icon: 'filter',
+      id: 'organiser', label: 'Organiser & analyser',
       desc: 'Mettre ses données sous forme de tableau, trier, filtrer, repérer les doublons, colorer automatiquement, synthétiser avec un TCD et Power Query.',
       levels: {
         base: 'Ranger ses données pour les exploiter : tableau, tri, filtre, rechercher-remplacer, doublons.',
@@ -41,7 +41,7 @@
       }
     },
     {
-      id: 'presenter', label: 'Présenter', icon: 'chart-bar',
+      id: 'presenter', label: 'Présenter',
       desc: 'Créer et soigner un graphique, choisir le bon type, mettre en page, imprimer proprement et construire un tableau de bord.',
       levels: {
         base: 'Créer un graphique, le rendre lisible, mettre en page et imprimer.',

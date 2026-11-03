@@ -34,17 +34,22 @@
   };
   function isNumeric(v) { return typeof v === 'number' || (typeof v === 'string' && /^[dt]:/.test(v)); }
 
-  /* --------------------------------- badges --------------------------------- */
+  /* ----------------------------- version et niveau ----------------------------- */
+  /** Version minimale, en clair ; rien pour les fonctions présentes dans toutes les versions proposées (2010 et plus). */
   ui.versionBadge = function (m, f, ver) {
-    if (!f.since) return '';
+    if (!f.since || f.since === '2010') return '';
     var ok = m.available(f, ver);
-    return '<span class="badge' + (ok ? '' : ' badge-no') + '" title="' + esc(m.versionLabel(f.since)) + (ok ? '' : ' — absente de ta version') + '">' +
-      (f.since === '365' ? '365' : f.since + '+') + '</span>';
+    return '<span class="ver-note' + (ok ? '' : ' no') + '" title="' + esc(m.versionLabel(f.since)) + (ok ? '' : ', absente de ta version') + '">' +
+      (f.since === '365' ? 'Microsoft 365' : 'Excel ' + f.since + '+') + '</span>';
+  };
+  /** Niveau : jauge de trois cases (niveau 2 = deux cases pleines) et son nom. */
+  ui.levelMeter = function (l) {
+    return '<span class="meter m' + l.step + '" aria-hidden="true"><i></i><i></i><i></i></span>';
   };
   ui.levelBadge = function (m, item) {
     if (!item.place) return '';
     var l = m.levelById[item.place.level];
-    return '<span class="lvl lvl-' + l.id + '">' + esc(l.label) + '</span>';
+    return '<span class="lvl">' + ui.levelMeter(l) + esc(l.label) + '</span>';
   };
 
   /* ------------------------------- fil d'Ariane ------------------------------- */
@@ -52,14 +57,14 @@
     var parts = [];
     if (item.place) {
       var a = m.actById[item.place.activity], l = m.levelById[item.place.level];
-      parts.push('<a href="#/a/' + a.id + '">' + ic(a.icon) + esc(a.label) + '</a>');
+      parts.push('<a href="#/a/' + a.id + '">' + esc(a.label) + '</a>');
       parts.push('<a href="#/a/' + a.id + '/' + l.id + '">' + esc(l.label) + '</a>');
     } else if (item.cause) {
       parts.push('<a href="#/outils">Outils</a>', '<a href="#/err">Erreurs</a>');
     } else {
       parts.push('<a href="#/outils">Outils</a>', '<a href="#/fn">Index des fonctions</a>');
     }
-    return '<nav class="crumbs" aria-label="Emplacement">' + parts.join('<span class="sep">›</span>') + '</nav>';
+    return '<nav class="crumbs" aria-label="Emplacement">' + parts.join('<span class="sep" aria-hidden="true">›</span>') + '</nav>';
   };
 
   /* ---------------------------- formules colorées ---------------------------- */
@@ -91,7 +96,7 @@
   };
 
   ui.copyButton = function (text, label) {
-    return '<button class="btn-s" data-copy="' + esc(text) + '" title="Copier (Excel en français)">' + ic('copy') + (label || 'Copier') + '</button>';
+    return '<button class="btn-s" data-copy="' + esc(text) + '" title="Copier la formule (Excel en français)">' + (label || 'Copier') + '</button>';
   };
 
   /** Bloc « formule + explication » ; opts : { explain, expected, fnName, uid } */
@@ -103,19 +108,20 @@
     if (isFormula) {
       var en = F.translate(formula, 'fr2en').result, id = 'en-' + opts.uid;
       html += '<div class="ex-btns">' + ui.copyButton(formula) +
-        '<button class="btn-s ghost" data-toggle-en="' + id + '" title="Voir la version Excel en anglais">EN</button></div></div>' +
+        '<button class="btn-s" data-toggle-en="' + id + '" title="Voir la version Excel en anglais">EN</button></div></div>' +
         '<div class="ex-en" id="' + id + '" hidden><code class="formula">' + F.highlight(en, 'en') + '</code>' + ui.copyButton(en, 'Copier EN') + '</div>';
     } else {
       html += '</div>';
     }
     if (opts.explain || opts.expected !== undefined) {
       html += '<div class="ex-d">' + esc(opts.explain || '') +
-        (opts.expected !== undefined ? ' <span class="res">→ ' + esc(ui.fmtValue(opts.expected)) + '</span>' : '') + '</div>';
+        (opts.expected !== undefined ? ' <span class="res">Résultat : <b>' + esc(ui.fmtValue(opts.expected)) + '</b></span>' : '') + '</div>';
     }
     return html + '</div>';
   };
 
   /* ------------------------------- mini-tableau ------------------------------- */
+  var FX = '<span class="fx-l" aria-hidden="true">fx</span>';
   function resultHTML(v, fmt) {
     if (Array.isArray(v)) {
       return '<table class="spill">' + v.map(function (row) {
@@ -165,20 +171,24 @@
     });
     html += '</tbody></table></div>';
 
-    if (s.select) html += '<div class="sheet-f sheet-sel"><small>Sélection</small><span class="addr">' + esc(s.select) + '</span></div>';
+    // Sous le tableau, la barre de formule d'Excel : zone Nom (adresse), « fx », formule.
+    if (s.select) {
+      html += '<div class="sheet-f sheet-sel"><span class="addr">' + esc(s.select) + '</span><small>' +
+        (s.select.indexOf(':') > 0 ? 'Plage sélectionnée' : 'Cellule sélectionnée') + '</small></div>';
+    }
     if (s.fill) {
-      html += '<div class="sheet-f"><span class="addr">' + fillCol + '2</span><code class="formula">' +
+      html += '<div class="sheet-f"><span class="addr">' + fillCol + '2</span>' + FX + '<code class="formula">' +
         F.highlightSpans(s.fill.formula, 'fr', paint.spans) + '</code>' + ui.copyButton(s.fill.formula) +
         '<small>écrite en ' + fillCol + '2, recopiée jusqu’en ' + fillCol + lastRow + '</small></div>';
     }
     if (s.calc && s.calc.length) {
       html += '<ul class="sheet-calc">' + s.calc.map(function (k, i) {
         var code = (!s.fill && i === 0) ? F.highlightSpans(k[1], 'fr', paint.spans) : F.highlight(k[1], 'fr');
-        return '<li><span class="lbl">' + esc(k[0]) + '</span><code class="formula">' + code + '</code>' +
-          '<span class="res-v">→ ' + resultHTML(k[2], k[3]) + '</span>' + ui.copyButton(k[1]) + '</li>';
+        return '<li><span class="lbl">' + esc(k[0]) + '</span>' + FX + '<code class="formula">' + code + '</code>' +
+          '<span class="res-v">Résultat : ' + resultHTML(k[2], k[3]) + '</span>' + ui.copyButton(k[1]) + '</li>';
       }).join('') + '</ul>';
     }
-    if (s.note) html += '<figcaption class="sheet-note">' + ic('info-circle') + esc(s.note) + '</figcaption>';
+    if (s.note) html += '<figcaption class="sheet-note">' + esc(s.note) + '</figcaption>';
     return html + '</figure>';
   };
 
@@ -186,7 +196,7 @@
   ui.tips = function (list, warn) {
     if (!list || !list.length) return '';
     return '<div class="tips">' + list.map(function (t) {
-      return '<div class="tip' + (warn ? ' warn' : '') + '">' + ic(warn ? 'alert-triangle' : 'bulb') + '<p>' + esc(t) + '</p></div>';
+      return '<div class="tip' + (warn ? ' warn' : '') + '"><p>' + esc(t) + '</p></div>';
     }).join('') + '</div>';
   };
 
@@ -200,11 +210,13 @@
 
   /* ------------------------------- progression ------------------------------- */
   /** Barre d'avancement (élément <progress> natif : pas de style en ligne, lisible par les lecteurs d'écran). */
-  ui.progress = function (st, label) {
+  ui.progress = function (st, label, text) {
     return '<div class="prog-line"><progress class="prog" value="' + st.done + '" max="' + st.total + '" aria-label="' + esc(label) + '">' +
-      st.done + ' / ' + st.total + '</progress><span class="prog-n">' + st.done + ' / ' + st.total + '</span></div>';
+      st.done + ' / ' + st.total + '</progress><span class="prog-n">' + esc(text || st.done + ' / ' + st.total) + '</span></div>';
   };
-  ui.minutes = function (n) { return '<span class="mins">' + ic('clock') + '≈ ' + n + ' min</span>'; };
+  /** « 3 sur 6 notions terminées » */
+  ui.doneText = function (st) { var pl = st.total > 1 ? 's' : ''; return st.done + ' sur ' + st.total + ' notion' + pl + ' terminée' + pl; };
+  ui.minutes = function (n) { return '<span class="mins">≈ ' + n + ' min</span>'; };
 
   /**
    * Carte de liste. opts : { ver, fav, step, showType, showPlace, done, minutes }
@@ -220,20 +232,24 @@
     if (opts.showType) meta.push('<span class="kind kind-' + type + '">' + esc(m.typeLabel(type)) + '</span>');
     if (opts.showPlace) { var pl = m.placeLabel(item); if (pl) meta.push('<span class="where">' + esc(pl) + '</span>'); }
     if (opts.minutes) meta.push(ui.minutes(opts.minutes));
-    if (opts.done) meta.push('<span class="done-tag">' + ic('check') + 'Terminée</span>');
+    // Ligne numérotée : le numéro (ou ✓ quand c'est fait) occupe la colonne d'en-tête, comme un numéro de ligne d'Excel.
+    if (opts.done && !opts.step) meta.push('<span class="done-tag">Terminée</span>');
     var step = opts.step ? '<span class="step" aria-hidden="true">' + (opts.done ? ic('check') : opts.step) + '</span>' : '';
-    return '<a class="item item-' + type + (na ? ' item-na' : '') + (opts.done ? ' done' : '') + '" href="' + m.hrefOf(item) + '" data-key="' + esc(item.key) + '">' +
-      '<div class="item-h">' + step +
-      '<span class="nm' + (type === 'fn' || type === 'err' ? ' mono' : '') + '">' + esc(title) + '</span>' +
-      (type === 'fn' ? '<span class="en mono">' + esc(item.en) + '</span>' + ui.versionBadge(m, item, opts.ver) : '') +
+    return '<a class="item item-' + type + (opts.step ? ' has-step' : '') + (na ? ' item-na' : '') + (opts.done ? ' done' : '') +
+      '" href="' + m.hrefOf(item) + '" data-key="' + esc(item.key) + '">' + step + '<div class="item-b">' +
+      '<div class="item-h"><span class="nm' + (type === 'fn' || type === 'err' ? ' mono' : '') + '">' + esc(title) + '</span>' +
+      (type === 'fn' ? '<span class="en">' + esc(item.en) + '</span>' + ui.versionBadge(m, item, opts.ver) : '') +
+      (opts.done && opts.step ? '<span class="sr">(terminée)</span>' : '') +
       (opts.fav ? '<span class="star" aria-label="favori">' + ic('star-filled') + '</span>' : '') + '</div>' +
-      '<div class="ds">' + esc(desc) + '</div>' + (meta.length ? '<div class="meta">' + meta.join('') + '</div>' : '') + '</a>';
+      '<div class="ds">' + esc(desc) + '</div>' + (meta.length ? '<div class="meta">' + meta.join('') + '</div>' : '') + '</div></a>';
   };
 
+  /** Pied de colonne : raccourcis clavier, version et liens. */
   ui.sideFooter = function (cfg) {
-    return '<div class="side-foot"><p class="muted small"><kbd>/</kbd> chercher · <kbd>↑</kbd><kbd>↓</kbd> parcourir · <kbd>←</kbd><kbd>→</kbd> notions · <kbd>Échap</kbd> fermer</p>' +
-      '<p class="muted small">XLGuide v' + esc(cfg.version) + ' · <a href="' + esc(cfg.repoUrl) + '" target="_blank" rel="noopener">GitHub</a> · ' +
-      '<a href="' + esc(cfg.repoUrl) + '/releases/latest" target="_blank" rel="noopener">Mises à jour</a><br>' +
-      'Icônes : <a href="https://tabler.io/icons" target="_blank" rel="noopener">Tabler Icons</a> (MIT)</p></div>';
+    var keys = [['<kbd>/</kbd>', 'chercher'], ['<kbd>↑</kbd> <kbd>↓</kbd>', 'parcourir la liste'], ['<kbd>←</kbd> <kbd>→</kbd>', 'notion précédente, suivante'], ['<kbd>Échap</kbd>', 'fermer']];
+    return '<div class="side-foot"><dl class="keys">' + keys.map(function (k) { return '<dt>' + k[0] + '</dt><dd>' + k[1] + '</dd>'; }).join('') + '</dl>' +
+      '<p>XLGuide ' + esc(cfg.version) + '</p><p class="foot-links"><a href="' + esc(cfg.repoUrl) + '" target="_blank" rel="noopener">Code source</a>' +
+      '<a href="' + esc(cfg.repoUrl) + '/releases/latest" target="_blank" rel="noopener">Mises à jour</a></p>' +
+      '<p>Icônes <a href="https://tabler.io/icons" target="_blank" rel="noopener">Tabler Icons</a> (MIT), police Atkinson Hyperlegible (OFL)</p></div>';
   };
 })(typeof window !== 'undefined' ? window : globalThis);

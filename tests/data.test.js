@@ -15,7 +15,6 @@ module.exports = function (XL) {
 
   section('Catégories');
   XL.categories.forEach((c) => {
-    check(!!XL.icon(c.icon), 'catégorie ' + c.id + ' : icône Tabler absente du lot (' + c.icon + ')');
     check(XL.functions.some((f) => f.cat === c.id), 'catégorie ' + c.id + ' : aucune fonction');
   });
 
@@ -55,7 +54,7 @@ module.exports = function (XL) {
   check(ACTS.join() === 'saisir,calculer,organiser,presenter', '4 activités attendues : saisir, calculer, organiser, presenter');
   check(LEVELS.join() === 'base,intermediaire,expert', 'niveaux attendus : base, intermediaire, expert');
   XL.activities.forEach((a) => {
-    check(a.label && a.desc && !!XL.icon(a.icon), a.id + ' : libellé, description ou icône manquant');
+    check(a.label && a.desc, a.id + ' : libellé ou description manquant');
     LEVELS.forEach((l) => check(a.levels[l] && a.levels[l].length > 20, a.id + ' : texte d’introduction du niveau ' + l + ' manquant'));
   });
   Object.keys(XL.routeAliases).forEach((k) => {

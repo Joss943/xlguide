@@ -16,6 +16,14 @@ module.exports = function (XL) {
     check(exists('app/' + a), 'fichier manquant : ' + a);
     check(sw.includes("'" + a + "'"), 'fichier absent du cache hors-ligne (sw.js) : ' + a);
   });
+  // Ressources appelées par les feuilles de style (polices) : présentes et disponibles hors-ligne
+  ['css/app.css', 'css/parcours.css'].forEach((css) => {
+    for (const x of read('app/' + css).matchAll(/url\("?\.\.\/([^")]+)"?\)/g)) {
+      check(exists('app/' + x[1]), css + ' : fichier manquant ' + x[1]);
+      check(sw.includes("'" + x[1] + "'"), css + ' : ' + x[1] + ' absent du cache hors-ligne (sw.js)');
+    }
+  });
+  check(exists('app/fonts/OFL.txt'), 'licence des polices (app/fonts/OFL.txt) manquante');
   const cached = [...sw.match(/var FILES = \[([^\]]*)\]/)[1].matchAll(/'([^']+)'/g)].map((x) => x[1]).filter((f) => f !== './');
   cached.forEach((f) => check(exists('app/' + f), 'sw.js met en cache un fichier inexistant : ' + f));
   check(!/<script>|<style>|\sstyle=|\son[a-z]+=/i.test(html), 'index.html : script ou style en ligne (bloqué par la CSP)');

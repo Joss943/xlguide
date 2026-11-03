@@ -32,3 +32,14 @@ SOFTWARE.
 ## Electron
 
 L’application de bureau est construite avec Electron (licence MIT) et electron-builder (licence MIT).
+
+## Atkinson Hyperlegible Next et Atkinson Hyperlegible Mono
+
+Polices de l’interface, créées pour le Braille Institute (https://www.brailleinstitute.org/freefont),
+embarquées dans `app/fonts/` (sous-ensemble latin, fichiers du paquet `@fontsource-variable` 5.3.0).
+Licence SIL Open Font License 1.1 : texte complet dans `app/fonts/OFL.txt`.
+
+```
+Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next)
+Copyright 2020-2024 The Atkinson Hyperlegible Mono Project Authors (https://github.com/googlefonts/atkinson-hyperlegible-next-mono)
+```

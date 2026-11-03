@@ -39,7 +39,7 @@
     toastTimer = setTimeout(function () { els.toast.classList.remove('show'); }, 1600);
   }
   function copy(text) {
-    function done() { toast('Copié ✓'); }
+    function done() { toast('Copié'); }
     function fallback() {
       var ta = document.createElement('textarea');
       ta.value = text; ta.setAttribute('readonly', ''); ta.className = 'offscreen';
@@ -85,7 +85,11 @@
     lastPage = page; lastSig = sig;
 
     var p = currentPage(), full = p.full !== undefined;
-    document.querySelectorAll('#tabs a').forEach(function (a) { a.classList.toggle('on', a.getAttribute('data-tab') === currentTab()); });
+    document.querySelectorAll('#tabs a').forEach(function (a) {
+      var on = a.getAttribute('data-tab') === currentTab();
+      a.classList.toggle('on', on);
+      if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+    });
     els.layout.className = 'layout' + (full ? ' full' : '');
     els.side.innerHTML = full ? '' : p.side;
     els.list.innerHTML = full ? p.full : p.list;
@@ -139,8 +143,8 @@
   function completeNotion(key, go) {
     setDone(key, true);
     var n = model.resolve(key).item, st = XL.progress.stats(model, state.done, n.activity, n.level);
-    toast(st.done === st.total ? 'Niveau « ' + model.levelById[n.level].label + ' » terminé ✓' :
-      'Notion terminée ✓ · ' + st.done + ' / ' + st.total + ' dans ce niveau');
+    toast(st.done === st.total ? 'Niveau « ' + model.levelById[n.level].label + ' » terminé.' :
+      'Notion terminée. ' + st.done + ' sur ' + st.total + ' dans ce niveau.');
     if (go && go !== location.hash) location.hash = go; else render();
   }
   /** Remise à zéro en deux clics (pas de boîte de dialogue). */
@@ -163,14 +167,12 @@
 
   /** Onglets : accueil, les 4 activités (depuis le modèle), outils, favoris. */
   function renderTabs() {
-    var tabs = [['home', '#/', 'home', 'Accueil']].concat(model.activities.map(function (a) {
-      return [a.id, '#/a/' + a.id, a.icon, a.label];
-    }));
+    var tabs = [['home', '#/', 'Accueil']].concat(model.activities.map(function (a) { return [a.id, '#/a/' + a.id, a.label]; }));
     $('#tabs').innerHTML = tabs.map(function (t) {
-      return '<a href="' + t[1] + '" data-tab="' + t[0] + '">' + ic(t[2]) + XL.ui.esc(t[3]) + '</a>';
+      return '<a href="' + t[1] + '" data-tab="' + t[0] + '">' + XL.ui.esc(t[2]) + '</a>';
     }).join('') + '<span class="tab-sep" aria-hidden="true"></span>' +
-      '<a href="#/outils" data-tab="outils">' + ic('bolt') + 'Outils</a>' +
-      '<a href="#/fav" data-tab="fav">' + ic('star') + 'Favoris <small id="cFav"></small></a>';
+      '<a href="#/outils" data-tab="outils">Outils</a>' +
+      '<a href="#/fav" data-tab="fav">Favoris <small id="cFav"></small></a>';
   }
   function updateFavCount() { $('#cFav').textContent = state.favs.length || ''; }
 

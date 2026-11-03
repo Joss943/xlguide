@@ -1,7 +1,8 @@
 /* XLGuide — service worker : fonctionnement hors-ligne de la version web */
 var CACHE = 'xlguide-v1.4.0';
-// Doit lister tout ce que charge index.html (vérifié par npm test).
+// Doit lister tout ce que charge index.html, polices des feuilles de style comprises (vérifié par npm test).
 var FILES = ['./', 'index.html', 'css/app.css', 'css/parcours.css', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
+  'fonts/atkinson-hyperlegible-next.woff2', 'fonts/atkinson-hyperlegible-mono.woff2',
   'data/core.js', 'data/fn-logique-recherche.js', 'data/fn-math-stats.js', 'data/fn-texte-date.js',
   'data/recipes.js', 'data/misc.js', 'data/parcours.js',
   'data/notions/saisir.js', 'data/notions/calculer.js', 'data/notions/organiser.js', 'data/notions/presenter.js', 'data/samples.js',
