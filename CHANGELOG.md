@@ -1,5 +1,21 @@
 # Journal des modifications
 
+## 1.4.0 — Pensée pour le TDAH
+
+Expérience revue pour rester concentré ; le contenu (notions, fonctions, exemples) est inchangé.
+
+### Nouveau
+- **Commencer / Continuer** : l’accueil met en avant une seule action, la prochaine notion à lire (la dernière ouverte si elle n’est pas terminée).
+- **Progression enregistrée** : « J’ai compris, notion suivante » en fin de notion, coches sur les notions terminées, barres d’avancement par niveau, activité et parcours, remise à zéro en deux clics.
+- **Étapes à cocher** dans « Comment faire », au fur et à mesure dans Excel.
+- **Durée estimée** de chaque notion (lecture et pratique).
+- **Mode concentration** : la fiche seule, centrée, sans onglets ni listes ; le choix est mémorisé.
+- **Flèches ← →** pour passer d’une notion à l’autre ; bouton **texte plus grand**.
+
+### Modifié
+- Dans un niveau, seules les notions sont dépliées ; méthodes et fonctions sont dans des groupes repliés, ouverts automatiquement quand on en sélectionne une.
+- Les animations sont coupées quand le système demande moins de mouvement.
+
 ## 1.3.0 — Centré sur l’utilisation d’Excel
 
 ### Nouveau

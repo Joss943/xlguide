@@ -35,6 +35,7 @@ Application gratuite pour **Windows** et **Linux** (et version web) : quatre act
 - **69 fonctions** de la base à l’intermédiaire, chacune rangée dans son activité ; fiches claires : l’essentiel d’abord, puis la syntaxe argument par argument, le reste replié.
 - **Recherche en langage naturel** : « figer la première ligne », « liste déroulante », « additionner avec une condition »… Tolère accents oubliés, pluriels et fautes de frappe ; accepte aussi les noms anglais (`SUMIFS`, `VLOOKUP`).
 - **Outils** : traducteur de formules FR ⇄ EN (il reconnaît aussi les fonctions sans fiche), erreurs (`#N/A`, `#VALEUR!`…), raccourcis clavier (AZERTY), index des fonctions, compatibilité de version (2010 → 365).
+- **Pensé pour le TDAH** : une seule action mise en avant (« Commencer », puis « Continuer » là où tu en étais), durée estimée de chaque notion, étapes à cocher, « J’ai compris, notion suivante », progression enregistrée, longues listes repliées, **mode concentration** (la fiche seule, centrée), flèches ← → entre les notions, texte agrandissable, animations coupées si le système le demande.
 - **Hors-ligne, privé** : aucune connexion, aucun compte, aucune donnée envoyée. Favoris, mode sombre, navigation au clavier.
 
 **Fiabilité :** chaque résultat affiché (exemples et mini-tableaux, plus de 250 aujourd’hui) est recalculé automatiquement par un tableur indépendant (LibreOffice Calc) dans la CI, et chaque formule passe un aller-retour FR → EN → FR.
@@ -84,6 +85,7 @@ Désinstaller : `curl -fsSL https://joss943.github.io/xlguide/install.sh | bash 
 | <kbd>/</kbd> ou <kbd>Ctrl</kbd>+<kbd>K</kbd> | Aller dans la recherche |
 | <kbd>↑</kbd> <kbd>↓</kbd> | Parcourir les résultats (la fiche s’ouvre à droite) |
 | <kbd>Entrée</kbd> | Ouvrir le premier résultat |
+| <kbd>←</kbd> <kbd>→</kbd> | Notion précédente / suivante |
 | <kbd>Échap</kbd> | Effacer la recherche / fermer la fiche |
 
 - Débutant : **Saisir & mettre en forme › Les bases**, notions 1, 2, 3… dans l’ordre, puis **Calculer › Les bases**.
@@ -122,7 +124,7 @@ app/                 Application (HTML/CSS/JS sans dépendance) — partagée pa
   js/config.js       Version et liens publics (lus aussi par Electron)
   js/formula.js      Analyse, coloration, références de cellules et traduction FR ⇄ EN des formules
   js/search.js       Moteur de recherche en langage naturel
-  js/core/           Modèle (index du contenu, parcours) et stockage local
+  js/core/           Modèle (index du contenu, parcours), progression et stockage local
   js/views/          Vues : fonctions pures données → HTML (accueil, listes, fiches, outils)
   js/app.js          Contrôleur : routage, rendu, événements
   css/               app.css (socle) et parcours.css (niveaux, fiches, mini-tableaux)
@@ -171,12 +173,12 @@ Chaque fonction et chaque méthode doit avoir sa place dans le parcours : `XL.pl
 ### Publier une version
 
 ```bash
-npm version patch --no-git-tag-version   # 1.3.0 → 1.3.1 dans package.json
+npm version patch --no-git-tag-version   # 1.4.0 → 1.4.1 dans package.json
 # reporter la version dans app/js/config.js et le cache de app/sw.js — npm test le vérifie
-git commit -am "Version 1.3.1" && git push
+git commit -am "Version 1.4.1" && git push
 ```
 
-Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.3.1` ; les boutons du site pointent toujours vers la dernière version.
+Dès que la version de `package.json` change sur `main`, GitHub Actions compile l’installateur Windows et les paquets Linux, puis crée la release `v1.4.1` ; les boutons du site pointent toujours vers la dernière version.
 
 ## Licence et crédits
 
